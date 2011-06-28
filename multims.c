@@ -1,39 +1,62 @@
+/*
+    Game Categories v 12.0
+    Copyright (C) 2009, Bubbletune
+
+    multims.c: Patches to handle Multiple Memsticks mode
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <pspiofilemgr.h>
-#include "psppaf.h"
 #include "game_categories_light.h"
+#include "psppaf.h"
 #include "logger.h"
 
-char user_buffer[256];
-int unload = 0;
-int last_action_arg;
-char category[52];
-extern int game_plug;
-
+// from GCR v12, include/game_categories_info.h
 #define game_action 0x0F
 #define game_action_arg 0x02
 #define game_id 0x16
 
-int (*AddVshItem)(void *arg, int topitem, SceVshItem *item);
-SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item);
-int (*ExecuteAction)(int action, int action_arg);
-int (*UnloadModule)(int skip);
-wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name) = NULL;
+char user_buffer[256];
 
+int unload = 0;
+static int last_action_arg = game_action;
 SceVshItem *vsh_items = NULL;
+
+extern char category[52];
+extern int game_plug;
+
+int (*UnloadModule)(int skip) = NULL;
+int (*ExecuteAction)(int action, int action_arg) = NULL;
+int (*AddVshItem)(void *arg, int topitem, SceVshItem *item) = NULL;
+wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name) = NULL;
+SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     category[0] = '\0';
-    if (*action == game_action)
-    {
+
+    if (*action == game_action) {
         if (game_plug) {
             if (*action_arg != last_action_arg) {
                 unload = 1;
             }
         }
 
-        //last_action_arg = *action_arg;
+        last_action_arg = *action_arg;
+
         if (*action_arg >= 100) {
             Category *p = (Category *) sce_paf_private_strtoul(
                     vsh_items[*action_arg - 100].text + 4, NULL, 16);
@@ -42,45 +65,8 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
         }
         return 1;
     }
-
     return 0;
 }
-
-SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
-    if (item->id >= 100) {
-        item->id = game_id;
-        return item;
-    }
-
-    return NULL;
-}
-
-SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item) {
-    SceVshItem *ret;
-    SceVshItem *res = GetBackupVshItem(topitem, unk, item);
-    if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
-        return ret;
-    }
-    return res;
-}
-
-int ExecuteActionPatched(int action, int action_arg) {
-    PatchExecuteActionForMultiMs(&action, &action_arg);
-    return ExecuteAction(action, action_arg);
-}
-
-int UnloadModulePatched(int skip) {
-    if (unload) {
-        skip = -1;
-        unload = 0;
-        game_plug = 0;
-    }
-    int res = UnloadModule(skip);
-    return res;
-}
-
-extern SceVshItem *vsh_items;
-//extern SceContextItem *context_items;
 
 int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
     int i = 0;
@@ -107,6 +93,42 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
     return 0;
 }
 
+SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
+    if (item->id >= 100) {
+        item->id = game_id;
+        return item;
+    }
+    return NULL;
+}
+
+// from GCR v12, user/main.c
+SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item) {
+    SceVshItem *ret;
+    SceVshItem *res = GetBackupVshItem(topitem, unk, item);
+    if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
+        return ret;
+    }
+    return res;
+}
+
+// from GCR v12, user/main.c
+int ExecuteActionPatched(int action, int action_arg) {
+    PatchExecuteActionForMultiMs(&action, &action_arg);
+    return ExecuteAction(action, action_arg);
+}
+
+// from GCR v12, user/main.c
+int UnloadModulePatched(int skip) {
+    if (unload) {
+        skip = -1;
+        unload = 0;
+        game_plug = 0;
+    }
+    int res = UnloadModule(skip);
+    return res;
+}
+
+// from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     category[0] = '\0';
     if (vsh_items) {
@@ -119,6 +141,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     return PatchAddVshItemForMultiMs(arg, topitem, item);
 }
 
+// based on GCR v12, user/main.c
 void PatchVshmain(u32 text_addr) {
     AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
     MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
@@ -134,10 +157,12 @@ void PatchVshmain(u32 text_addr) {
     MAKE_CALL(text_addr+PATCHES->UnloadModule, UnloadModulePatched);
 }
 
+// from GCR v12, user/main.c
 void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last) {
     int i, x, len, found;
 
-    for (len = 0; fake[len]; len++);
+    for (len = 0; fake[len]; len++)
+        ;
 
     for (found = 0, i = 0; real[i]; i++) {
         if (real[i] == first) {
@@ -159,7 +184,6 @@ void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
             if (real[i] == last) {
                 found = 1;
             }
-
             x++;
         }
 
@@ -175,6 +199,7 @@ void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
     sce_paf_private_memcpy(&fake[len], &real[x], (found * 2));
 }
 
+// from GCL v1.3, mode.c
 void gc_utf8_to_unicode(wchar_t *dest, char *src) {
     int i;
 
@@ -183,10 +208,7 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
     }
 }
 
-volatile int func(u32 a) {
-    return a+3;
-}
-
+// based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     u32 ra;
     __asm__ volatile ("\t move %0,$ra" : "=r"(ra));
@@ -207,6 +229,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
     }
     return scePafGetTextPatchOverride(arg, name);
 }
+
 
 void PatchGameText(u32 text_addr) {
     //20FE0

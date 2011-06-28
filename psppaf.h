@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <pspsdk.h>
+#include <stddef.h>
 
 void *sce_paf_private_malloc(int);
 char *sce_paf_private_strcpy(char *, const char*);
