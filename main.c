@@ -31,54 +31,22 @@ PSP_NO_CREATE_MAIN_THREAD();
 /* Global variables */
 GCPatches *PATCHES;
 STMOD_HANDLER previous;
-u32 text_addr_game, text_size_game;
-//extern int by_category_mode;
-char user_buffer[256];
-char currfw[5];
-int defaulted;
-
-SceUID gc_sema = -1;
 int game_plug = 0;
-
-/* Function pointers */
-int (* AddGameContext)(void *unk, SceGameContext **item);
-int (* SetMode)(void *arg0, void *arg1, void *arg2);
-int (* CategorizeGame)(void *unk, int folder, int unk2);
-int (* OnInitMS)(void *arg0, void *arg1);
 
 int OnModuleStart(SceModule2 *mod)
 {
     kprintf("loading %s\n", mod->modname);
-	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0)
-	{
+	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
 	    game_plug = 1;
-		u32 text_addr = mod->text_addr;
-		
-		/* Initialise a number of variables */
-		defaulted = 0;
-		//by_category_mode = 0;
-		text_addr_game = text_addr;
-		text_size_game = mod->text_size;
-		CategorizeGame = (void *)text_addr+PATCHES->categorize_game;
-		
-		/* Patch selection system */
-		//PatchSelection(text_addr);
-		
 		/* Patch iofilemgr */
-		PatchIoFileMgrForGamePlugin(text_addr);
-		
-		/* Patch a function for defaulting */
-		//MAKE_CALL(text_addr+0x12E0, vsh_function_patched)
+		PatchIoFileMgrForGamePlugin(mod->text_addr);
 
 		/* Increase class size */
 		//HijackGameClass(32);
-		
+
 		/* Clear the caches */
 		ClearCaches();
-	}
-	
-	else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0)
-	{
+	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
         /* Patch muti MS system */
         PatchVshmain(mod->text_addr);
         PatchGameText(mod->text_addr);
@@ -91,50 +59,28 @@ int OnModuleStart(SceModule2 *mod)
 		//6.35:	0xFC114573 [0x000099EC] - SysMemUserForUser_FC114573
 		MAKE_JUMP(PATCHES->get_compiled_sdk_version, ClearCaches);
 		
-		//PatchSystemControl();
 		/* Clear the caches */
 		ClearCaches();
 	}
-	if (!previous)
-		return 0;
-	
-	return previous(mod);
+	return previous ? previous(mod) : 0;
 }
 
-int module_start(SceSize args, void *argp)
-{
-	/* Determine fw group */
-	u32 devkit = sceKernelDevkitVersion();
-
-	if (devkit == 0x06020010)
-	{
-		/* Firmware(s): 6.20 */
-		PATCHES = GetPatches(0);
-	}
-	
-	else if (devkit >= 0x06030010 && devkit < 0x06040010)
-	{
-		/* Firmware(s): 6.3x */
-		PATCHES = GetPatches(1);
-		
-		/* Nids changed 6.20->6.3x, resolve them (paf & vshmain isn't loaded yet :)) */
-		ResolveNIDs(1);
-	}
-	
-	else
-	{
-		/* Unsupported firmware */
-		return 1;
-	}
-	
-	currfw[0] = ((devkit >> 24) & 0xF) + '0';
-	currfw[1] = '.';
-	currfw[2] = ((devkit >> 16) & 0xF) + '0';
-	currfw[3] = ((devkit >> 8) & 0xF) + '0';
-	currfw[4] = 0;
-
-		/* Set start module handler */
-	previous = sctrlHENSetStartModuleHandler(OnModuleStart);
-	
-	return 0;
+int module_start(SceSize args, void *argp) {
+    /* Determine fw group */
+    u32 devkit = sceKernelDevkitVersion();
+    if (devkit == 0x06020010) {
+        /* Firmware(s): 6.20 */
+        PATCHES = GetPatches(0);
+    } else if (devkit >= 0x06030010 && devkit < 0x06040010) {
+        /* Firmware(s): 6.3x */
+        PATCHES = GetPatches(1);
+        /* Nids changed 6.20->6.3x, resolve them (paf & vshmain isn't loaded yet :)) */
+        ResolveNIDs(1);
+    } else {
+        /* Unsupported firmware */
+        return 1;
+    }
+    /* Set start module handler */
+    previous = sctrlHENSetStartModuleHandler(OnModuleStart);
+    return 0;
 }

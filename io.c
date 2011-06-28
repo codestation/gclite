@@ -25,26 +25,9 @@
 #include "pspdefs.h"
 #include "logger.h"
 
-//#define FOLDERS_N 4
-
-//SceUID dir_fd[FOLDERS_N];
-
 extern char category[52];
 
-//extern char *folders[FOLDERS_N];
-
-//extern SceUID gc_sema;
-
-//int fake_game_folder = 0;
-
-/* Global variables */
-extern char user_buffer[256];
-//SceUID opened_dfd = -1;
-//SceUID game_dfd = -1;
-//int uncategorized;
-//extern u32 text_addr_game;
-//int hide_uncategorized;
-
+char user_buffer[256];
 
 char mod_path[64];
 char orig_path[64];
