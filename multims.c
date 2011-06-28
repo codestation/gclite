@@ -135,7 +135,12 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         sce_paf_private_free(vsh_items);
         vsh_items = NULL;
     }
-    IndexCategories();
+
+    /* clear the current categories and scan for new ones */
+    ClearCategories();
+    IndexCategories("ms0:/PSP/GAME");
+    IndexCategories("ms0:/ISO");
+
     /* Restore in case it was changed by MultiMs */
     sce_paf_private_strcpy(item->text, "msgshare_ms");
     return PatchAddVshItemForMultiMs(arg, topitem, item);

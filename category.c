@@ -127,13 +127,12 @@ void DelCategory(char *category) {
     }
 }
 
-void IndexCategories() {
+void IndexCategories(const char *path) {
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
 
-    ClearCategories();
-    if((fd = sceIoDopen("ms0:/PSP/GAME")) < 0)
+    if((fd = sceIoDopen(path)) < 0)
         return;
     sce_paf_private_memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
