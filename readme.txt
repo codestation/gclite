@@ -19,5 +19,5 @@ TODO:
 * Restore support for contextual categories (from GCR v12).
 
 Changelog
-v0.1.0:
+v1.0:
 [+]First release

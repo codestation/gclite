@@ -5,16 +5,16 @@
 #include "pspstub.s"
 
 	STUB_START "scePaf",0x00090000,0x000B0005
-	STUB_FUNC  0xE5A74996,sce_paf_private_strcpy
+	STUB_FUNC  0x8F95CC01,sce_paf_private_strcpy
 	STUB_FUNC  0xD38E62C6,sce_paf_private_strncpy
 	//STUB_FUNC  0x4C386F3C,sce_paf_private_sprintf
-	STUB_FUNC  0x5E7610DF,sce_paf_private_snprintf
-	STUB_FUNC  0x4900119B,sce_paf_private_strcmp
-	STUB_FUNC  0xE00E38F8,sce_paf_private_strncmp
+	STUB_FUNC  0x726776D7,sce_paf_private_snprintf
+	STUB_FUNC  0x1B952318,sce_paf_private_strcmp
+	STUB_FUNC  0x9DF5623C,sce_paf_private_strncmp
 	STUB_FUNC  0xE281261E,sce_paf_private_memmove
-	STUB_FUNC  0xF0D98BD1,sce_paf_private_malloc
-	STUB_FUNC  0xE0E8820F,sce_paf_private_free
-	STUB_FUNC  0x58189108,sce_paf_private_strlen
+	STUB_FUNC  0x9E9FFBFB,sce_paf_private_malloc
+	STUB_FUNC  0xB0363C2E,sce_paf_private_free
+	STUB_FUNC  0x49A72E5D,sce_paf_private_strlen
 	STUB_FUNC  0x5612DE15,sce_paf_private_strtoul
 	STUB_FUNC  0xCB608DE5,scePafGetText
 	STUB_END

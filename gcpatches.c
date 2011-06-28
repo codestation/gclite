@@ -39,7 +39,7 @@ nid nids[] =
     { 0x726776D7, 0x5E7610DF }, // sce_paf_private_snprintf
     { 0x1B952318, 0x4900119B }, // sce_paf_private_strcmp
     { 0x9DF5623C, 0xE00E38F8 }, // sce_paf_private_strncmp
-    { 0xE281261E, 0x0BADC0DE }, // sce_paf_private_memmove
+    { 0xE281261E, 0x23C8DAB5 }, // sce_paf_private_memmove
     { 0x9E9FFBFB, 0xF0D98BD1 }, // sce_paf_private_malloc
     { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free
     { 0x49A72E5D, 0x58189108 }, // sce_paf_private_strlen
@@ -99,7 +99,7 @@ GCPatches patches_620 =
     { 0x1631C, 0x2FF8C }, // ExecuteAction
     0x16514, // UnloadModule
 
-    0x3F264, // scePafGetTextPatch
+    0x23BE0, // sce_paf_get_text_call
 };
 
 GCPatches patches_63x =
@@ -133,7 +133,7 @@ GCPatches patches_63x =
 	{ 0x16984, 0x30828 }, // ExecuteAction
 	0x16B7C, // UnloadModule
 
-	0x3F264, // scePafGetTextPatch
+	0x243D0, // sce_paf_get_text_call
 };
 
 GCPatches *GetPatches(int fw_group) {

@@ -47,7 +47,7 @@ typedef struct {
 	u32 ExecuteAction[2];
 	u32 UnloadModule;
 
-	u32 sce_paf_get_text;
+	u32 sce_paf_get_text_call;
 } GCPatches;
 
 extern GCPatches *PATCHES;

@@ -210,45 +210,24 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
-    u32 ra;
-    __asm__ volatile ("\t move %0,$ra" : "=r"(ra));
-    kprintf("scePafGetText called: ra: %08X, %s\n", ra, name);
     if (name) {
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
-            fix_text_padding((wchar_t *) user_buffer,
-                    scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, "gc4") == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
-            fix_text_padding((wchar_t *) user_buffer,
-                    scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         }
     }
     return scePafGetTextPatchOverride(arg, name);
 }
 
-
 void PatchGameText(u32 text_addr) {
-    //20FE0
-    //243D0
-    //24A50
-    //25B90
-    //28880
-    //288D8
-    //2C268
-    //2F834
-    //30604
-    u32 offset = text_addr + PATCHES->sce_paf_get_text;
-    // check if the function is already patched
-    if(_lw(offset) != 0x03E00008 ) {
-        // obtain the patched address and jump to it
-        scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
-    } else {
-        // or just jump normally
-        scePafGetTextPatchOverride = scePafGetText;
-    }
-    MAKE_STUB(offset, scePafGetTextPatched);
+    u32 offset = text_addr + PATCHES->sce_paf_get_text_call;
+    scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
+    MAKE_CALL(offset, scePafGetTextPatched); // gcv_* hook
+    //MAKE_CALL(text_addr + 0x246D8, scePafGetText_243D0); // msgshare_info_space
 }
