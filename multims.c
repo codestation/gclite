@@ -3,6 +3,7 @@
 #include <pspiofilemgr.h>
 #include "psppaf.h"
 #include "game_categories_light.h"
+#include "logger.h"
 
 char user_buffer[256];
 int unload = 0;
@@ -99,7 +100,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
 
         vsh_items[i].id = i + 100;
         vsh_items[i].action_arg = i + 100;
-        sce_paf_private_sprintf(vsh_items[i].text, "gcv_%08X", (u32) p);
+        sce_paf_private_snprintf(vsh_items[i].text, 37, "gcv_%08X", (u32) p);
         AddVshItem(arg, topitem, &vsh_items[i]);
         i++;
     }
@@ -182,7 +183,14 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
     }
 }
 
+volatile int func(u32 a) {
+    return a+3;
+}
+
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
+    u32 ra;
+    __asm__ volatile ("\t move %0,$ra" : "=r"(ra));
+    kprintf("scePafGetText called: ra: %08X, %s\n", ra, name);
     if (name) {
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
@@ -201,6 +209,15 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 }
 
 void PatchGameText(u32 text_addr) {
+    //20FE0
+    //243D0
+    //24A50
+    //25B90
+    //28880
+    //288D8
+    //2C268
+    //2F834
+    //30604
     u32 offset = text_addr + PATCHES->sce_paf_get_text;
     // check if the function is already patched
     if(_lw(offset) != 0x03E00008 ) {

@@ -24,22 +24,8 @@ int sceKernelGetCompiledSdkVersion();
 #define MAKE_JUMP(a, f) _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), a); 
 #define MAKE_STUB(a, f) {u32 addr = a; _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), addr); _sw(0, addr+4); }
 #define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
-//#define EXTRACT_AND_CALL(o, a, f, p) { (o) = (_lw((a)) != 0x03E00008) ? (void *)U_EXTRACT_CALL((a)) : (f); MAKE_STUB((a),(p));}
 #define REDIRECT_FUNCTION(a, f) { u32 address = a; _sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), address);  _sw(0, address+4); }
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
-
-typedef struct
-{
-	void *unknown;
-	int option;
-	const char *text;
-} SceGameContext; 
-
-typedef struct
-{
-	u32 addr;
-	u32 opcode;
-} ToggleCategoryPatch;
 
 typedef struct
 {
@@ -48,18 +34,6 @@ typedef struct
 	char letter;
 	char name;
 } Category;
-
-typedef struct
-{
-	u8 unk0[104];
-	char name[128];
-	u32 unk1;
-	char gamecode[10];
-	u8 unk2[94];
-	char firmware[5];
-	u8 pad1[3];
-	char category[3];
-} SfoInfo;
 
 typedef struct
 {
@@ -87,64 +61,12 @@ typedef struct
     char text[37]; // 43
 } SceVshItem; // 80
 
-enum
-{
-	OPTION_BY_EXPIRE_DATE,
-	OPTION_ALL,
-	// need dynamic
-#if PSP_FIRMWARE_VERSION == 631
-//	OPTION_BY_FORMAT,
-#endif
-//	OPTION_BY_CATEGORY,
-};
-
-enum
-{
-	MODE_ALL,
-	// need dynamic
-#if PSP_FIRMWARE_VERSION == 631
-//	MODE_BY_FORMAT,
-#endif
-//	MODE_BY_EXPIRE_DATE,
-//	MODE_BY_CATEGORY,
-};
-
-typedef struct
-{
-    u8 id; //00
-    u8 type; //01
-    u16 unk1; //02
-    u32 label; //04
-    u32 param; //08
-    u32 first_child; //0c
-    int child_count; //10
-    u32 next_entry; // 14
-    u32 prev_entry; //18
-    u32 parent; //1c
-    u32 unknown[2]; //20
-} SceRcoEntry;
-
-// Functions in scePaf
-int scePafAddGameItems(void *unk, int count);
-int scePafSetSelection(void *arg0, int selection);
-
-int scePafGetPageChild(void *resource, SceRcoEntry *parent, char *name, SceRcoEntry **child);
-int scePafGetPageString(void *resource, u32 *data, int *arg2, char **string, int *temp0);
-
-// Functions in: selection.c
-void PatchSelection(u32 text_addr);
-
 // Functions in: multims.c
 void PatchVshmain(u32 text_addr);
 void PatchGameText(u32 text_addr);
 
-// Functions in: mode.c
-int ToggleCategoryMode(int mode);
-void HijackGameClass();
-
 // Functions in: io.c
 void PatchIoFileMgrForGamePlugin(u32 text_addr);
-void PatchIoFileMgrForVshmain(u32 text_addr);
 
 // Functions in: category.c
 int CountCategories();
@@ -154,11 +76,8 @@ Category *GetNextCategory(Category *prev);
 void IndexCategories();
 
 // Functions in: gcpatches.c
-void ResolveNIDs(int fw_group);
+void ResolveNIDs();
 GCPatches *GetPatches(int fw_group);
 
-// Functions in: clearcache.s
+// Functions in: clearcache.S
 void ClearCaches();
-
-// vsh_module
-int vsh_function(void *arg);

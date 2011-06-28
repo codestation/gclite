@@ -177,8 +177,15 @@ char *ReturnBasePathPatched(char *base) {
     return base;
 }
 
-void PatchIoFileMgrForGamePlugin(u32 text_addr)
-{
+//extern wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name);
+//wchar_t* scePafGetTextPatched(void *arg, char *name);
+
+void PatchIoFileMgrForGamePlugin(u32 text_addr) {
+
+    //MAKE_CALL(text_addr+PATCHES->sce_paf_get_text_call[0], scePafGetTextPatched);
+    //MAKE_CALL(text_addr+PATCHES->sce_paf_get_text_call[1], scePafGetTextPatched);
+    //scePafGetTextPatchOverride = scePafGetText;
+
 	MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
 	MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
 	//MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);

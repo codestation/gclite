@@ -37,6 +37,7 @@ int OnModuleStart(SceModule2 *mod)
 {
     kprintf("loading %s\n", mod->modname);
 	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
+	    kprintf("game_plugin_module text_addr: %08X\n", mod->text_addr);
 	    game_plug = 1;
 		/* Patch iofilemgr */
 		PatchIoFileMgrForGamePlugin(mod->text_addr);
@@ -47,6 +48,7 @@ int OnModuleStart(SceModule2 *mod)
 		/* Clear the caches */
 		ClearCaches();
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
+	    kprintf("vshmain text_addr: %08X\n", mod->text_addr);
         /* Patch muti MS system */
         PatchVshmain(mod->text_addr);
         PatchGameText(mod->text_addr);
@@ -71,11 +73,11 @@ int module_start(SceSize args, void *argp) {
     if (devkit == 0x06020010) {
         /* Firmware(s): 6.20 */
         PATCHES = GetPatches(0);
+        /* Nids changed 6.20->6.3x, resolve them (paf & vshmain isn't loaded yet :)) */
+        ResolveNIDs();
     } else if (devkit >= 0x06030010 && devkit < 0x06040010) {
         /* Firmware(s): 6.3x */
         PATCHES = GetPatches(1);
-        /* Nids changed 6.20->6.3x, resolve them (paf & vshmain isn't loaded yet :)) */
-        ResolveNIDs(1);
     } else {
         /* Unsupported firmware */
         return 1;

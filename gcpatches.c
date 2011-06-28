@@ -27,41 +27,42 @@ extern SceModuleInfo module_info;
 
 typedef struct
 {
-	u32 old;
-	u32 new[1];
+	u32 nid63x;
+	u32 nid620;
 } nid;
 
 nid nids[] =
 {
-	{ 0xE5A74996, { 0x8F95CC01 } },
-	{ 0x5E7610DF, { 0x726776D7 } },
-	{ 0x4900119B, { 0x1B952318 } },
-	{ 0xE00E38F8, { 0x9DF5623C } },
-	{ 0xF0D98BD1, { 0x9E9FFBFB } },
-	{ 0xE0E8820F, { 0xB0363C2E } },
-	{ 0x58189108, { 0x49A72E5D } },
-	{ 0xCB608DE5, { 0x70082F6F } },
-	{ 0xFBC4392D, { 0x4E96DECC } },
-	{ 0x513BB71E, { 0x3E5F64EB } }, // vsh
+    { 0x8F95CC01, 0xE5A74996 }, // sce_paf_private_strcpy
+    { 0xD38E62C6, 0x4F487FBC }, // sce_paf_private_strncpy
+    //{ 0x4C386F3C, 0xE8473E80 }, // sce_paf_private_sprintf
+    { 0x726776D7, 0x5E7610DF }, // sce_paf_private_snprintf
+    { 0x1B952318, 0x4900119B }, // sce_paf_private_strcmp
+    { 0x9DF5623C, 0xE00E38F8 }, // sce_paf_private_strncmp
+    { 0xE281261E, 0x0BADC0DE }, // sce_paf_private_memmove
+    { 0x9E9FFBFB, 0xF0D98BD1 }, // sce_paf_private_malloc
+    { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free
+    { 0x49A72E5D, 0x58189108 }, // sce_paf_private_strlen
+    { 0x5612DE15, 0x0C962B6E }, // sce_paf_private_strtoul
+    { 0x70082F6F, 0xCB608DE5 }, // scePafGetText
 };
 
-void ResolveNIDs(int fw_group) {
+void ResolveNIDs() {
     u32 stub_top = (u32) module_info.stub_top;
     u32 stub_end = (u32) module_info.stub_end;
 
     while (stub_top < stub_end) {
         SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
 
-        if (strcmp(stub->libname, "scePaf") == 0 || strcmp(stub->libname, "vsh") == 0) {
+        if (strcmp(stub->libname, "scePaf") == 0) {
             for (int i = 0; i < stub->stubcount; i++) {
                 for (int x = 0; x < sizeof(nids) / sizeof(nid); x++) {
-                    if (stub->nidtable[i] == nids[x].old) {
-                        stub->nidtable[i] = nids[x].new[fw_group - 1];
+                    if (stub->nidtable[i] == nids[x].nid63x) {
+                        stub->nidtable[i] = nids[x].nid620;
                     }
                 }
             }
         }
-
         stub_top += (stub->len * 4);
     }
 }
@@ -89,7 +90,7 @@ GCPatches patches_620 =
 	{ 0x1CD24, 0x1CD18 }, // snprintf_call_arg_1
 	{ 0x1F8F0, 0x1F8B4 }, // snprintf_call_arg_2
 
-	{ 0x10EFC, 0x11C68 }, // sce_paf_get_text_call
+	//{ 0x10EFC, 0x11C68 }, // sce_paf_get_text_call
 	
     /** multi.c (vshmain) */
 
@@ -124,7 +125,7 @@ GCPatches patches_63x =
 	{ 0x1E42C, 0x1E420 }, // snprintf_call_arg_1
 	{ 0x2109C, 0x21060 }, // snprintf_call_arg_2
 
-	{ 0x1176C, 0x123A4 }, // sce_paf_get_text_call
+	//{ 0x1176C, 0x123A4 }, // sce_paf_get_text_call
 	
 	/** multi.c (vshmain) */
 	0x23C7C, // AddVshItem

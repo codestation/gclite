@@ -39,7 +39,7 @@ typedef struct {
 	u32 snprintf_call_arg_1[2];
 	u32 snprintf_call_arg_2[2];
 
-	u32 sce_paf_get_text_call[2];
+	//u32 sce_paf_get_text_call[2];
 	
 	/** multi.c */
 	u32 AddVshItem;
