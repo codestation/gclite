@@ -89,8 +89,8 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
     SceIoStat stat;
     sce_paf_private_memset(&stat, 0, sizeof(stat));
 
-    if (sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) >= 0 ||
-        sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) >= 0) {
+    if (sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0 &&
+        sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc4");
         AddVshItem(arg, topitem, item);
     }
@@ -136,8 +136,7 @@ void PatchVshmain(u32 text_addr) {
 void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last) {
     int i, x, len, found;
 
-    for (len = 0; fake[len]; len++)
-        ;
+    for (len = 0; fake[len]; len++);
 
     for (found = 0, i = 0; real[i]; i++) {
         if (real[i] == first) {
@@ -202,11 +201,14 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 }
 
 void PatchGameText(u32 text_addr) {
-    // check if is already patched by another plugin
-    if(_lw(text_addr+0x3F264) != 0x03E00008 ) {
-        scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(text_addr+0x3F264);
+    u32 offset = text_addr + PATCHES->sce_paf_get_text;
+    // check if the function is already patched
+    if(_lw(offset) != 0x03E00008 ) {
+        // obtain the patched address and jump to it
+        scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
     } else {
+        // or just jump normally
         scePafGetTextPatchOverride = scePafGetText;
     }
-    MAKE_STUB(text_addr+0x3F264, scePafGetTextPatched);
+    MAKE_STUB(offset, scePafGetTextPatched);
 }

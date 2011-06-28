@@ -24,6 +24,7 @@ int sceKernelGetCompiledSdkVersion();
 #define MAKE_JUMP(a, f) _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), a); 
 #define MAKE_STUB(a, f) {u32 addr = a; _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), addr); _sw(0, addr+4); }
 #define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
+//#define EXTRACT_AND_CALL(o, a, f, p) { (o) = (_lw((a)) != 0x03E00008) ? (void *)U_EXTRACT_CALL((a)) : (f); MAKE_STUB((a),(p));}
 #define REDIRECT_FUNCTION(a, f) { u32 address = a; _sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), address);  _sw(0, address+4); }
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
 

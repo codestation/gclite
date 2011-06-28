@@ -2,7 +2,7 @@ TARGET = game_categories_light
 OBJS = main.o logger.o category.o io.o scePaf.o clearcache.o gcpatches.o multims.o redirects.o
 LIBS = -lpspsystemctrl_user -lpspsysmem_user -lpsprtc
 
-CFLAGS = -Os -G0 -Wall -fno-pic -fshort-wchar
+CFLAGS = -Os -G0 -Wall -std=c99 -fno-pic -fshort-wchar
 # -DKPRINTF_ENABLED
 ASFLAGS = $(CFLAGS)
 

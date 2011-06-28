@@ -95,14 +95,10 @@ SceUID sceIoDopenPatched(const char *path) {
     return sceIoDopen(path);
 }
 
-//int sceIoDclosePatched(SceUID fd) {
-//    return sceIoDclose(fd);
-//}
-
 // skips the categories in default mode
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-    //kprintf("sceIoDreadPatched called\n");
+    kprintf("sceIoDreadPatched called\n");
     while(1) {
         if(catdfd >= 0) {
             kprintf("Reading %s\n", category);
@@ -131,7 +127,8 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
             kprintf("Checking: %s\n", dir->d_name);
-            if(is_category_folder(dir, NULL)) {
+            if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
+                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
                 kprintf("Skipping %s\n", dir->d_name);
                 continue;
             }
@@ -140,10 +137,6 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     }
     return res;
 }
-
-//SceUID sceIoOpenPatched(const char *file, int flags, SceMode mode) {
-//    return sceIoOpen(file, flags, mode);
-//}
 
 int sceIoGetstatPatched(char *file, SceIoStat *stat) {
     fix_path(&file);
@@ -173,7 +166,7 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 
 char *(*GetBasePath)(int arg);
 
-char *ReturnBasePatched(char *base) {
+char *ReturnBasePathPatched(char *base) {
     if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
@@ -186,20 +179,18 @@ char *ReturnBasePatched(char *base) {
 
 void PatchIoFileMgrForGamePlugin(u32 text_addr)
 {
-	//MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched); //nil
-	MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched); //nil
-	//MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched); //nil
-	//MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched); //nil
-	MAKE_STUB(text_addr+PATCHES->io_getstat_stub, sceIoGetstatPatched); //nil
-	MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched); //nil
-	MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched); //nil
-	MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched); //nil
+	MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+	MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
+	//MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
+	//MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
+	MAKE_STUB(text_addr+PATCHES->io_getstat_stub, sceIoGetstatPatched);
+	MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched);
+	MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched);
+	MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched);
 
-    MAKE_JUMP(text_addr + 0x21310, ReturnBasePatched);
-    _sw(0x00602021, text_addr + 0x21314); // move $a0, $v1
+    MAKE_JUMP(text_addr + PATCHES->base_path, ReturnBasePathPatched);
+    _sw(0x00602021, text_addr + PATCHES->base_path_arg); // move $a0, $v1
 
-    //GetBasePath = (void *)(U_EXTRACT_CALL(text_addr+0x1CDE8));
-    //MAKE_CALL(text_addr+0x1CDE8, GetBasePathPatched);
 	/* SCE renames folders before removal, but it doesn't handle
 		categories in doing so. It will try to move things out of
 		the category with the rename function... just get rid of
