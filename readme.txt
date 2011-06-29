@@ -15,6 +15,8 @@ merged with the one in /PSP/GAME (if the category exists).
 To hide the "Uncategorized" category create a file named hide_uncategorized.txt and
 place in the /SEPLUGINS directory.
 
+You can get the source code from https://github.com/codestation/gclite
+
 TODO:
 * Restore support for contextual categories (from GCR v12).
 
