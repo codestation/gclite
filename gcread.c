@@ -42,9 +42,9 @@ inline void trim(char *str) {
         user_buffer[i] = '\0';
 }
 
-int is_iso_cat() {
+int is_iso_cat(const char *format) {
     SceIoStat st;
-    sce_paf_private_snprintf(user_buffer, 256, "ms0:/ISO/CAT_%s", category);
+    sce_paf_private_snprintf(user_buffer, 256, format, category);
     // workaround for ME bug
     trim(user_buffer);
     memset(&st, 0, sizeof(SceIoStat));
@@ -56,7 +56,8 @@ int is_iso_cat() {
 }
 
 inline void fix_path(char **path) {
-    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat()) {
+    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 &&
+            (is_iso_cat("ms0:/ISO/CAT_%s") || is_iso_cat("ef0:/ISO/CAT_%s"))) {
         *path = orig_path;
     }
 }
@@ -100,7 +101,8 @@ SceUID sceIoDopenPatched(const char *path) {
     }
     kprintf("path: %s\n", path);
     kprintf("mod_path: %s\n", mod_path);
-    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat()) {
+    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 &&
+            (is_iso_cat("ms0:/ISO/CAT_%s") || is_iso_cat("ef0:/ISO/CAT_%s"))) {
         multi_cat = 1;
         path = orig_path;
         kprintf("Changed path to: %s\n", path);
