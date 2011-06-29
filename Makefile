@@ -1,5 +1,5 @@
 TARGET = game_categories_lite
-OBJS = main.o logger.o category.o io.o gcread.o scePaf.o clearcache.o gcpatches.o multims.o
+OBJS = main.o logger.o category.o io.o gcread.o scePaf.o clearcache.o gcpatches.o multims.o redirects.o
 LIBS = -lpspsystemctrl_user -lpspsysmem_user -lpsprtc
 
 CFLAGS = -O2 -G0 -Wall -std=c99 -fno-pic -fshort-wchar

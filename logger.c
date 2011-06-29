@@ -1,5 +1,5 @@
 /*
- *  nploader module
+ *  Game Categories Lite module
  *
  *  Copyright (C) 2011  Codestation
  *

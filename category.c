@@ -34,6 +34,7 @@ Category *GetNextCategory(Category *prev) {
         last = (u64) -1;
     }
     Category *p = (Category *) first_category;
+
     while (p) {
         if (p->mtime < last) {
             if (p->mtime > time) {
@@ -44,6 +45,7 @@ Category *GetNextCategory(Category *prev) {
 
         p = p->next;
     }
+
     return newest;
 }
 
@@ -106,7 +108,6 @@ void AddCategory(char *category, u64 mtime) {
             p->next = category_entry;
         }
     }
-    return;
 }
 
 void DelCategory(char *category) {
@@ -134,6 +135,7 @@ void IndexCategories(const char *path) {
 
     if((fd = sceIoDopen(path)) < 0)
         return;
+
     sce_paf_private_memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {

@@ -96,8 +96,11 @@ GCPatches patches_620 =
 
 	0x2348C, // AddVshItem
     0x21D68, // GetBackupVshItem
-    { 0x1631C, 0x2FF8C }, // ExecuteAction
-    0x16514, // UnloadModule
+    //{ 0x1631C, 0x2FF8C }, // ExecuteAction
+    //0x16514, // UnloadModule
+
+    0x16340, // ExecuteActionOffset
+    0x16734, // UnloadModuleOffset
 
     0x23BE0, // sce_paf_get_text_call
 };
@@ -130,8 +133,11 @@ GCPatches patches_63x =
 	/** multi.c (vshmain) */
 	0x23C7C, // AddVshItem
 	0x22558, // GetBackupVshItem
-	{ 0x16984, 0x30828 }, // ExecuteAction
-	0x16B7C, // UnloadModule
+	//{ 0x16984, 0x30828 }, // ExecuteAction
+	//0x16B7C, // UnloadModule
+
+	0x169A8, // ExecuteActionOffset
+	0x16D9C, // UnloadModuleOffset
 
 	0x243D0, // sce_paf_get_text_call
 };

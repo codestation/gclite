@@ -23,6 +23,7 @@
 #include <pspiofilemgr.h>
 #include "game_categories_light.h"
 #include "psppaf.h"
+#include "redirects.h"
 #include "logger.h"
 
 // from GCR v12, include/game_categories_info.h
@@ -124,8 +125,7 @@ int UnloadModulePatched(int skip) {
         unload = 0;
         game_plug = 0;
     }
-    int res = UnloadModule(skip);
-    return res;
+    return UnloadModule(skip);
 }
 
 // from GCR v12, user/main.c
@@ -153,12 +153,41 @@ void PatchVshmain(u32 text_addr) {
     GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
     MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
 
-    ExecuteAction = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->ExecuteAction[0]));
-    MAKE_CALL(text_addr+PATCHES->ExecuteAction[0], ExecuteActionPatched);
-    MAKE_CALL(text_addr+PATCHES->ExecuteAction[1], ExecuteActionPatched);
+    // this direct approach conflicts with some mean plugins D:
 
-    UnloadModule = (void *) (U_EXTRACT_CALL(text_addr+PATCHES->UnloadModule));
-    MAKE_CALL(text_addr+PATCHES->UnloadModule, UnloadModulePatched);
+//    ExecuteAction = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->ExecuteAction[0]));
+//    MAKE_CALL(text_addr+PATCHES->ExecuteAction[0], ExecuteActionPatched);
+//    MAKE_CALL(text_addr+PATCHES->ExecuteAction[1], ExecuteActionPatched);
+//
+//    UnloadModule = (void *) (U_EXTRACT_CALL(text_addr+PATCHES->UnloadModule));
+//    MAKE_CALL(text_addr+PATCHES->UnloadModule, UnloadModulePatched);
+
+    /* since all those plugins that mess with the xmb think that is nice to overwrite
+     * our patch and don't jump to it when they are done with the hook i had to make
+     * a more aggresive hooking that involves some code relocation.
+     */
+
+    // get the function entry point
+    ExecuteAction = (void *)text_addr+PATCHES->ExecuteActionOffset;
+
+    // backup the first 2 opcodes into our stub
+    _sw(_lw((u32)ExecuteAction), (u32)execute_action_stub);
+    _sw(_lw((u32)ExecuteAction + 4), (u32)execute_action_stub+4);
+
+    // jump from out stub to the original function
+    MAKE_JUMP((u32)execute_action_call, (u32)ExecuteAction + 8);
+    MAKE_STUB((u32)ExecuteAction, ExecuteActionPatched);
+
+    // use our stub as the original entry point for the function
+    ExecuteAction = (void *)execute_action_stub;
+
+    // same as above
+    UnloadModule = (void *)text_addr+PATCHES->UnloadModuleOffset;
+    _sw(_lw((u32)UnloadModule), (u32)unload_module_stub);
+    _sw(_lw((u32)UnloadModule + 4), (u32)unload_module_stub+4);
+    MAKE_JUMP((u32)unload_module_call, UnloadModule + 8);
+    MAKE_STUB((u32)UnloadModule, UnloadModulePatched);
+    UnloadModule = (void *)unload_module_stub;
 }
 
 // from GCR v12, user/main.c
@@ -230,6 +259,10 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 }
 
 void PatchGameText(u32 text_addr) {
+    /* lets be nice and use address from the jal instead of a hardcoded one
+     * just in case that another plugin patched the call before us
+     * (i wish that the other plugins could be that nice to me too D: )
+     */
     u32 offset = text_addr + PATCHES->sce_paf_get_text_call;
     scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
     MAKE_CALL(offset, scePafGetTextPatched); // gcv_* hook

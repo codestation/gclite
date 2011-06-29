@@ -44,8 +44,11 @@ typedef struct {
 	/** multi.c */
 	u32 AddVshItem;
 	u32 GetBackupVshItem;
-	u32 ExecuteAction[2];
-	u32 UnloadModule;
+	//u32 ExecuteAction[2];
+	//u32 UnloadModule;
+
+	u32 ExecuteActionOffset;
+	u32 UnloadModuleOffset;
 
 	u32 sce_paf_get_text_call;
 } GCPatches;

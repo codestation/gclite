@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define LOGFILE "ms0:/category.log"
+#define LOGFILE "ms0:/category_lite.log"
 
 #ifndef KPRINTF_ENABLED
 
