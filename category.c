@@ -136,13 +136,13 @@ void IndexCategories(const char *path) {
     if((fd = sceIoDopen(path)) < 0)
         return;
 
-    sce_paf_private_memset(&dir, 0, sizeof(SceIoDirent));
+    memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
             sceIoDclose(fd);
             break;
         }
-        kprintf("Checking %s\n", dir.d_name);
+        kprintf("Checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
             sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
             sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
