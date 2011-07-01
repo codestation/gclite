@@ -138,6 +138,12 @@ int UnloadModulePatched(int skip) {
 
 // from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
+
+    if(sce_paf_private_strcmp(item->text, "msgshare_ms") != 0 && sce_paf_private_strcmp(item->text, "msg_em") != 0) {
+        return AddVshItem(arg, topitem, item);
+    }
+
+    kprintf("%s: item: %s\n", __func__, item->text);
     category[0] = '\0';
     if (vsh_items) {
         sce_paf_private_free(vsh_items);
@@ -165,8 +171,8 @@ void PatchVshmain(u32 text_addr) {
     MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
     AddVshItem = (void *)add_vsh_item_stub;
 
-    //AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
-    //MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
+//    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
+//    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
 
     GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
     MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
