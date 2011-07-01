@@ -19,7 +19,11 @@ You can get the source code from https://github.com/codestation/gclite
 
 TODO:
 * Restore support for contextual categories (from GCR v12).
+* Add option to use the categories "new" format (without CAT_ prefix).
+* Restore options menu.
 
 Changelog
+v1.1:
+[!]Fixed PSPGo categories (thx RUSTII for the tests)
 v1.0:
 [+]First release
