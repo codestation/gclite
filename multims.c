@@ -83,11 +83,14 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
         if(*action_arg >= 100) {
             Category *p;
             if(*action_arg >= 1000) {
+                kprintf("%s: action for ef0 called\n", __func__);
                 p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
             } else {
+                kprintf("%s: action for ms0 called\n", __func__);
                 p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
             }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
+            kprintf("%s: changed action_arg for %s to %i\n", __func__, category, game_action_arg);
             *action_arg = game_action_arg;
         }
         return 1;
@@ -133,6 +136,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
     kprintf("%s: item: %s, id: %i\n", __func__, item->text, item->id);
     if (item->id >= 100) {
+        kprintf("%s: changing id to %i\n", __func__, game_id);
         item->id = game_id;
         return item;
     }
@@ -142,7 +146,7 @@ SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
 // from GCR v12, user/main.c
 SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     SceVshItem *ret;
-    //kprintf("%s: item: %s, topitem: %i\n", __func__, item->text, topitem);
+    kprintf("%s: item: %s, topitem: %i, id: %i\n", __func__, item->text, topitem, item->id);
     SceVshItem *res = GetBackupVshItem(unk, topitem, item);
     if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
         return ret;
@@ -173,7 +177,11 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     //kprintf("> %s: got %s, topitem: %i\n", __func__, item->text, topitem);
     if((location = get_item_location(topitem, item)) >= 0) {
 
-        kprintf("%s: got %s, location: %i\n", __func__, item->text, location);
+        kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
+        kprintf("> id: %i\n", item->id);
+        kprintf("> relocate: %i\n", item->relocate);
+        kprintf("> action: %i\n", item->action);
+        kprintf("> action_arg: %i\n", item->action_arg);
         category[0] = '\0';
 
         if (vsh_items[location]) {

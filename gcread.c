@@ -152,6 +152,9 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
                 continue;
             }
         }
+        if(res > 0) {
+            kprintf("%s: read %s\n", __func__, dir->d_name);
+        }
         break;
     }
     return res;
@@ -183,6 +186,7 @@ char *ReturnBasePathPatched(char *base) {
         sce_paf_private_strcpy(mod_path, base);
         sce_paf_private_strcpy(mod_path + 13, "/CAT_");
         sce_paf_private_strcpy(mod_path + 18, category);
+        kprintf("%s: changing %s to %s\n", __func__, base, mod_path);
         return mod_path;
     }
     return base;
