@@ -33,9 +33,8 @@ GCPatches *PATCHES;
 STMOD_HANDLER previous;
 int game_plug = 0;
 
-int OnModuleStart(SceModule2 *mod)
-{
-    kprintf("loading %s\n", mod->modname);
+int OnModuleStart(SceModule2 *mod) {
+    kprintf("%s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
 	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
 	    kprintf("game_plugin_module text_addr: %08X\n", mod->text_addr);
 	    game_plug = 1;
@@ -48,7 +47,6 @@ int OnModuleStart(SceModule2 *mod)
 		/* Clear the caches */
 		ClearCaches();
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
-	    kprintf("vshmain text_addr: %08X\n", mod->text_addr);
         /* Patch muti MS system */
         PatchVshmain(mod->text_addr);
         PatchGameText(mod->text_addr);

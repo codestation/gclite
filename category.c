@@ -74,7 +74,7 @@ int CountCategories() {
     return i;
 }
 
-void AddCategory(char *category, u64 mtime) {
+void AddCategory(char *category, u64 mtime, int location) {
     Category *p, *category_entry;
 
     while (1) {
@@ -96,6 +96,7 @@ void AddCategory(char *category, u64 mtime) {
     if (category_entry) {
         category_entry->next = NULL;
         category_entry->mtime = mtime;
+        category_entry->location = location;
         sce_paf_private_strcpy(&category_entry->name, category);
 
         if (!first_category) {
@@ -128,26 +129,31 @@ void DelCategory(char *category) {
     }
 }
 
-void IndexCategories(const char *path) {
+void IndexCategories(const char *path, int location) {
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
 
-    if((fd = sceIoDopen(path)) < 0)
+    if((fd = sceIoDopen(path)) < 0) {
+        kprintf("%s: %s doesn't exists\n", __func__, path);
         return;
+    }
+
+    kprintf("%s: Indexing categories from %s, loc: %i\n", __func__, path, location);
 
     memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
+            kprintf("%s: End of directory list\n", __ func__);
             sceIoDclose(fd);
             break;
         }
-        kprintf("Checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
+        kprintf("%s: Checking %s, length: %i\n", __func__, dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
             sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
             sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
-            kprintf("Adding %s\n", dir.d_name);
-            AddCategory(dir.d_name, mtime);
+            kprintf("%s: Adding %s as category\n", __func__, dir.d_name);
+            AddCategory(dir.d_name, mtime, location);
         }
     }
 }

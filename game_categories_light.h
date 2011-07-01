@@ -30,6 +30,7 @@ int sceKernelGetCompiledSdkVersion();
 typedef struct
 {
 	void *next;
+	int location;
 	u64 mtime;
 	char letter;
 	char name;
@@ -61,6 +62,11 @@ typedef struct
     char text[37]; // 43
 } SceVshItem; // 80
 
+enum CategoryLocation {
+    LOCATION_MEMORY_STICK,
+    LOCATION_INTERNAL_STORAGE,
+};
+
 // Functions in: multims.c
 void PatchVshmain(u32 text_addr);
 void PatchGameText(u32 text_addr);
@@ -71,9 +77,9 @@ void PatchIoFileMgrForGamePlugin(u32 text_addr);
 // Functions in: category.c
 int CountCategories();
 void ClearCategories();
-void AddCategory(char *category, u64 mtime);
+void AddCategory(char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *prev);
-void IndexCategories();
+void IndexCategories(const char *path, int location);
 
 // Functions in: gcpatches.c
 void ResolveNIDs();

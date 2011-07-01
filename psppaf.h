@@ -28,7 +28,7 @@ void *sce_paf_private_memmove(void *, const void *, int);
 void sce_paf_private_free(void *);
 int sce_paf_private_strlen(char *);
 void *sce_paf_private_memcpy(void *, void *, int);
-int sce_paf_private_strncmp(char *, char *, int);
+int sce_paf_private_strncmp(const char *, const char *, int);
 int sce_paf_private_strcmp(const char *, const char *);
 unsigned int sce_paf_private_strtoul(char *nptr, void *endptr, int base);
 

@@ -24,6 +24,7 @@
 #include "game_categories_light.h"
 #include "psppaf.h"
 #include "redirects.h"
+#include "kubridge.h"
 #include "logger.h"
 
 // from GCR v12, include/game_categories_info.h
@@ -77,9 +78,12 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
     SceIoStat stat;
     sce_paf_private_memset(&stat, 0, sizeof(stat));
 
-    if (sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0 &&
-        sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+    if (sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc4");
+        AddVshItem(arg, topitem, item);
+    }
+    if (kuKernelGetModel() == 4 && sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+        sce_paf_private_strcpy(item->text, "gc5");
         AddVshItem(arg, topitem, item);
     }
     while ((p = GetNextCategory(p))) {
@@ -87,7 +91,11 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
 
         vsh_items[i].id = i + 100;
         vsh_items[i].action_arg = i + 100;
-        sce_paf_private_snprintf(vsh_items[i].text, 37, "gcv_%08X", (u32) p);
+        if(p->location == LOCATION_MEMORY_STICK) {
+            sce_paf_private_snprintf(vsh_items[i].text, 37, "gcv_%08X", (u32) p);
+        } else {
+            sce_paf_private_snprintf(vsh_items[i].text, 37, "gcw_%08X", (u32) p);
+        }
         AddVshItem(arg, topitem, &vsh_items[i]);
         i++;
     }
@@ -138,11 +146,13 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
     /* clear the current categories and scan for new ones */
     ClearCategories();
-    IndexCategories("ms0:/PSP/GAME");
-    IndexCategories("ef0:/PSP/GAME");
+    IndexCategories("ms0:/PSP/GAME", LOCATION_MEMORY_STICK);
+    if(kuKernelGetModel() == 4) {
+        IndexCategories("ef0:/PSP/GAME", LOCATION_INTERNAL_STORAGE);
+    }
 
     /* Restore in case it was changed by MultiMs */
-    sce_paf_private_strcpy(item->text, "msgshare_ms");
+    //sce_paf_private_strcpy(item->text, "msgshare_ms");
     return PatchAddVshItemForMultiMs(arg, topitem, item);
 }
 
@@ -245,6 +255,8 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name) {
+        kprintf("%s:, name: %s", __func__, name);
+        // Memory Stick
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
@@ -253,6 +265,16 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         } else if (sce_paf_private_strcmp(name, "gc4") == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
             fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
+            return (wchar_t *) user_buffer;
+        // Internal Storage
+        } else if (sce_paf_private_strncmp(name, "gcw_", 4) == 0) {
+            Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
+            gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msg_em"), 'M', 0x2122);
+            return (wchar_t *) user_buffer;
+        } else if (sce_paf_private_strcmp(name, "gc5") == 0) {
+            gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
+            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         }
     }

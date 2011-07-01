@@ -42,22 +42,27 @@ inline void trim(char *str) {
         user_buffer[i] = '\0';
 }
 
-int is_iso_cat(const char *format) {
+int is_iso_cat(const char *path) {
     SceIoStat st;
-    sce_paf_private_snprintf(user_buffer, 256, format, category);
+    char device[4];
+
+    sce_paf_private_strncpy(device, path, 3);
+    device[3] = '\0';
+    sce_paf_private_snprintf(user_buffer, 256, "%s:/ISO/CAT_%s", device, category);
     // workaround for ME bug
     trim(user_buffer);
     memset(&st, 0, sizeof(SceIoStat));
-    kprintf("Checking if %s is a iso cat\n", user_buffer);
+    kprintf("%s: checking if %s is a ISO category\n", __func__, user_buffer);
     if(sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode)) {
+        kprintf("%s: true\n", __func__);
         return 1;
     }
+    kprintf("%s: false\n", __func__);
     return 0;
 }
 
 inline void fix_path(char **path) {
-    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 &&
-            (is_iso_cat("ms0:/ISO/CAT_%s") || is_iso_cat("ef0:/ISO/CAT_%s"))) {
+    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat(*path)) {
         *path = orig_path;
     }
 }
@@ -96,32 +101,30 @@ SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
 }
 
 SceUID sceIoDopenPatched(const char *path) {
-    if(*category) {
-        kprintf("category: %s\n", category);
-    }
-    kprintf("path: %s\n", path);
-    kprintf("mod_path: %s\n", mod_path);
-    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 &&
-            (is_iso_cat("ms0:/ISO/CAT_%s") || is_iso_cat("ef0:/ISO/CAT_%s"))) {
+    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(path)) {
         multi_cat = 1;
         path = orig_path;
-        kprintf("Changed path to: %s\n", path);
+        kprintf("%s: changed path to: %s\n", _func__, path);
     }
-    kprintf("sceIoDopenPatched called, path: %s\n", path);
+    kprintf("%s: path: %s\n", __func__, path);
+    if(*category) {
+        kprintf("%s: category: %s\n", __func__, category);
+    }
     return sceIoDopen(path);
 }
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-    kprintf("sceIoDreadPatched called\n");
+    kprintf("%s: start\n", __func__);
     while(1) {
         if(catdfd >= 0) {
-            kprintf("Reading %s\n", category);
+            kprintf("%s: reading %s\n", __func__, category);
             res = sceIoDread(catdfd, dir);
             if(res <= 0) {
                 sceIoDclose(catdfd);
-                kprintf("Open next category\n");
+                kprintf("%s: open next category\n", __func__);
                 if((catdfd = open_iso_cat(fd, dir)) < 0) {
+                    kprintf("%s: end (1)\n", __func__);
                     multi_cat = 0;
                     break;
                 }
@@ -131,8 +134,9 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
             break;
         }
         if(multi_cat) {
-            kprintf("Found iso category: %s\n", category);
+            kprintf("%s: found ISO category: %s\n", __func__, category);
             if((catdfd = open_iso_cat(fd, dir)) < 0) {
+                kprintf("%s: end (2)\n", __func__);
                 multi_cat = 0;
                 break;
             }
@@ -141,10 +145,10 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
-            kprintf("Checking: %s\n", dir->d_name);
+            kprintf("%s: checking: %s\n", __func__, dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                     sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
-                kprintf("Skipping %s\n", dir->d_name);
+                kprintf("%s: skipping %s\n", __func__, dir->d_name);
                 continue;
             }
         }
