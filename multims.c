@@ -195,15 +195,15 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
 // based on GCR v12, user/main.c
 void PatchVshmain(u32 text_addr) {
-//    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
-//    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
-//    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
-//    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
-//    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
-//    AddVshItem = (void *)add_vsh_item_stub;
+    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
+    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
+    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
+    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
+    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
+    AddVshItem = (void *)add_vsh_item_stub;
 
-    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
-    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
+//    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
+//    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
 
     GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
     MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
