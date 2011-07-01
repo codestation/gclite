@@ -144,7 +144,7 @@ void IndexCategories(const char *path, int location) {
     memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
-            kprintf("%s: End of directory list\n", __ func__);
+            kprintf("%s: End of directory list\n", __func__);
             sceIoDclose(fd);
             break;
         }

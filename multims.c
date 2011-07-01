@@ -158,8 +158,15 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
 // based on GCR v12, user/main.c
 void PatchVshmain(u32 text_addr) {
-    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
-    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
+    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
+    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
+    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
+    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
+    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
+    AddVshItem = (void *)add_vsh_item_stub;
+
+    //AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
+    //MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
 
     GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
     MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
@@ -255,7 +262,7 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name) {
-        kprintf("%s:, name: %s", __func__, name);
+        kprintf("%s: name: %s\n", __func__, name);
         // Memory Stick
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);

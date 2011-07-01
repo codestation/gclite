@@ -21,12 +21,22 @@
 
 	.set noreorder
 
+	.global add_vsh_item_stub
 	.global execute_action_stub
 	.global unload_module_stub
 
+	.global add_vsh_item_call
 	.global execute_action_call
 	.global unload_module_call
 
+	.ent add_vsh_item_stub
+add_vsh_item_stub:
+	nop   // 1st opcode from AddVshItem
+	nop   // 2nd opcode from AddVshItem
+add_vsh_item_call:
+	j 0 // jump to AddVshItem + 8
+	nop
+	.end add_vsh_item_stub
 
 	.ent execute_action_stub
 execute_action_stub:

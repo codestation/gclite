@@ -22,8 +22,12 @@
 #ifndef REDIRECTS_H_
 #define REDIRECTS_H_
 
+#include "game_categories_light.h"
+
+void add_vsh_item_stub(void *arg, int topitem, SceVshItem *item);
 void execute_action_stub(int action, int action_arg);
 void unload_module_stub(int skip);
+void add_vsh_item_call();
 void execute_action_call();
 void unload_module_call();
 

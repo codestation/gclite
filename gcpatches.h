@@ -16,6 +16,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef GCPATCHES_H_
+#define GCPATCHES_H_
+
 #include <pspsdk.h>
 
 typedef struct {
@@ -42,11 +45,12 @@ typedef struct {
 	//u32 sce_paf_get_text_call[2];
 	
 	/** multi.c */
-	u32 AddVshItem;
+	//u32 AddVshItem;
 	u32 GetBackupVshItem;
 	//u32 ExecuteAction[2];
 	//u32 UnloadModule;
 
+	u32 AddVshItemOffset;
 	u32 ExecuteActionOffset;
 	u32 UnloadModuleOffset;
 
@@ -54,3 +58,5 @@ typedef struct {
 } GCPatches;
 
 extern GCPatches *PATCHES;
+
+#endif /* GCPATCHES_H_ */

@@ -18,6 +18,9 @@
 #include <pspsdk.h>
 #include "gcpatches.h"
 
+#ifndef GAME_CATEGORIES_LIGHT_H_
+#define GAME_CATEGORIES_LIGHT_H_
+
 int sceKernelGetCompiledSdkVersion();
 
 #define MAKE_CALL(a, f) _sw(0x0C000000 | (((u32)(f) >> 2)  & 0x03ffffff), a);
@@ -87,3 +90,5 @@ GCPatches *GetPatches(int fw_group);
 
 // Functions in: clearcache.S
 void ClearCaches();
+
+#endif /* GAME_CATEGORIES_LIGHT_H_ */
