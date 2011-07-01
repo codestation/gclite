@@ -32,6 +32,7 @@ char mod_path[64];
 char orig_path[64];
 int multi_cat = 0;
 SceUID catdfd = -1;
+int type = -1;
 
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(user_buffer) - 1;
@@ -186,6 +187,15 @@ char *ReturnBasePathPatched(char *base) {
         sce_paf_private_strcpy(mod_path, base);
         sce_paf_private_strcpy(mod_path + 13, "/CAT_");
         sce_paf_private_strcpy(mod_path + 18, category);
+        // force the path to ms0 or ef0, since looks like this always defaults to
+        // the $%&$# ms0 and ignores ef0 all the way
+        if(type == MEMORY_STICK) {
+            sce_paf_private_strncpy(mod_path, "ms0:", 4);
+            sce_paf_private_strncpy(orig_path, "ms0:", 4);
+        } else if(type == INTERNAL_STORAGE) {
+            sce_paf_private_strncpy(mod_path, "ef0:", 4);
+            sce_paf_private_strncpy(orig_path, "ef0:", 4);
+        }
         kprintf("%s: changing %s to %s\n", __func__, base, mod_path);
         return mod_path;
     }

@@ -138,6 +138,8 @@ void IndexCategories(const char *path, int location) {
     sce_paf_private_strcpy(full_path, location ? "ef0:" : "ms0:");
     sce_paf_private_strcpy(full_path + 4, path);
 
+    // did this function just renamed my _const_ char string changing the path
+    // from ef0 to ms0? what the hell is doing those CFW with mah strings >:(
     if((fd = sceIoDopen(full_path)) < 0) {
         kprintf("%s: %s doesn't exists\n", __func__, full_path);
         return;

@@ -39,6 +39,7 @@ SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern char category[52];
 extern int game_plug;
+extern int type;
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -47,7 +48,8 @@ wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 
 int get_item_location(int topitem, SceVshItem *item) {
-    /* 0: sysconf
+    /*
+     * 0: sysconf
      * 1: extra (digital comics)
      * 2: pictures
      * 3: music
@@ -77,16 +79,19 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 unload = 1;
             }
         }
-
         last_action_arg = *action_arg;
 
         if(*action_arg >= 100) {
             Category *p;
             if(*action_arg >= 1000) {
                 kprintf("%s: action for ef0 called\n", __func__);
+                // force the path so the ef0 is read (PSPGo)
+                type = INTERNAL_STORAGE;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
             } else {
                 kprintf("%s: action for ms0 called\n", __func__);
+                // force the path so the M2 is read (PSPGo)
+                type = MEMORY_STICK;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
             }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
@@ -178,10 +183,6 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     if((location = get_item_location(topitem, item)) >= 0) {
 
         kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
-        kprintf("> id: %i\n", item->id);
-        kprintf("> relocate: %i\n", item->relocate);
-        kprintf("> action: %i\n", item->action);
-        kprintf("> action_arg: %i\n", item->action_arg);
         category[0] = '\0';
 
         if (vsh_items[location]) {
@@ -308,6 +309,8 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
         //kprintf("%s: name: %s\n", __func__, name);
+
+        //TODO: optimize this code
         // Memory Stick
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
