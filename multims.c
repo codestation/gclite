@@ -139,7 +139,7 @@ int UnloadModulePatched(int skip) {
 // from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
-    if(sce_paf_private_strcmp(item->text, "msgshare_ms") != 0 && sce_paf_private_strcmp(item->text, "msg_em") != 0) {
+    if(topitem != 5 || (sce_paf_private_strcmp(item->text, "msgshare_ms") != 0 && sce_paf_private_strcmp(item->text, "msg_em") != 0)) {
         return AddVshItem(arg, topitem, item);
     }
 
