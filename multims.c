@@ -24,7 +24,6 @@
 #include "game_categories_light.h"
 #include "psppaf.h"
 #include "redirects.h"
-#include "kubridge.h"
 #include "logger.h"
 
 // from GCR v12, include/game_categories_info.h
@@ -36,7 +35,7 @@ char user_buffer[256];
 
 int unload = 0;
 static int last_action_arg = game_action;
-SceVshItem *vsh_items = NULL;
+SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern char category[52];
 extern int game_plug;
@@ -46,6 +45,28 @@ int (*ExecuteAction)(int action, int action_arg) = NULL;
 int (*AddVshItem)(void *arg, int topitem, SceVshItem *item) = NULL;
 wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
+
+int get_item_location(int topitem, SceVshItem *item) {
+    /* 0: sysconf
+     * 1: extra (digital comics)
+     * 2: pictures
+     * 3: music
+     * 4: videos
+     * 5: games
+     * 6: network
+     * 7: store
+     */
+    if(topitem == 5) {
+        if(sce_paf_private_strcmp(item->text, "msgshare_ms") == 0 ||
+                sce_paf_private_strcmp(item->text, "gc4") == 0) {
+            return MEMORY_STICK;
+        } else if(sce_paf_private_strcmp(item->text, "msg_em") == 0 ||
+                sce_paf_private_strcmp(item->text, "gc5") == 0) {
+            return INTERNAL_STORAGE;
+        }
+    }
+    return -1;
+}
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     category[0] = '\0';
@@ -59,9 +80,13 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
 
         last_action_arg = *action_arg;
 
-        if (*action_arg >= 100) {
-            Category *p = (Category *) sce_paf_private_strtoul(
-                    vsh_items[*action_arg - 100].text + 4, NULL, 16);
+        if(*action_arg >= 100) {
+            Category *p;
+            if(*action_arg >= 1000) {
+                p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
+            } else {
+                p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
+            }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             *action_arg = game_action_arg;
         }
@@ -70,39 +95,43 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     return 0;
 }
 
-int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item) {
+int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
     int i = 0;
     Category *p = NULL;
-    vsh_items = sce_paf_private_malloc(CountCategories() * sizeof(SceVshItem));
+    vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
 
     SceIoStat stat;
     sce_paf_private_memset(&stat, 0, sizeof(stat));
 
     if (sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc4");
+        kprintf("%s: adding uncategorized for ms0\n", __func__);
         AddVshItem(arg, topitem, item);
     }
-    if (kuKernelGetModel() == 4 && sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+    if (location && sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc5");
+        kprintf("%s: adding uncategorized for ef0\n", __func__);
         AddVshItem(arg, topitem, item);
     }
-    while ((p = GetNextCategory(p))) {
-        sce_paf_private_memcpy(&vsh_items[i], item, sizeof(SceVshItem));
+    while ((p = GetNextCategory(p, location))) {
+        sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 
-        vsh_items[i].id = i + 100;
-        vsh_items[i].action_arg = i + 100;
-        if(p->location == LOCATION_MEMORY_STICK) {
-            sce_paf_private_snprintf(vsh_items[i].text, 37, "gcv_%08X", (u32) p);
+        vsh_items[location][i].id = i + (location ? 1000 : 100);
+        vsh_items[location][i].action_arg = i + (location ? 1000 : 100);
+        if(p->location == MEMORY_STICK) {
+            sce_paf_private_snprintf(vsh_items[location][i].text, 37, "gcv_%08X", (u32) p);
         } else {
-            sce_paf_private_snprintf(vsh_items[i].text, 37, "gcw_%08X", (u32) p);
+            sce_paf_private_snprintf(vsh_items[location][i].text, 37, "gcw_%08X", (u32) p);
         }
-        AddVshItem(arg, topitem, &vsh_items[i]);
+        kprintf("%s: adding %s for loc: %i\n", __func__, vsh_items[location][i].text, location);
+        AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }
     return 0;
 }
 
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
+    kprintf("%s: item: %s, id: %i\n", __func__, item->text, item->id);
     if (item->id >= 100) {
         item->id = game_id;
         return item;
@@ -111,9 +140,10 @@ SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
 }
 
 // from GCR v12, user/main.c
-SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item) {
+SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     SceVshItem *ret;
-    SceVshItem *res = GetBackupVshItem(topitem, unk, item);
+    //kprintf("%s: item: %s, topitem: %i\n", __func__, item->text, topitem);
+    SceVshItem *res = GetBackupVshItem(unk, topitem, item);
     if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
         return ret;
     }
@@ -139,40 +169,41 @@ int UnloadModulePatched(int skip) {
 // from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
-    if(topitem != 5 || (sce_paf_private_strcmp(item->text, "msgshare_ms") != 0 && sce_paf_private_strcmp(item->text, "msg_em") != 0)) {
-        return AddVshItem(arg, topitem, item);
-    }
+    int location;
+    //kprintf("> %s: got %s, topitem: %i\n", __func__, item->text, topitem);
+    if((location = get_item_location(topitem, item)) >= 0) {
 
-    kprintf("%s: item: %s\n", __func__, item->text);
-    category[0] = '\0';
-    if (vsh_items) {
-        sce_paf_private_free(vsh_items);
-        vsh_items = NULL;
-    }
+        kprintf("%s: got %s, location: %i\n", __func__, item->text, location);
+        category[0] = '\0';
 
-    /* clear the current categories and scan for new ones */
-    ClearCategories();
-    IndexCategories("ms0:/PSP/GAME", LOCATION_MEMORY_STICK);
-    if(kuKernelGetModel() == 4) {
-        IndexCategories("ef0:/PSP/GAME", LOCATION_INTERNAL_STORAGE);
-    }
+        if (vsh_items[location]) {
+            kprintf("%s: freeing vsh_items\n", __func__);
+            sce_paf_private_free(vsh_items[location]);
+            vsh_items[location] = NULL;
+        }
+        ClearCategories(location);
+        IndexCategories("/PSP/GAME", location);
 
-    /* Restore in case it was changed by MultiMs */
-    //sce_paf_private_strcpy(item->text, "msgshare_ms");
-    return PatchAddVshItemForMultiMs(arg, topitem, item);
+        /* Restore in case it was changed by MultiMs */
+        const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
+        sce_paf_private_strcpy(item->text, msg);
+
+        return PatchAddVshItemForMultiMs(arg, topitem, item, location);
+    }
+    return AddVshItem(arg, topitem, item);
 }
 
 // based on GCR v12, user/main.c
 void PatchVshmain(u32 text_addr) {
-    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
-    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
-    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
-    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
-    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
-    AddVshItem = (void *)add_vsh_item_stub;
+//    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
+//    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
+//    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
+//    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
+//    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
+//    AddVshItem = (void *)add_vsh_item_stub;
 
-//    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
-//    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
+    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
+    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
 
     GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
     MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
@@ -267,8 +298,8 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
-    if (name) {
-        kprintf("%s: name: %s\n", __func__, name);
+    if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
+        //kprintf("%s: name: %s\n", __func__, name);
         // Memory Stick
         if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);

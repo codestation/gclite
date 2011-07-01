@@ -66,8 +66,8 @@ typedef struct
 } SceVshItem; // 80
 
 enum CategoryLocation {
-    LOCATION_MEMORY_STICK,
-    LOCATION_INTERNAL_STORAGE,
+    MEMORY_STICK,
+    INTERNAL_STORAGE,
 };
 
 // Functions in: multims.c
@@ -81,7 +81,7 @@ void PatchIoFileMgrForGamePlugin(u32 text_addr);
 int CountCategories();
 void ClearCategories();
 void AddCategory(char *category, u64 mtime, int location);
-Category *GetNextCategory(Category *prev);
+Category *GetNextCategory(Category *prev, int location);
 void IndexCategories(const char *path, int location);
 
 // Functions in: gcpatches.c

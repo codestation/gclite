@@ -22,9 +22,9 @@
 #include "psppaf.h"
 #include "logger.h"
 
-Category *first_category = NULL;
+Category *first_category[2] = { NULL, NULL };
 
-Category *GetNextCategory(Category *prev) {
+Category *GetNextCategory(Category *prev, int location) {
     u64 time = 0, last;
     Category *newest = NULL;
 
@@ -33,7 +33,7 @@ Category *GetNextCategory(Category *prev) {
     } else {
         last = (u64) -1;
     }
-    Category *p = (Category *) first_category;
+    Category *p = (Category *) first_category[location];
 
     while (p) {
         if (p->mtime < last) {
@@ -49,9 +49,9 @@ Category *GetNextCategory(Category *prev) {
     return newest;
 }
 
-void ClearCategories() {
+void ClearCategories(int location) {
     Category *next;
-    Category *p = (void *) first_category;
+    Category *p = (void *) first_category[location];
 
     while (p) {
         next = p->next;
@@ -59,12 +59,12 @@ void ClearCategories() {
         p = next;
     }
 
-    first_category = NULL;
+    first_category[location] = NULL;
 }
 
-int CountCategories() {
+int CountCategories(int location) {
     int i = 0;
-    Category *p = (void *) first_category;
+    Category *p = (void *) first_category[location];
 
     while (p) {
         i++;
@@ -79,7 +79,7 @@ void AddCategory(char *category, u64 mtime, int location) {
 
     while (1) {
         p = NULL;
-        while ((p = GetNextCategory(p))) {
+        while ((p = GetNextCategory(p, location))) {
             if (sce_paf_private_strcmp(category, &p->name) == 0) {
                 return;
             }
@@ -99,10 +99,10 @@ void AddCategory(char *category, u64 mtime, int location) {
         category_entry->location = location;
         sce_paf_private_strcpy(&category_entry->name, category);
 
-        if (!first_category) {
-            first_category = category_entry;
+        if (!first_category[location]) {
+            first_category[location] = category_entry;
         } else {
-            p = (Category *) first_category;
+            p = (Category *) first_category[location];
             while (p->next) {
                 p = p->next;
             }
@@ -111,16 +111,16 @@ void AddCategory(char *category, u64 mtime, int location) {
     }
 }
 
-void DelCategory(char *category) {
+void DelCategory(char *category, int location) {
     Category *prev = NULL;
-    Category *p = (Category *) first_category;
+    Category *p = (Category *) first_category[location];
 
     while (p) {
         if (sce_paf_private_strcmp(&p->name, category) == 0) {
             if (prev) {
                 prev->next = p->next;
             } else {
-                first_category = p->next;
+                first_category[location] = p->next;
             }
             break;
         }
@@ -133,9 +133,13 @@ void IndexCategories(const char *path, int location) {
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
+    char full_path[16];
 
-    if((fd = sceIoDopen(path)) < 0) {
-        kprintf("%s: %s doesn't exists\n", __func__, path);
+    sce_paf_private_strcpy(full_path, location ? "ef0:" : "ms0:");
+    sce_paf_private_strcpy(full_path + 4, path);
+
+    if((fd = sceIoDopen(full_path)) < 0) {
+        kprintf("%s: %s doesn't exists\n", __func__, full_path);
         return;
     }
 
