@@ -37,6 +37,10 @@ int unload = 0;
 static int last_action_arg = game_action;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
+//SceVshItem vsh_copy;
+int vsh_id;
+int vsh_action_arg;
+
 extern char category[52];
 extern int game_plug;
 extern int type;
@@ -96,7 +100,10 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("%s: changed action_arg for %s to %i\n", __func__, category, game_action_arg);
-            *action_arg = game_action_arg;
+
+            //*action_arg = game_action_arg;
+            //*action_arg = vsh_copy.action_arg;
+            *action_arg = vsh_action_arg;
         }
         return 1;
     }
@@ -147,9 +154,11 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
     kprintf("%s: item: %s, id: %i\n", __func__, item->text, item->id);
-    if (item->id >= 100) {
-        kprintf("%s: changing id to %i\n", __func__, game_id);
-        item->id = game_id;
+    if(item->id >= 100) {
+        //kprintf("%s: changing id to %i\n", __func__, vsh_copy.id);
+        //item->id = vsh_copy.id;
+        kprintf("%s: changing id to %i\n", __func__, vsh_id);
+        item->id = vsh_id;
         return item;
     }
     return NULL;
@@ -198,6 +207,13 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         }
         ClearCategories(location);
         IndexCategories("xxx:/PSP/GAME", location);
+
+        // make a copy of a good vsh item
+        vsh_id = item->id;
+        vsh_action_arg = item->action_arg;
+
+        kprintf(">> # action: %i\n", vsh_id);
+        kprintf(">> # action_arg: %i\n", vsh_action_arg);
 
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
