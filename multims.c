@@ -28,8 +28,6 @@
 
 // from GCR v12, include/game_categories_info.h
 #define game_action 0x0F
-#define game_action_arg 0x02
-#define game_id 0x16
 
 char user_buffer[256];
 
