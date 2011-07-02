@@ -84,13 +84,13 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
         if(*action_arg >= 100) {
             Category *p;
             if(*action_arg >= 1000) {
-                kprintf("%s: action for ef0 called\n", __func__);
-                // force the path so the ef0 is read (PSPGo)
+                kprintf("%s: action for Internal Storage called\n", __func__);
+                // force the path so the Internal Storage is read (PSPGo)
                 type = INTERNAL_STORAGE;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
             } else {
-                kprintf("%s: action for ms0 called\n", __func__);
-                // force the path so the M2 is read (PSPGo)
+                kprintf("%s: action for Memory Stick called\n", __func__);
+                // force the path so the Memory Stick is read (PSPGo)
                 type = MEMORY_STICK;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
             }
@@ -105,22 +105,29 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
 
 int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
     int i = 0;
-    Category *p = NULL;
-    vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
-
     SceIoStat stat;
+    Category *p = NULL;
+
+    vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
     sce_paf_private_memset(&stat, 0, sizeof(stat));
 
-    if (sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+    // borrow the category buffer for a while
+    sce_paf_private_strcpy(category, "xxx:/seplugins/hide_uncategorized.txt");
+    SET_DEVICENAME(category, location);
+
+    if (!location && sceIoGetstat(category, &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc4");
-        kprintf("%s: adding uncategorized for ms0\n", __func__);
+        kprintf("%s: adding uncategorized for Memory Stick\n", __func__);
         AddVshItem(arg, topitem, item);
     }
-    if (location && sceIoGetstat("ef0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+    if (location && sceIoGetstat(category, &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc5");
-        kprintf("%s: adding uncategorized for ef0\n", __func__);
+        kprintf("%s: adding uncategorized for Internal Storage\n", __func__);
         AddVshItem(arg, topitem, item);
     }
+    // clear it again
+    category[0] = '\0';
+
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 
@@ -177,9 +184,8 @@ int UnloadModulePatched(int skip) {
 
 // from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
-
     int location;
-    //kprintf("> %s: got %s, topitem: %i\n", __func__, item->text, topitem);
+
     if((location = get_item_location(topitem, item)) >= 0) {
 
         kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
@@ -191,7 +197,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
             vsh_items[location] = NULL;
         }
         ClearCategories(location);
-        IndexCategories("/PSP/GAME", location);
+        IndexCategories("xxx:/PSP/GAME", location);
 
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
