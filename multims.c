@@ -111,7 +111,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
     SceIoStat stat;
     sce_paf_private_memset(&stat, 0, sizeof(stat));
 
-    if (sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
+    if (!location && sceIoGetstat("ms0:/seplugins/hide_uncategorized.txt", &stat) < 0) {
         sce_paf_private_strcpy(item->text, "gc4");
         kprintf("%s: adding uncategorized for ms0\n", __func__);
         AddVshItem(arg, topitem, item);
@@ -141,8 +141,13 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
     kprintf("%s: item: %s, id: %i\n", __func__, item->text, item->id);
     if (item->id >= 100) {
-        kprintf("%s: changing id to %i\n", __func__, game_id);
-        item->id = game_id;
+        if (item->id >= 1000) {
+            kprintf("%s: changing id to %i\n", __func__, 29);
+            item->id = 29;
+        } else {
+            kprintf("%s: changing id to %i\n", __func__, game_id);
+            item->id = game_id;
+        }
         return item;
     }
     return NULL;

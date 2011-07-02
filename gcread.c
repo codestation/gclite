@@ -63,7 +63,7 @@ int is_iso_cat(const char *path) {
 }
 
 inline void fix_path(char **path) {
-    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat(*path)) {
+    if(*category && sce_paf_private_strcmp(*path + 4, mod_path + 4) == 0 && is_iso_cat(*path)) {
         *path = orig_path;
     }
 }
@@ -102,7 +102,7 @@ SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
 }
 
 SceUID sceIoDopenPatched(const char *path) {
-    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(path)) {
+    if(*category && sce_paf_private_strcmp(path + 4, mod_path + 4) == 0 && is_iso_cat(path)) {
         multi_cat = 1;
         path = orig_path;
         kprintf("%s: changed path to: %s\n", __func__, path);
