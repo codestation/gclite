@@ -1,4 +1,4 @@
-Game Categories Lite v1.0 - Codestation
+Game Categories Lite v1.2 - Codestation
 
 This plugin is based and uses source code from Game Categories Revised v12 (GCR)
 and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible with
@@ -23,6 +23,9 @@ TODO:
 * Restore options menu.
 
 Changelog
+v1.2:
+[!]Fixed PSPGo categories, again (thx RUSTII for the tests)
+[!]Fixed the free space display when the psp returns from sleep
 v1.1:
 [!]Fixed PSPGo categories (thx RUSTII for the tests)
 v1.0:
