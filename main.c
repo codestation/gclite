@@ -25,7 +25,7 @@
 #include "pspdefs.h"
 #include "logger.h"
 
-PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 1);
+PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 2);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
@@ -34,9 +34,8 @@ STMOD_HANDLER previous;
 int game_plug = 0;
 
 int OnModuleStart(SceModule2 *mod) {
-    kprintf("%s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
+    kprintf(">>> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
 	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
-	    kprintf("game_plugin_module text_addr: %08X\n", mod->text_addr);
 	    game_plug = 1;
 		/* Patch iofilemgr */
 		PatchIoFileMgrForGamePlugin(mod->text_addr);

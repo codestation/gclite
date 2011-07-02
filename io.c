@@ -27,7 +27,7 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 
 void PatchIoFileMgrForGamePlugin(u32 text_addr) {
 
-    MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+    //MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
     MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
     //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
     //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);

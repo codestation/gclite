@@ -30,6 +30,14 @@ int sceKernelGetCompiledSdkVersion();
 #define REDIRECT_FUNCTION(a, f) { u32 address = a; _sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), address);  _sw(0, address+4); }
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
 
+//#define DEVICE_MEMORY_STICK "ms0:"
+//#define DEVICE_INTERNAL_STORAGE "ef0:"
+
+/* Avoid that "Old Plugin Support (PSP-Go only)" screw us */
+#define XOR_KEY 0xDEADC0DE
+#define XORED_MEMORY_STICK 0xE49DB3B3
+#define XORED_INTERNAL_STORAGE 0xE49DA6BB
+
 typedef struct
 {
 	void *next;
@@ -69,6 +77,18 @@ enum CategoryLocation {
     MEMORY_STICK,
     INTERNAL_STORAGE,
 };
+
+typedef union _dpath {
+    u32 *device;
+    const char *path;
+} dpath;
+
+#define SET_DEVICENAME(p, l) { \
+    dpath d; \
+    d.path = (p); \
+    *d.device = XOR_KEY; \
+    *d.device ^= (l) == MEMORY_STICK ? XORED_MEMORY_STICK : XORED_INTERNAL_STORAGE; \
+}
 
 // Functions in: multims.c
 void PatchVshmain(u32 text_addr);

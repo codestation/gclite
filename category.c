@@ -135,11 +135,9 @@ void IndexCategories(const char *path, int location) {
     u64 mtime;
     char full_path[16];
 
-    sce_paf_private_strcpy(full_path, location ? "ef0:" : "ms0:");
-    sce_paf_private_strcpy(full_path + 4, path);
+    sce_paf_private_strcpy(full_path, path);
+    SET_DEVICENAME(full_path, location);
 
-    // did this function just renamed my _const_ char string changing the path
-    // from ef0 to ms0? what the hell is doing those CFW with mah strings >:(
     if((fd = sceIoDopen(full_path)) < 0) {
         kprintf("%s: %s doesn't exists\n", __func__, full_path);
         return;
@@ -158,7 +156,7 @@ void IndexCategories(const char *path, int location) {
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
             sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
             sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
-            kprintf("%s: Adding %s as category\n", __func__, dir.d_name);
+            kprintf(">> %s: Adding %s as category\n", __func__, dir.d_name);
             AddCategory(dir.d_name, mtime, location);
         }
     }
