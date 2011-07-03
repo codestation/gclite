@@ -71,11 +71,11 @@ inline void fix_path(char **path) {
 
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
-        //if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
-        //    if(!cat || sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
-        if(!cat || sce_paf_private_strcmp(dir->d_name, cat) == 0) {
+        if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
+            if(!cat || sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+        //if(!cat || sce_paf_private_strcmp(dir->d_name, cat) == 0) {
                 return 1;
-        //    }
+            }
         }
     }
     return 0;
