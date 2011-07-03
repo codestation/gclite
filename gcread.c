@@ -46,6 +46,8 @@ int is_iso_cat(const char *path) {
 
     sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
     sce_paf_private_strcpy(user_buffer + 13, category);
+    //sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
+    //sce_paf_private_strcpy(user_buffer + 9, category);
     SET_DEVICENAME(user_buffer, type);
 
     // workaround for ME bug or "feature"
@@ -69,10 +71,11 @@ inline void fix_path(char **path) {
 
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
-        if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
-            if(!cat || sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+        //if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
+        //    if(!cat || sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+        if(!cat || sce_paf_private_strcmp(dir->d_name, cat) == 0) {
                 return 1;
-            }
+        //    }
         }
     }
     return 0;
@@ -127,6 +130,8 @@ char *ReturnBasePathPatched(char *base) {
         sce_paf_private_strcpy(mod_path, base);
         sce_paf_private_strcpy(mod_path + 13, "/CAT_");
         sce_paf_private_strcpy(mod_path + 18, category);
+        //mod_path[13] = '/';
+        //sce_paf_private_strcpy(mod_path + 14, category);
         // force the device name
         SET_DEVICENAME(orig_path, type);
         SET_DEVICENAME(mod_path, type);

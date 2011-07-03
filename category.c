@@ -129,6 +129,21 @@ void DelCategory(char *category, int location) {
     }
 }
 
+const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP" };
+
+int is_category(const char *base, const char *path) {
+    SceIoStat stat;
+    char buffer[256];
+    for(int i = 0; i < (sizeof(eboot_types) / 4); i++) {
+        memset(&stat, 0 , sizeof(SceIoStat));
+        sce_paf_private_snprintf(buffer, 256, "%s/%s/%s", base, path, eboot_types[i]);
+        if(sceIoGetstat(buffer, &stat) >= 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void IndexCategories(const char *path, int location) {
     SceIoDirent dir;
     SceUID fd;
@@ -154,6 +169,7 @@ void IndexCategories(const char *path, int location) {
         }
         kprintf("%s: Checking %s, length: %i\n", __func__, dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
+        //if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.' && is_category(full_path, dir.d_name)) {
             sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
             sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
             kprintf(">> %s: Adding %s as category\n", __func__, dir.d_name);
