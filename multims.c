@@ -97,10 +97,8 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
             }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
-            kprintf("%s: changed action_arg for %s to %i\n", __func__, category, game_action_arg);
+            kprintf("%s: changed action_arg for %s to %i\n", __func__, category, vsh_action_arg);
 
-            //*action_arg = game_action_arg;
-            //*action_arg = vsh_copy.action_arg;
             *action_arg = vsh_action_arg;
         }
         return 1;

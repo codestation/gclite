@@ -1,5 +1,5 @@
 /*
- *  nploader module
+ *  Game Categories Lite 1.2
  *
  *  Copyright (C) 2011  Codestation
  *
@@ -22,24 +22,26 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "psppaf.h"
 
-#define LOGFILE "ms0:/category_lite.log"
+#ifdef DEBUG
 
-#ifndef KPRINTF_ENABLED
+#define _LOGFILE "ms0:/category_lite.log"
 
-#define kprintf(format, ...)
-//#define kprintf(format, ...) printf(format, ## __VA_ARGS__)
+extern char _buffer_log[256];
+
+int kwrite(const char *path, void *buffer, int buflen);
+
+#define kprintf(format, ...) do { \
+    sce_paf_private_snprintf(_buffer_log, sizeof(_buffer_log), format, ## __VA_ARGS__); \
+    kwrite(_LOGFILE, _buffer_log, sce_paf_private_strlen(_buffer_log)); \
+} while(0)
 
 #else
 
-extern char buffer_log[256];
-
-#define kprintf(format, ...) { \
-    sce_paf_private_snprintf(buffer_log, 256, format, ## __VA_ARGS__); \
-    kwrite(LOGFILE, buffer_log, strlen(buffer_log)); \
-}
-
-int kwrite(const char *path, void *buffer, int buflen);
+#define kprintf(format, ...)
+// uncomment this to use the logger with psplink
+//#define kprintf(format, ...) printf(format, ## __VA_ARGS__)
 
 #endif
 

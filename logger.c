@@ -21,9 +21,9 @@
 #include <pspiofilemgr.h>
 #include "logger.h"
 
-#ifdef KPRINTF_ENABLED
+#ifdef DEBUG
 
-char buffer_log[256];
+char _buffer_log[256];
 
 int kwrite(const char *path, void *buffer, int buflen) {
     int written = 0;
