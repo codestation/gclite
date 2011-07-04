@@ -32,6 +32,7 @@ PSP_NO_CREATE_MAIN_THREAD();
 GCPatches *PATCHES;
 STMOD_HANDLER previous;
 int game_plug = 0;
+int sysconf_plug = 0;
 
 int OnModuleStart(SceModule2 *mod) {
     kprintf(">>> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
@@ -46,9 +47,7 @@ int OnModuleStart(SceModule2 *mod) {
 		/* Clear the caches */
 		ClearCaches();
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
-        /* Patch muti MS system */
         PatchVshmain(mod->text_addr);
-        PatchGameText(mod->text_addr);
 
 		/* Make sceKernelGetCompiledSdkVersion clear the caches,
 			so that we don't have to create a kernel module just 
@@ -60,7 +59,11 @@ int OnModuleStart(SceModule2 *mod) {
 		
 		/* Clear the caches */
 		ClearCaches();
+	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
+	    sysconf_plug = 1;
+	    PatchSysconf(mod->text_addr);
 	}
+
 	return previous ? previous(mod) : 0;
 }
 

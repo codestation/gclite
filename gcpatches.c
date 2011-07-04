@@ -104,6 +104,10 @@ GCPatches patches_620 =
     0x16734, // UnloadModuleOffset
 
     0x23BE0, // sce_paf_get_text_call
+
+    /** sysconf.c */
+    0x1C4A8, // AddSysconfItem
+    0x02934, // GetSysconfItem
 };
 
 GCPatches patches_63x =
@@ -142,6 +146,10 @@ GCPatches patches_63x =
 	0x16D9C, // UnloadModuleOffset
 
 	0x243D0, // sce_paf_get_text_call
+
+    /** sysconf.c */
+    0x1CD18, // AddSysconfItem
+    0x02A28, // GetSysconfItem
 };
 
 GCPatches *GetPatches(int fw_group) {

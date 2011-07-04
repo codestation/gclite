@@ -50,6 +50,16 @@ typedef struct
 
 typedef struct
 {
+    void *unk; // 0
+    int id; // 4
+    char *regkey; // 8
+    char *text; // 12
+    char *subtitle; // 16
+    char *page; // 20
+} SceSysconfItem; // 24
+
+typedef struct
+{
     char text[48];
     int play_sound;
     int action;
@@ -74,6 +84,21 @@ typedef struct
     char text[37]; // 43
 } SceVshItem; // 80
 
+typedef struct
+{
+    u8 id; //00
+    u8 type; //01
+    u16 unk1; //02
+    u32 label; //04
+    u32 param; //08
+    u32 first_child; //0c
+    int child_count; //10
+    u32 next_entry; // 14
+    u32 prev_entry; //18
+    u32 parent; //1c
+    u32 unknown[2]; //20
+} SceRcoEntry;
+
 enum CategoryLocation {
     MEMORY_STICK,
     INTERNAL_STORAGE,
@@ -94,6 +119,9 @@ typedef union _dpath {
 // Functions in: multims.c
 void PatchVshmain(u32 text_addr);
 void PatchGameText(u32 text_addr);
+
+// Functions in: sysconf.c
+void PatchSysconf(u32 text_addr);
 
 // Functions in: io.c
 void PatchIoFileMgrForGamePlugin(u32 text_addr);

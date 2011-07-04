@@ -29,4 +29,6 @@ int sceIoRemovePatched(char *file);
 int sceIoRmdirPatched(char *path);
 char *ReturnBasePathPatched(char *base);
 
+extern char category[52];
+
 #endif /* GCREAD_H_ */

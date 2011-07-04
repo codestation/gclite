@@ -1,6 +1,6 @@
 TARGET = category_lite
 STUBS = imports.o scePaf.o
-OBJS = main.o category.o io.o gcread.o clearcache.o gcpatches.o multims.o redirects.o logger.o
+OBJS = main.o category.o io.o gcread.o clearcache.o gcpatches.o multims.o redirects.o sysconf.o logger.o vshitem.o
 OBJS += $(STUBS)
 LIBS =  -lpsprtc
 
