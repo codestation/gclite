@@ -24,10 +24,12 @@
 	.global add_vsh_item_stub
 	.global execute_action_stub
 	.global unload_module_stub
+	.global paf_get_text_stub
 
 	.global add_vsh_item_call
 	.global execute_action_call
 	.global unload_module_call
+	.global paf_get_text_call
 
 	.ent add_vsh_item_stub
 add_vsh_item_stub:
@@ -55,3 +57,12 @@ unload_module_call:
 	j 0 // jump to UnloadModule + 8
 	nop
 	.end unload_module_stub
+
+	.ent paf_get_text_stub
+paf_get_text_stub:
+	nop   // 1st opcode from scePafGetText
+	nop   // 2nd opcode from scePafGetText
+paf_get_text_call:
+	j 0 // jump to scePafGetText + 8
+	nop
+	.end paf_get_text_stub

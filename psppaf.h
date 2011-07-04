@@ -16,6 +16,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef PSPPAF_H_
+#define PSPPAF_H_
+
 #include <stddef.h>
 
 void *sce_paf_private_malloc(int);
@@ -32,4 +35,6 @@ int sce_paf_private_strncmp(const char *, const char *, int);
 int sce_paf_private_strcmp(const char *, const char *);
 unsigned int sce_paf_private_strtoul(char *nptr, void *endptr, int base);
 
-wchar_t* scePafGetText(void *, char *);
+//wchar_t* scePafGetText(void *, char *);
+
+#endif /* PSPPAF_H_ */

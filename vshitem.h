@@ -12,7 +12,7 @@
 #include "game_categories_light.h"
 
 extern int (*AddVshItem)(void *arg, int topitem, SceVshItem *item);
-extern wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name);
+extern wchar_t* (*scePafGetText)(void *arg, char *name);
 extern SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item);
 
 SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item);

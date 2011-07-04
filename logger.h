@@ -26,7 +26,7 @@
 
 #ifdef DEBUG
 
-#define _LOGFILE "ms0:/category_lite.log"
+#define LOGFILE "ms0:/category_lite.log"
 
 extern char _buffer_log[256];
 
@@ -34,7 +34,7 @@ int kwrite(const char *path, void *buffer, int buflen);
 
 #define kprintf(format, ...) do { \
     sce_paf_private_snprintf(_buffer_log, sizeof(_buffer_log), format, ## __VA_ARGS__); \
-    kwrite(_LOGFILE, _buffer_log, sce_paf_private_strlen(_buffer_log)); \
+    kwrite(LOGFILE, _buffer_log, sce_paf_private_strlen(_buffer_log)); \
 } while(0)
 
 #else
@@ -44,5 +44,7 @@ int kwrite(const char *path, void *buffer, int buflen);
 //#define kprintf(format, ...) printf(format, ## __VA_ARGS__)
 
 #endif
+
+int kwrite(const char *path, void *buffer, int buflen);
 
 #endif /* LOGGER_H_ */

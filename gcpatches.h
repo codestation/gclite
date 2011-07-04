@@ -54,11 +54,14 @@ typedef struct {
 	u32 ExecuteActionOffset;
 	u32 UnloadModuleOffset;
 
-	u32 sce_paf_get_text_call;
+	//u32 sce_paf_get_text_call;
 
 	/** sysconf.c */
 	u32 AddSysconfItem;
 	u32 GetSysconfItem;
+
+	/** vshitem.c */
+	u32 scePafGetTextOffset;
 } GCPatches;
 
 extern GCPatches *PATCHES;

@@ -31,6 +31,8 @@ int sceKernelGetCompiledSdkVersion();
 #define REDIRECT_FUNCTION(a, f) { u32 address = a; _sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), address);  _sw(0, address+4); }
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
 
+#define GET_RA(x) __asm__("move %0,$ra" : "=r"((x)))
+
 //#define DEVICE_MEMORY_STICK "ms0:"
 //#define DEVICE_INTERNAL_STORAGE "ef0:"
 
@@ -119,6 +121,9 @@ typedef union _dpath {
 // Functions in: multims.c
 void PatchVshmain(u32 text_addr);
 void PatchGameText(u32 text_addr);
+
+// Functions in: vshitem.c
+void PatchPaf(u32 text_addr);
 
 // Functions in: sysconf.c
 void PatchSysconf(u32 text_addr);

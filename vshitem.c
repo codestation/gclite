@@ -20,7 +20,7 @@ extern int game_plug;
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
 int (*AddVshItem)(void *arg, int topitem, SceVshItem *item) = NULL;
-wchar_t* (*scePafGetTextPatchOverride)(void *arg, char *name) = NULL;
+wchar_t* (*scePafGetText)(void *arg, char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 
 int get_item_location(int topitem, SceVshItem *item) {
@@ -49,7 +49,7 @@ int get_item_location(int topitem, SceVshItem *item) {
 // from GCR v12, user/main.c
 SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     SceVshItem *ret;
-    kprintf("%s: item: %s, topitem: %i, id: %i\n", __func__, item->text, topitem, item->id);
+    //kprintf("%s: item: %s, topitem: %i, id: %i\n", __func__, item->text, topitem, item->id);
     SceVshItem *res = GetBackupVshItem(unk, topitem, item);
     if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
         return ret;
@@ -63,11 +63,10 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
     if((location = get_item_location(topitem, item)) >= 0) {
 
-        kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
+        //kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
         category[0] = '\0';
 
         if (vsh_items[location]) {
-            kprintf("%s: freeing vsh_items\n", __func__);
             sce_paf_private_free(vsh_items[location]);
             vsh_items[location] = NULL;
         }
@@ -78,8 +77,8 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         vsh_id = item->id;
         vsh_action_arg = item->action_arg;
 
-        kprintf(">> # action: %i\n", vsh_id);
-        kprintf(">> # action_arg: %i\n", vsh_action_arg);
+        //kprintf(">> # action: %i\n", vsh_id);
+        //kprintf(">> # action_arg: %i\n", vsh_action_arg);
 
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
@@ -160,40 +159,41 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
-        //kprintf("%s: name: %s\n", __func__, name);
-
+        kprintf("%s: match name: %s\n", __func__, name);
         //TODO: optimize this code
         // sysconf 1
         if (sce_paf_private_strcmp(name, "gc0") == 0) {
+            kprintf("%s: %s mode found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Category mode");
             return (wchar_t *) user_buffer;
         // sysconf 2
         } else if (sce_paf_private_strcmp(name, "gc1") == 0) {
+            kprintf("%s: %s found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Show uncategorized");
             return (wchar_t *) user_buffer;
         // Memory Stick
         } else if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
-            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, "gc4") == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
-            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msgshare_ms"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         // Internal Storage
         } else if (sce_paf_private_strncmp(name, "gcw_", 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
-            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msg_em"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, "gc5") == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
-            fix_text_padding((wchar_t *) user_buffer, scePafGetTextPatchOverride(arg, "msg_em"), 'M', 0x2122);
+            fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         }
     }
-    return scePafGetTextPatchOverride(arg, name);
+    return scePafGetText(arg, name);
 }
 
 // based on GCR v12, user/main.c
@@ -251,8 +251,19 @@ void PatchVshmain(u32 text_addr) {
      * just in case that another plugin patched the call before us
      * (i wish that the other plugins could be that nice to me too D: )
      */
-    u32 offset = text_addr + PATCHES->sce_paf_get_text_call;
-    scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
-    MAKE_CALL(offset, scePafGetTextPatched); // gcv_* hook
+//    u32 offset = text_addr + PATCHES->sce_paf_get_text_call;
+//    scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
+//    MAKE_CALL(offset, scePafGetTextPatched); // gcv_* hook
     //MAKE_CALL(text_addr + 0x246D8, scePafGetText_243D0); // msgshare_info_space
+}
+
+void PatchPaf(u32 text_addr) {
+    //sysconf called scePafGetText from offset: 0x052AC
+
+    scePafGetText = (void *)text_addr+PATCHES->scePafGetTextOffset;
+    _sw(_lw((u32)scePafGetText), (u32)paf_get_text_stub);
+    _sw(_lw((u32)scePafGetText + 4), (u32)paf_get_text_stub+4);
+    MAKE_JUMP((u32)paf_get_text_call, scePafGetText + 8);
+    MAKE_STUB((u32)scePafGetText, scePafGetTextPatched);
+    scePafGetText = (void *)paf_get_text_stub;
 }

@@ -27,8 +27,11 @@
 void add_vsh_item_stub(void *arg, int topitem, SceVshItem *item);
 void execute_action_stub(int action, int action_arg);
 void unload_module_stub(int skip);
+wchar_t* paf_get_text_stub(void *arg, char *name);
+
 void add_vsh_item_call();
 void execute_action_call();
 void unload_module_call();
+void paf_get_text_call();
 
 #endif /* REDIRECTS_H_ */

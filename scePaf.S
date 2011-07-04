@@ -4,7 +4,7 @@
 	
 #include "pspstub.s"
 
-	STUB_START "scePaf",0x00090000,0x000B0005
+	STUB_START "scePaf",0x00090000,0x000A0005
 	STUB_FUNC  0x8F95CC01,sce_paf_private_strcpy
 	STUB_FUNC  0xD38E62C6,sce_paf_private_strncpy
 	//STUB_FUNC  0x4C386F3C,sce_paf_private_sprintf
@@ -16,7 +16,7 @@
 	STUB_FUNC  0xB0363C2E,sce_paf_private_free
 	STUB_FUNC  0x49A72E5D,sce_paf_private_strlen
 	STUB_FUNC  0x5612DE15,sce_paf_private_strtoul
-	STUB_FUNC  0xCB608DE5,scePafGetText
+	//STUB_FUNC  0xCB608DE5,scePafGetText
 	STUB_END
 	
 	STUB_START "Kernel_Library",0x00090000,0x00020005

@@ -4,8 +4,7 @@ OBJS = main.o category.o io.o gcread.o clearcache.o gcpatches.o multims.o redire
 OBJS += $(STUBS)
 LIBS =  -lpsprtc
 
-CFLAGS = -O2 -G0 -Wall -std=c99 -fno-pic -fshort-wchar
-# -DDEBUG
+CFLAGS = -O2 -G0 -Wall -std=c99 -fno-pic -fshort-wchar -DDEBUG
 ASFLAGS = $(CFLAGS)
 
 PRX_EXPORTS = exports.exp
