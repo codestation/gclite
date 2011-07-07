@@ -10,6 +10,7 @@
 #include "stub_funcs.h"
 #include "utils.h"
 #include "multims.h"
+#include "context.h"
 #include "gcread.h"
 #include "config.h"
 #include "logger.h"
@@ -18,6 +19,7 @@ char user_buffer[256];
 
 int unload = 0;
 extern int game_plug;
+extern int sysconf_plug;
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -51,10 +53,14 @@ int get_item_location(int topitem, SceVshItem *item) {
 // from GCR v12, user/main.c
 SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     SceVshItem *ret;
-    //kprintf("%s: item: %s, topitem: %i, id: %i\n", __func__, item->text, topitem, item->id);
+    kprintf("item: %s, topitem: %i, id: %i\n", item->text, topitem, item->id);
     SceVshItem *res = GetBackupVshItem(unk, topitem, item);
-    if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
-        return ret;
+    if(config.mode == MODE_MULTI_MS) {
+        if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
+            return ret;
+        }
+    } else if(config.mode == MODE_CONTEXT_MENU){
+        PatchGetBackupVshItemForContext(item, res);
     }
     return res;
 }
@@ -64,13 +70,18 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
         load_config(&config);
-        //kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
+        kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);
         category[0] = '\0';
 
         if (vsh_items[location]) {
             sce_paf_private_free(vsh_items[location]);
             vsh_items[location] = NULL;
         }
+        if(context_items[location]) {
+            sce_paf_private_free(context_items[location]);
+            context_items[location] = NULL;
+        }
+
         ClearCategories(location);
         IndexCategories("xxx:/PSP/GAME", location);
 
@@ -85,14 +96,33 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
         sce_paf_private_strcpy(item->text, msg);
 
-        return PatchAddVshItemForMultiMs(arg, topitem, item, location);
+        if(config.mode == MODE_MULTI_MS) {
+            return PatchAddVshItemForMultiMs(arg, topitem, item, location);
+        } else if(config.mode == MODE_CONTEXT_MENU) {
+            return PatchAddVshItemForContext(arg, topitem, item, location);
+        }
     }
     return AddVshItem(arg, topitem, item);
 }
 
+//int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
+//    if (context_gamecats) {
+//        width = 1;
+//    }
+//    return sceVshCommonGuiDisplayContext(arg, page, plane, width, mlist, temp1, temp2);
+//}
+
 // from GCR v12, user/main.c
 int ExecuteActionPatched(int action, int action_arg) {
-    PatchExecuteActionForMultiMs(&action, &action_arg);
+    if(config.mode == MODE_MULTI_MS) {
+        PatchExecuteActionForMultiMs(&action, &action_arg);
+    } else if(config.mode == MODE_CONTEXT_MENU) {
+        if(PatchExecuteActionForContext(&action, &action_arg) == 2) {
+            return 0;
+        }
+    }
+    PatchExecuteActionForSysconf(action, action_arg);
+
     return ExecuteAction(action, action_arg);
 }
 
@@ -100,81 +130,31 @@ int ExecuteActionPatched(int action, int action_arg) {
 int UnloadModulePatched(int skip) {
     if (unload) {
         skip = -1;
+        if(unload > 1) {
+            sysconf_plug = 0;
+        } else {
+            game_plug = 0;
+        }
         unload = 0;
-        game_plug = 0;
     }
     return UnloadModule(skip);
-}
-
-// from GCR v12, user/main.c
-void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last) {
-    int i, x, len, found;
-
-    for (len = 0; fake[len]; len++)
-        ;
-
-    for (found = 0, i = 0; real[i]; i++) {
-        if (real[i] == first) {
-            found = 1;
-            break;
-        }
-    }
-
-    if (!found) {
-        return;
-    }
-
-    sce_paf_private_memmove(&fake[i], fake, ((len + 1) * 2));
-    sce_paf_private_memcpy(fake, real, (i * 2));
-    len += i;
-
-    for (found = 0, i = 0, x = 0; real[i]; i++) {
-        if (!found) {
-            if (real[i] == last) {
-                found = 1;
-            }
-            x++;
-        }
-
-        if (found) {
-            found++;
-        }
-    }
-
-    if (!found) {
-        return;
-    }
-
-    sce_paf_private_memcpy(&fake[len], &real[x], (found * 2));
-}
-
-// from GCL v1.3, mode.c
-void gc_utf8_to_unicode(wchar_t *dest, char *src) {
-    int i;
-
-    for (i = 0; i == 0 || src[i - 1]; i++) {
-        dest[i] = src[i];
-    }
 }
 
 // based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
-        kprintf("%s: match name: %s\n", __func__, name);
+        kprintf("match name: %s\n", name);
         //TODO: optimize this code
         // sysconf 1
         if (sce_paf_private_strcmp(name, "gc0") == 0) {
-            kprintf("%s: %s mode found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Category mode");
             return (wchar_t *) user_buffer;
         // sysconf 2
         } else if (sce_paf_private_strcmp(name, "gc1") == 0) {
-            kprintf("%s: %s found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Category prefix");
             return (wchar_t *) user_buffer;
         // sysconf 3
         } else if (sce_paf_private_strcmp(name, "gc2") == 0) {
-            kprintf("%s: %s found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Show uncategorized");
             return (wchar_t *) user_buffer;
         // Memory Stick

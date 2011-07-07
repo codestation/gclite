@@ -58,12 +58,12 @@ int is_iso_cat(const char *path) {
     trim(user_buffer);
 
     sce_paf_private_memset(&st, 0, sizeof(SceIoStat));
-    kprintf("%s: checking if %s is a ISO category\n", __func__, user_buffer);
+    //kprintf("checking if %s is a ISO category\n", user_buffer);
     if(sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode)) {
-        kprintf("> %s: true\n", __func__);
+        //kprintf("true\n");
         return 1;
     }
-    kprintf("> %s: false\n", __func__);
+    //kprintf("false\n");
     return 0;
 }
 
@@ -93,21 +93,18 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-    kprintf("%s: start\n", __func__);
+    //kprintf("called\n");
     while(1) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
-            kprintf(">> %s: checking: %s\n", __func__, dir->d_name);
+            //kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                 sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
-                kprintf(">> %s: skipping %s\n", __func__, dir->d_name);
+                //kprintf("skipping %s\n", dir->d_name);
                 continue;
             }
         }
-//        if(res > 0) {
-//            kprintf(">> %s: read %s\n", __func__, dir->d_name);
-//        }
         break;
     }
     return res;
@@ -134,7 +131,7 @@ int sceIoRmdirPatched(char *path) {
 }
 
 char *ReturnBasePathPatched(char *base) {
-    //kprintf("%s: base: %s\n", __func__, base);
+    //kprintf("base: %s\n", base);
     if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
@@ -148,7 +145,7 @@ char *ReturnBasePathPatched(char *base) {
         // force the device name
         SET_DEVICENAME(orig_path, type);
         SET_DEVICENAME(mod_path, type);
-        //kprintf("%s: changing %s to %s\n", __func__, base, mod_path);
+        //kprintf("changing %s to %s\n", base, mod_path);
         return mod_path;
     }
     return base;

@@ -14,6 +14,7 @@ typedef struct {
     u32 mode;
     u32 prefix;
     u32 uncategorized;
+    u32 selection;
 } CategoryConfig;
 
 enum uncat {

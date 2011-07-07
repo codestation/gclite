@@ -156,20 +156,19 @@ void IndexCategories(const char *path, int location) {
     SET_DEVICENAME(full_path, location);
 
     if((fd = sceIoDopen(full_path)) < 0) {
-        kprintf("%s: %s doesn't exists\n", __func__, full_path);
         return;
     }
 
-    kprintf("%s: Indexing categories from %s, loc: %i\n", __func__, path, location);
+    kprintf("Indexing categories from %s, loc: %i\n", path, location);
     match = 0;
     sce_paf_private_memset(&dir, 0, sizeof(SceIoDirent));
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
-            kprintf("%s: End of directory list\n", __func__);
+            //kprintf("%s: End of directory list\n");
             sceIoDclose(fd);
             break;
         }
-        kprintf("%s: Checking %s, length: %i\n", __func__, dir.d_name, sce_paf_private_strlen(dir.d_name));
+        //kprintf("Checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.') {
             if(!config.prefix && is_category(full_path, dir.d_name)) {
                 match = 1;
@@ -180,7 +179,7 @@ void IndexCategories(const char *path, int location) {
             if(match) {
                 match = 0;
                 sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
-                kprintf(">> %s: Adding %s as category\n", __func__, dir.d_name);
+                //kprintf("Adding %s as category\n", dir.d_name);
                 AddCategory(dir.d_name, mtime, location);
             }
         }

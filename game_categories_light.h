@@ -86,6 +86,12 @@ typedef struct
     char text[37]; // 43
 } SceVshItem; // 80
 
+typedef struct {
+    char *name;
+    void *callback;
+    u32 unknown;
+} SceCallbackItem;
+
 typedef struct
 {
     u8 id; //00
@@ -104,6 +110,11 @@ typedef struct
 enum CategoryLocation {
     MEMORY_STICK,
     INTERNAL_STORAGE,
+};
+
+enum GameCategoriesModes {
+    MODE_MULTI_MS,
+    MODE_CONTEXT_MENU,
 };
 
 typedef union _dpath {
@@ -129,6 +140,10 @@ void PatchPaf(u32 text_addr);
 void PatchSysconf(u32 text_addr);
 void PatchVshmain2(u32 text_addr);
 void PatchPaf2(u32 text_addr);
+void PatchExecuteActionForSysconf(int action, int action_arg);
+
+// Functions in: context.c
+void PatchPaf3(u32 text_addr);
 
 // Functions in: io.c
 void PatchIoFileMgrForGamePlugin(u32 text_addr);

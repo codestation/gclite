@@ -22,6 +22,8 @@
 	//STUB_FUNC  0x9CFBB2D9,scePafGetPageString
 	//STUB_FUNC  0xE03A5C26,PAF_Resource_GetPageNodeByID
 	//STUB_FUNC  0xFDAFC9E9,PAF_Resource_ResolveRefWString
+	STUB_FUNC  0xE1C930B5,scePafSetSelectedItem
+
 	STUB_END
 	
 	STUB_START "Kernel_Library",0x00090000,0x00020005

@@ -47,6 +47,7 @@ nid nids[] =
     //{ 0xBF2046E2, 0x39E9B515 }, // scePafGetPageChild
     //{ 0x9CFBB2D9, 0x62D2266B }, // scePafGetPageString
     //{ 0x70082F6F, 0xCB608DE5 }, // scePafGetText
+    { 0xE1C930B5, 0xF200AF8E }, // scePafSetSelectedItem
     // add strcmp for vsh
     //{ 0x3A370539, 0xE73C355B }, // vshGetRegistryValue
     //{ 0xCD3AF2EC, 0x2375A440 }, // vshSetRegistryValue
@@ -98,6 +99,7 @@ GCPatches patches_620 =
 	
     /** multi.c (vshmain) */
 
+	0x1F3BC, // RegisterCallbacks
 	0x2348C, // AddVshItem
     0x21D68, // GetBackupVshItem
     //{ 0x1631C, 0x2FF8C }, // ExecuteAction
@@ -149,6 +151,7 @@ GCPatches patches_63x =
 	//{ 0x1176C, 0x123A4 }, // sce_paf_get_text_call
 	
 	/** multi.c (vshmain) */
+	0x1FB70, // RegisterCallbacks
 	0x23C7C, // AddVshItem
 	0x22558, // GetBackupVshItem
 	//{ 0x16984, 0x30828 }, // ExecuteAction

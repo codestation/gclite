@@ -71,6 +71,7 @@ int OnModuleStart(SceModule2 *mod) {
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchPaf(mod->text_addr);
         PatchPaf2(mod->text_addr);
+        PatchPaf3(mod->text_addr);
         ClearCaches();
 
     }

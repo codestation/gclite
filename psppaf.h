@@ -39,6 +39,8 @@ unsigned int sce_paf_private_strtoul(char *nptr, void *endptr, int base);
 
 int vshIoDevctl(const char *dev, unsigned int cmd, void *indata, int inlen, void *outdata, int outlen);
 
+int scePafSetSelectedItem(void *, int);
+
 //wchar_t* scePafGetText(void *, char *);
 
 //int vshGetRegistryValue(u32 *option, char *name, void *arg2, int size, int *value);

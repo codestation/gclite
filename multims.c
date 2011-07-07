@@ -56,18 +56,18 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
         if(*action_arg >= 100) {
             Category *p;
             if(*action_arg >= 1000) {
-                //kprintf("%s: action for Internal Storage called\n", __func__);
+                //kprintf("action for Internal Storage called\n");
                 // force the path so the Internal Storage is read (PSPGo)
                 type = INTERNAL_STORAGE;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
             } else {
-                //kprintf("%s: action for Memory Stick called\n", __func__);
+                //kprintf("action for Memory Stick called\n");
                 // force the path so the Memory Stick is read (PSPGo)
                 type = MEMORY_STICK;
                 p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
             }
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
-            //kprintf("%s: changed action_arg for %s to %i\n", __func__, category, vsh_action_arg);
+            //kprintf("changed action_arg for %s to %i\n", category, vsh_action_arg);
 
             *action_arg = vsh_action_arg;
         }
@@ -84,12 +84,12 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
     if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
-        //kprintf("%s: adding uncategorized for Memory Stick\n", __func__);
+        //kprintf("adding uncategorized for Memory Stick\n");
         AddVshItem(arg, topitem, item);
     }
     if (location && (config.uncategorized & ONLY_IE)) {
         sce_paf_private_strcpy(item->text, "gc5");
-        //kprintf("%s: adding uncategorized for Internal Storage\n", __func__);
+        //kprintf("adding uncategorized for Internal Storage\n");
         AddVshItem(arg, topitem, item);
     }
 
@@ -103,7 +103,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         } else {
             sce_paf_private_snprintf(vsh_items[location][i].text, 37, "gcw_%08X", (u32) p);
         }
-        //kprintf("%s: adding %s for loc: %i\n", __func__, vsh_items[location][i].text, location);
+        //kprintf("adding %s for loc: %i\n", vsh_items[location][i].text, location);
         AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }

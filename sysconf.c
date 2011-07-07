@@ -14,25 +14,30 @@
 #include "stub_funcs.h"
 #include "logger.h"
 
+#define SYSCONF_ACTION 2
+
+static int last_action_arg = SYSCONF_ACTION;
+
 char user_buffer[256];
 u32 backup[4];
 int context_mode = 0;
 SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 
+extern int sysconf_plug;
+
 char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 struct GCStrings {
-    char *options[3];
+    char *options[2];
     char *prefix[2];
     char *show[4];
 } GCStrings;
 
 struct GCStrings gc_opts = {
-        {"Multi MS", "Contextual menu", "None"},
+        {"Multi MS", "Contextual menu"},
         {"None", "Use CAT_ prefix"},
         {"No", "Only Memory Stick", "Only Internal Storage", "Both"},
 };
-
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -46,17 +51,31 @@ int (*GetPageNodeByID)(void *resource, char *name, SceRcoEntry **child);
 void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     AddSysconfItem(option, item);
     for(int i = 0; i < sizeof(sysconf_item) / 4; i++) {
-        if(!sysconf_item[i]) {
+        //if(!sysconf_item[i]) {
             sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
-        }
+        //}
         sce_paf_private_memcpy(sysconf_item[i], *item, sizeof(SceSysconfItem));
         sysconf_item[i]->id = 5;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
-        kprintf("%s: adding %s\n", __func__, sysconf_item[i]->text);
+        kprintf("adding %s\n", sysconf_item[i]->text);
         sysconf_item[i]->page = "page_psp_config_umd_autoboot";
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
+    }
+}
+
+void PatchExecuteActionForSysconf(int action, int action_arg) {
+    if(!sysconf_plug) {
+        for(int i = 0; i < sizeof(sysconf_item) / 4; i++) {
+            sysconf_item [i] = NULL;
+        }
+    } else {
+        if(action == SYSCONF_ACTION) {
+            if(action_arg != last_action_arg) {
+                unload = 2;
+            }
+        }
     }
 }
 
@@ -115,7 +134,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
 
 SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
-    kprintf("%s: called, item->text: %s\n", __func__, item->text);
+    kprintf("called, item->text: %s\n", item->text);
     context_mode = 0;
     for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
@@ -127,7 +146,7 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
     if (name) {
-        kprintf("%s: name: %s\n", __func__, name);
+        kprintf("name: %s\n", name);
         context_mode = 0;
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
@@ -155,7 +174,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     u32 *cfg;
     if (name) {
-        kprintf("%s: name: %s\n", __func__, name);
+        kprintf("name: %s\n", name);
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 switch(i) {
@@ -186,7 +205,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 // scePafGetPageStringPatched
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
-        kprintf("%s: data: %s\n", __func__, data[1]);
+        kprintf("data: %s\n", data[1]);
         gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) data[1]);
         *(wchar_t **) string = (wchar_t *) user_buffer;
         return 0;
@@ -198,7 +217,7 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
 int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
-        kprintf("%s: name: %s, mode: %i\n", __func__, name, context_mode);
+        kprintf("name: %s, mode: %i\n", name, context_mode);
         if (sce_paf_private_strcmp(name, "page_psp_config_umd_autoboot") == 0) {
             switch(context_mode) {
             case 0:
