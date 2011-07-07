@@ -23,6 +23,7 @@
 #include <string.h>
 #include "game_categories_light.h"
 #include "pspdefs.h"
+#include "config.h"
 #include "logger.h"
 
 char user_buffer[256];
@@ -44,22 +45,25 @@ inline void trim(char *str) {
 int is_iso_cat(const char *path) {
     SceIoStat st;
 
-    sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
-    sce_paf_private_strcpy(user_buffer + 13, category);
-    //sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
-    //sce_paf_private_strcpy(user_buffer + 9, category);
+    if(config.prefix) {
+        sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
+        sce_paf_private_strcpy(user_buffer + 13, category);
+    } else {
+        sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
+        sce_paf_private_strcpy(user_buffer + 9, category);
+    }
     SET_DEVICENAME(user_buffer, type);
 
     // workaround for ME bug or "feature"
     trim(user_buffer);
 
-    memset(&st, 0, sizeof(SceIoStat));
-    //kprintf("%s: checking if %s is a ISO category\n", __func__, user_buffer);
+    sce_paf_private_memset(&st, 0, sizeof(SceIoStat));
+    kprintf("%s: checking if %s is a ISO category\n", __func__, user_buffer);
     if(sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode)) {
-        //kprintf("> %s: true\n", __func__);
+        kprintf("> %s: true\n", __func__);
         return 1;
     }
-    //kprintf("> %s: false\n", __func__);
+    kprintf("> %s: false\n", __func__);
     return 0;
 }
 
@@ -72,10 +76,16 @@ inline void fix_path(char **path) {
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
-            if(!cat || sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
-        //if(!cat || sce_paf_private_strcmp(dir->d_name, cat) == 0) {
+            if(!cat) {
                 return 1;
             }
+            if(config.prefix && sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+                return 1;
+            }
+            if(!config.prefix && sce_paf_private_strcmp(dir->d_name, cat) == 0) {
+                return 1;
+            }
+
         }
     }
     return 0;
@@ -83,15 +93,15 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-    //kprintf("%s: start\n", __func__);
+    kprintf("%s: start\n", __func__);
     while(1) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
-            //kprintf(">> %s: checking: %s\n", __func__, dir->d_name);
+            kprintf(">> %s: checking: %s\n", __func__, dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
-                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
-                //kprintf(">> %s: skipping %s\n", __func__, dir->d_name);
+                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
+                kprintf(">> %s: skipping %s\n", __func__, dir->d_name);
                 continue;
             }
         }
@@ -128,10 +138,13 @@ char *ReturnBasePathPatched(char *base) {
     if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
-        sce_paf_private_strcpy(mod_path + 13, "/CAT_");
-        sce_paf_private_strcpy(mod_path + 18, category);
-        //mod_path[13] = '/';
-        //sce_paf_private_strcpy(mod_path + 14, category);
+        if(config.prefix) {
+            sce_paf_private_strcpy(mod_path + 13, "/CAT_");
+            sce_paf_private_strcpy(mod_path + 18, category);
+        } else {
+            mod_path[13] = '/';
+            sce_paf_private_strcpy(mod_path + 14, category);
+        }
         // force the device name
         SET_DEVICENAME(orig_path, type);
         SET_DEVICENAME(mod_path, type);

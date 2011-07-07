@@ -38,6 +38,7 @@ nid nids[] =
     { 0x726776D7, 0x5E7610DF }, // sce_paf_private_snprintf
     { 0x1B952318, 0x4900119B }, // sce_paf_private_strcmp
     { 0x9DF5623C, 0xE00E38F8 }, // sce_paf_private_strncmp
+    { 0x861C4627, 0x16789955 }, // sce_paf_private_memcmp
     { 0xE281261E, 0x23C8DAB5 }, // sce_paf_private_memmove
     { 0x9E9FFBFB, 0xF0D98BD1 }, // sce_paf_private_malloc
     { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free

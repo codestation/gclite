@@ -27,6 +27,7 @@ char *sce_paf_private_strcpy(char *, const char*);
 char *sce_paf_private_strncpy(char *, const char*, int);
 int sce_paf_private_snprintf(char *, int, const char *, ...);
 int sce_paf_private_sprintf(char *, const char *, ...);
+int sce_paf_private_memcmp(const void *, const void *, int);
 void *sce_paf_private_memset(void *, char, int);
 void *sce_paf_private_memmove(void *, const void *, int);
 void sce_paf_private_free(void *);
@@ -35,6 +36,8 @@ void *sce_paf_private_memcpy(void *, void *, int);
 int sce_paf_private_strncmp(const char *, const char *, int);
 int sce_paf_private_strcmp(const char *, const char *);
 unsigned int sce_paf_private_strtoul(char *nptr, void *endptr, int base);
+
+int vshIoDevctl(const char *dev, unsigned int cmd, void *indata, int inlen, void *outdata, int outlen);
 
 //wchar_t* scePafGetText(void *, char *);
 

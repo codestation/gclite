@@ -29,7 +29,7 @@ struct GCStrings {
 
 struct GCStrings gc_opts = {
         {"Multi MS", "Contextual menu", "None"},
-        {"Use CAT_ prefix", "None"},
+        {"None", "Use CAT_ prefix"},
         {"No", "Only Memory Stick", "Only Internal Storage", "Both"},
 };
 
