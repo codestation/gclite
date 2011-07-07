@@ -25,8 +25,7 @@
 
 extern SceModuleInfo module_info;
 
-typedef struct
-{
+typedef struct {
 	u32 nid63x;
 	u32 nid620;
 } nid;
@@ -44,7 +43,12 @@ nid nids[] =
     { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free
     { 0x49A72E5D, 0x58189108 }, // sce_paf_private_strlen
     { 0x5612DE15, 0x0C962B6E }, // sce_paf_private_strtoul
-    { 0x70082F6F, 0xCB608DE5 }, // scePafGetText
+    //{ 0xBF2046E2, 0x39E9B515 }, // scePafGetPageChild
+    //{ 0x9CFBB2D9, 0x62D2266B }, // scePafGetPageString
+    //{ 0x70082F6F, 0xCB608DE5 }, // scePafGetText
+    // add strcmp for vsh
+    //{ 0x3A370539, 0xE73C355B }, // vshGetRegistryValue
+    //{ 0xCD3AF2EC, 0x2375A440 }, // vshSetRegistryValue
 };
 
 void ResolveNIDs() {
@@ -53,7 +57,6 @@ void ResolveNIDs() {
 
     while (stub_top < stub_end) {
         SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
-
         if (strcmp(stub->libname, "scePaf") == 0) {
             for (int i = 0; i < stub->stubcount; i++) {
                 for (int x = 0; x < sizeof(nids) / sizeof(nid); x++) {
@@ -109,6 +112,12 @@ GCPatches patches_620 =
     0x1C4A8, // AddSysconfItem
     0x02934, // GetSysconfItem
 
+    0x6750C, // GetPageNodeByIDOffset
+    0x677EC, // ResolveRefWStringOffset
+
+    0x03908, // vshGetRegistryValueOffset
+    0x03A38, // vshSetRegistryValueOffset
+
     /** vshitem.c */
     0x3C404, // scePafGetTextOffset
 };
@@ -153,6 +162,12 @@ GCPatches patches_63x =
     /** sysconf.c */
     0x1CD18, // AddSysconfItem
     0x02A28, // GetSysconfItem
+
+    0x674D4, // GetPageNodeByIDOffset
+    0x677B4, // ResolveRefWStringOffset
+
+    0x03998, // vshGetRegistryValueOffset
+    0x03AC8, // vshSetRegistryValueOffset
 
     /** vshitem.c */
     0x3C3CC, // scePafGetTextOffset

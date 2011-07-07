@@ -24,13 +24,13 @@
 #include "game_categories_light.h"
 #include "vshitem.h"
 #include "psppaf.h"
-#include "redirects.h"
+#include "config.h"
 #include "logger.h"
 
 // from GCR v12, include/game_categories_info.h
-#define game_action 0x0F
+#define GAME_ACTION 0x0F
 
-static int last_action_arg = game_action;
+static int last_action_arg = GAME_ACTION;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern int game_plug;
@@ -45,7 +45,7 @@ extern int type;
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     category[0] = '\0';
 
-    if (*action == game_action) {
+    if (*action == GAME_ACTION) {
         if (game_plug) {
             if (*action_arg != last_action_arg) {
                 unload = 1;
@@ -119,11 +119,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 }
 
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
-    //kprintf("%s: item: %s, id: %i\n", __func__, item->text, item->id);
     if(item->id >= 100) {
-        //kprintf("%s: changing id to %i\n", __func__, vsh_copy.id);
-        //item->id = vsh_copy.id;
-        //kprintf("%s: changing id to %i\n", __func__, vsh_id);
         item->id = vsh_id;
         return item;
     }

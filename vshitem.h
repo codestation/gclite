@@ -18,6 +18,8 @@ extern SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item);
 SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item);
 void PatchVshItem(u32 text_addr);
 
+void gc_utf8_to_unicode(wchar_t *dest, char *src);
+
 extern int unload;
 
 #endif /* VSHITEM_H_ */

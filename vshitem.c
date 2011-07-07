@@ -7,9 +7,11 @@
 
 #include "game_categories_light.h"
 #include "psppaf.h"
-#include "redirects.h"
+#include "stub_funcs.h"
+#include "utils.h"
 #include "multims.h"
 #include "gcread.h"
+#include "config.h"
 #include "logger.h"
 
 char user_buffer[256];
@@ -60,9 +62,8 @@ SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
 // from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
-
     if((location = get_item_location(topitem, item)) >= 0) {
-
+        load_config(&config);
         //kprintf("%s: got %s, location: %i, id: %i\n", __func__, item->text, location, item->id);
         category[0] = '\0';
 
@@ -169,6 +170,11 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         // sysconf 2
         } else if (sce_paf_private_strcmp(name, "gc1") == 0) {
             kprintf("%s: %s found\n", __func__, name);
+            gc_utf8_to_unicode((wchar_t *)user_buffer, "Category prefix");
+            return (wchar_t *) user_buffer;
+        // sysconf 3
+        } else if (sce_paf_private_strcmp(name, "gc2") == 0) {
+            kprintf("%s: %s found\n", __func__, name);
             gc_utf8_to_unicode((wchar_t *)user_buffer, "Show uncategorized");
             return (wchar_t *) user_buffer;
         // Memory Stick
@@ -196,74 +202,14 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
     return scePafGetText(arg, name);
 }
 
-// based on GCR v12, user/main.c
 void PatchVshmain(u32 text_addr) {
-    AddVshItem = (void *)text_addr+PATCHES->AddVshItemOffset;
-    _sw(_lw((u32)AddVshItem), (u32)add_vsh_item_stub);
-    _sw(_lw((u32)AddVshItem + 4), (u32)add_vsh_item_stub+4);
-    MAKE_JUMP((u32)add_vsh_item_call, AddVshItem + 8);
-    MAKE_STUB((u32)AddVshItem, AddVshItemPatched);
-    AddVshItem = (void *)add_vsh_item_stub;
-
-//    AddVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->AddVshItem));
-//    MAKE_CALL(text_addr+PATCHES->AddVshItem, AddVshItemPatched);
-
-    GetBackupVshItem = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->GetBackupVshItem));
-    MAKE_CALL(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
-
-    // this direct approach conflicts with some mean plugins D:
-
-//    ExecuteAction = (void *)(U_EXTRACT_CALL(text_addr+PATCHES->ExecuteAction[0]));
-//    MAKE_CALL(text_addr+PATCHES->ExecuteAction[0], ExecuteActionPatched);
-//    MAKE_CALL(text_addr+PATCHES->ExecuteAction[1], ExecuteActionPatched);
-//
-//    UnloadModule = (void *) (U_EXTRACT_CALL(text_addr+PATCHES->UnloadModule));
-//    MAKE_CALL(text_addr+PATCHES->UnloadModule, UnloadModulePatched);
-
-    /* since all those plugins that mess with the xmb think that is nice to overwrite
-     * our patch and don't jump to it when they are done with the hook i had to make
-     * a more aggresive hooking that involves some code relocation.
-     */
-
-    // get the function entry point
-    ExecuteAction = (void *)text_addr+PATCHES->ExecuteActionOffset;
-
-    // backup the first 2 opcodes into our stub
-    _sw(_lw((u32)ExecuteAction), (u32)execute_action_stub);
-    _sw(_lw((u32)ExecuteAction + 4), (u32)execute_action_stub+4);
-
-    // jump from out stub to the original function
-    MAKE_JUMP((u32)execute_action_call, (u32)ExecuteAction + 8);
-    MAKE_STUB((u32)ExecuteAction, ExecuteActionPatched);
-
-    // use our stub as the original entry point for the function
-    ExecuteAction = (void *)execute_action_stub;
-
-    // same as above
-    UnloadModule = (void *)text_addr+PATCHES->UnloadModuleOffset;
-    _sw(_lw((u32)UnloadModule), (u32)unload_module_stub);
-    _sw(_lw((u32)UnloadModule + 4), (u32)unload_module_stub+4);
-    MAKE_JUMP((u32)unload_module_call, UnloadModule + 8);
-    MAKE_STUB((u32)UnloadModule, UnloadModulePatched);
-    UnloadModule = (void *)unload_module_stub;
-
-    /* lets be nice and use address from the jal instead of a hardcoded one
-     * just in case that another plugin patched the call before us
-     * (i wish that the other plugins could be that nice to me too D: )
-     */
-//    u32 offset = text_addr + PATCHES->sce_paf_get_text_call;
-//    scePafGetTextPatchOverride = (void *)U_EXTRACT_CALL(offset);
-//    MAKE_CALL(offset, scePafGetTextPatched); // gcv_* hook
-    //MAKE_CALL(text_addr + 0x246D8, scePafGetText_243D0); // msgshare_info_space
+    AddVshItem = redir2stub(text_addr+PATCHES->AddVshItemOffset, (u32)add_vsh_item_stub, AddVshItemPatched);
+    GetBackupVshItem = redir_call(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
+    ExecuteAction = redir2stub(text_addr+PATCHES->ExecuteActionOffset, (u32)execute_action_stub, ExecuteActionPatched);
+    UnloadModule = redir2stub(text_addr+PATCHES->UnloadModuleOffset, (u32)unload_module_stub, UnloadModulePatched);
 }
 
 void PatchPaf(u32 text_addr) {
     //sysconf called scePafGetText from offset: 0x052AC
-
-    scePafGetText = (void *)text_addr+PATCHES->scePafGetTextOffset;
-    _sw(_lw((u32)scePafGetText), (u32)paf_get_text_stub);
-    _sw(_lw((u32)scePafGetText + 4), (u32)paf_get_text_stub+4);
-    MAKE_JUMP((u32)paf_get_text_call, scePafGetText + 8);
-    MAKE_STUB((u32)scePafGetText, scePafGetTextPatched);
-    scePafGetText = (void *)paf_get_text_stub;
+    scePafGetText = redir2stub(text_addr+PATCHES->scePafGetTextOffset, (u32)paf_get_text_stub, scePafGetTextPatched);
 }

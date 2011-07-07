@@ -37,14 +37,15 @@ int kwrite(const char *path, void *buffer, int buflen);
     kwrite(LOGFILE, _buffer_log, sce_paf_private_strlen(_buffer_log)); \
 } while(0)
 
+int kwrite(const char *path, void *buffer, int buflen);
+
 #else
 
 #define kprintf(format, ...)
+#define kwrite(a, b, c)
 // uncomment this to use the logger with psplink
 //#define kprintf(format, ...) printf(format, ## __VA_ARGS__)
 
 #endif
-
-int kwrite(const char *path, void *buffer, int buflen);
 
 #endif /* LOGGER_H_ */

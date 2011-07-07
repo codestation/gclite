@@ -60,6 +60,12 @@ typedef struct {
 	u32 AddSysconfItem;
 	u32 GetSysconfItem;
 
+    u32 GetPageNodeByIDOffset;
+	u32 ResolveRefWStringOffset;
+
+	u32 vshGetRegistryValueOffset;
+	u32 vshSetRegistryValueOffset;
+
 	/** vshitem.c */
 	u32 scePafGetTextOffset;
 } GCPatches;

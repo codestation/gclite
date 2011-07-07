@@ -20,6 +20,7 @@
 #define PSPPAF_H_
 
 #include <stddef.h>
+#include "game_categories_light.h"
 
 void *sce_paf_private_malloc(int);
 char *sce_paf_private_strcpy(char *, const char*);
@@ -36,5 +37,8 @@ int sce_paf_private_strcmp(const char *, const char *);
 unsigned int sce_paf_private_strtoul(char *nptr, void *endptr, int base);
 
 //wchar_t* scePafGetText(void *, char *);
+
+//int vshGetRegistryValue(u32 *option, char *name, void *arg2, int size, int *value);
+//int vshSetRegistryValue(u32 *option, char *name, int size,  int *value);
 
 #endif /* PSPPAF_H_ */

@@ -1,5 +1,5 @@
 /*
-    Game Categories Lite 1.0
+    Game Categories Lite 1.3
     Copyright (C) 2011, codestation
 
     This program is free software: you can redistribute it and/or modify
@@ -14,24 +14,15 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    Stub to a temporary redirect of the hooked funcs
-    (to avoid conflicts with other plguins).
 */
 
-#ifndef REDIRECTS_H_
-#define REDIRECTS_H_
+#include "stub_macro.s"
 
-#include "game_categories_light.h"
-
-void add_vsh_item_stub(void *arg, int topitem, SceVshItem *item);
-void execute_action_stub(int action, int action_arg);
-void unload_module_stub(int skip);
-wchar_t* paf_get_text_stub(void *arg, char *name);
-
-void add_vsh_item_call();
-void execute_action_call();
-void unload_module_call();
-void paf_get_text_call();
-
-#endif /* REDIRECTS_H_ */
+CREATE_STUB add_vsh_item_stub
+CREATE_STUB execute_action_stub
+CREATE_STUB unload_module_stub
+CREATE_STUB paf_get_text_stub
+CREATE_STUB get_page_node_stub
+CREATE_STUB resolve_ref_wstring_stub
+CREATE_STUB get_registry_stub
+CREATE_STUB set_registry_stub

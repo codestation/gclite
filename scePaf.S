@@ -17,9 +17,18 @@
 	STUB_FUNC  0x49A72E5D,sce_paf_private_strlen
 	STUB_FUNC  0x5612DE15,sce_paf_private_strtoul
 	//STUB_FUNC  0xCB608DE5,scePafGetText
+	//STUB_FUNC  0xBF2046E2,scePafGetPageChild
+	//STUB_FUNC  0x9CFBB2D9,scePafGetPageString
+	//STUB_FUNC  0xE03A5C26,PAF_Resource_GetPageNodeByID
+	//STUB_FUNC  0xFDAFC9E9,PAF_Resource_ResolveRefWString
 	STUB_END
 	
 	STUB_START "Kernel_Library",0x00090000,0x00020005
 	STUB_FUNC  0xA089ECA4,sce_paf_private_memset
 	STUB_FUNC  0x1839852A,sce_paf_private_memcpy
 	STUB_END
+
+	//STUB_START "vsh",0x00090000,0x00020005
+    //STUB_FUNC  0x3A370539,vshGetRegistryValue
+    //STUB_FUNC  0xCD3AF2EC,vshSetRegistryValue
+    //STUB_END

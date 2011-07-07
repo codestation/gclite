@@ -127,6 +127,8 @@ void PatchPaf(u32 text_addr);
 
 // Functions in: sysconf.c
 void PatchSysconf(u32 text_addr);
+void PatchVshmain2(u32 text_addr);
+void PatchPaf2(u32 text_addr);
 
 // Functions in: io.c
 void PatchIoFileMgrForGamePlugin(u32 text_addr);
