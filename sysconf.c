@@ -22,15 +22,15 @@ SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 struct GCStrings {
-    char *options[2];
+    char *options[3];
     char *prefix[2];
     char *show[4];
 } GCStrings;
 
 struct GCStrings gc_opts = {
-        {"Multi MS", "None"},
-        {"CAT_ prefix", "None"},
-        {"No", "Only MS", "Only IS", "All"},
+        {"Multi MS", "Contextual menu", "None"},
+        {"Use CAT_ prefix", "None"},
+        {"No", "Only Memory Stick", "Only Internal Storage", "Both"},
 };
 
 
