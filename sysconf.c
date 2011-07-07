@@ -17,7 +17,7 @@
 char user_buffer[256];
 u32 backup[4];
 int context_mode = 0;
-SceSysconfItem *sysconf_item[2] = { NULL, NULL };
+SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 
 char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
@@ -116,9 +116,10 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
 SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
     kprintf("%s: called, item->text: %s\n", __func__, item->text);
+    context_mode = 0;
     for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
-            context_mode = 1;
+            context_mode = i + 1;
         }
     }
     return item;
@@ -127,9 +128,10 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
     if (name) {
         kprintf("%s: name: %s\n", __func__, name);
+        context_mode = 0;
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
-                context_mode = 1;
+                context_mode = i + 1;
                 switch(i) {
                 case 0:
                     *value = config.mode;
@@ -173,7 +175,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
                 if(cfg) {
                     *cfg = *value;
                     save_config(&config);
-                    break;
+                    return 0;
                 }
             }
         }

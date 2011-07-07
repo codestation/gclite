@@ -16,6 +16,13 @@ typedef struct {
     u32 uncategorized;
 } CategoryConfig;
 
+enum uncat {
+    NONE,
+    ONLY_MS,
+    ONLY_IE,
+    BOTH,
+};
+
 extern CategoryConfig config;
 
 int load_config(CategoryConfig *config);

@@ -78,28 +78,20 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
 
 int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
     int i = 0;
-    SceIoStat stat;
     Category *p = NULL;
 
     vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
-    sce_paf_private_memset(&stat, 0, sizeof(stat));
 
-    // borrow the category buffer for a while
-    sce_paf_private_strcpy(category, "xxx:/seplugins/hide_uncategorized.txt");
-    SET_DEVICENAME(category, location);
-
-    if (!location && sceIoGetstat(category, &stat) < 0) {
+    if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
         //kprintf("%s: adding uncategorized for Memory Stick\n", __func__);
         AddVshItem(arg, topitem, item);
     }
-    if (location && sceIoGetstat(category, &stat) < 0) {
+    if (location && (config.uncategorized & ONLY_IE)) {
         sce_paf_private_strcpy(item->text, "gc5");
         //kprintf("%s: adding uncategorized for Internal Storage\n", __func__);
         AddVshItem(arg, topitem, item);
     }
-    // clear it again
-    category[0] = '\0';
 
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
