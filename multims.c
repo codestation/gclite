@@ -93,6 +93,8 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         AddVshItem(arg, topitem, item);
     }
 
+    type = location;
+
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 

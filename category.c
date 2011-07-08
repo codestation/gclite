@@ -130,6 +130,17 @@ void DelCategory(char *category, int location) {
     }
 }
 
+Category *FindCategory(const char *category, int location) {
+    Category *p = (Category *) first_category[location];
+    while(p) {
+        if (sce_paf_private_strcmp(&p->name, category) == 0) {
+            break;
+        }
+        p = p->next;
+    }
+    return p;
+}
+
 const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP" };
 
 int is_category(const char *base, const char *path) {

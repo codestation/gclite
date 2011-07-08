@@ -34,6 +34,8 @@ int load_config(CategoryConfig *conf) {
 int save_config(CategoryConfig *conf) {
     int written;
     SceUID fd;
+    char device[12];
+
     if(sce_paf_private_memcmp(conf, &prev_conf, sizeof(CategoryConfig)) != 0) {
         kprintf("saving config\n");
         if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0)
@@ -44,7 +46,14 @@ int save_config(CategoryConfig *conf) {
         sceIoClose(fd);
         sce_paf_private_memcpy(&prev_conf, conf, sizeof(CategoryConfig));
         // Fake MS Reinsertion
-        vshIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0);
+        sce_paf_private_strcpy(device, "fatxx0:");
+        device[3] = 'm';
+        device[4] = 's';
+        vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
+        // dunno if this works
+        device[3] = 'e';
+        device[4] = 'f';
+        vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
         return written == sizeof(CategoryConfig) ? 1 : 0;
     }
     return 1;

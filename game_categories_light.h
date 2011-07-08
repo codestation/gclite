@@ -123,10 +123,10 @@ typedef union _dpath {
 } dpath;
 
 #define SET_DEVICENAME(p, l) { \
-    dpath d; \
-    d.path = (p); \
-    *d.device = XOR_KEY; \
-    *d.device ^= (l) == MEMORY_STICK ? XORED_MEMORY_STICK : XORED_INTERNAL_STORAGE; \
+    dpath __d; \
+    __d.path = (p); \
+    *__d.device = XOR_KEY; \
+    *__d.device ^= (l) == MEMORY_STICK ? XORED_MEMORY_STICK : XORED_INTERNAL_STORAGE; \
 }
 
 // Functions in: multims.c
@@ -153,6 +153,7 @@ int CountCategories();
 void ClearCategories();
 void AddCategory(char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *prev, int location);
+Category *FindCategory(const char *category, int location);
 void IndexCategories(const char *path, int location);
 
 // Functions in: gcpatches.c

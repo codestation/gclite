@@ -75,17 +75,20 @@ inline void fix_path(char **path) {
 
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
-        if(sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
-            if(!cat) {
+        if(!cat) {
+            kprintf("prefix: %i, dir: %s, type: %i\n", config.prefix, dir->d_name, type);
+            if(!config.prefix && FindCategory(dir->d_name, type)) {
                 return 1;
             }
-            if(config.prefix && sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+            if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
                 return 1;
             }
-            if(!config.prefix && sce_paf_private_strcmp(dir->d_name, cat) == 0) {
-                return 1;
-            }
-
+        }
+        if(!config.prefix && sce_paf_private_strcmp(dir->d_name, cat) == 0) {
+            return 1;
+        }
+        if(config.prefix && sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+            return 1;
         }
     }
     return 0;
