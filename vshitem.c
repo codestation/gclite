@@ -19,7 +19,6 @@ char user_buffer[256];
 
 int unload = 0;
 extern int game_plug;
-extern int sysconf_plug;
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -121,7 +120,6 @@ int ExecuteActionPatched(int action, int action_arg) {
             return 0;
         }
     }
-    PatchExecuteActionForSysconf(action, action_arg);
 
     return ExecuteAction(action, action_arg);
 }
@@ -130,11 +128,7 @@ int ExecuteActionPatched(int action, int action_arg) {
 int UnloadModulePatched(int skip) {
     if (unload) {
         skip = -1;
-        if(unload > 1) {
-            sysconf_plug = 0;
-        } else {
-            game_plug = 0;
-        }
+        game_plug = 0;
         unload = 0;
     }
     return UnloadModule(skip);

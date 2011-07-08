@@ -45,7 +45,6 @@ int OnModuleStart(SceModule2 *mod) {
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
-
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
         PatchVshmain2(mod->text_addr);
@@ -81,7 +80,7 @@ int OnModuleStart(SceModule2 *mod) {
 
 int module_start(SceSize args, void *argp) {
     // paf isn't loaded yet
-    kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
+    //kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {

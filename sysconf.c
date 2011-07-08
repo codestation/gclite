@@ -14,10 +14,6 @@
 #include "stub_funcs.h"
 #include "logger.h"
 
-#define SYSCONF_ACTION 2
-
-static int last_action_arg = SYSCONF_ACTION;
-
 char user_buffer[256];
 u32 backup[4];
 int context_mode = 0;
@@ -51,9 +47,9 @@ int (*GetPageNodeByID)(void *resource, char *name, SceRcoEntry **child);
 void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     AddSysconfItem(option, item);
     for(int i = 0; i < sizeof(sysconf_item) / 4; i++) {
-        //if(!sysconf_item[i]) {
+        if(sysconf_plug || !sysconf_item[i]) {
             sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
-        //}
+        }
         sce_paf_private_memcpy(sysconf_item[i], *item, sizeof(SceSysconfItem));
         sysconf_item[i]->id = 5;
         sysconf_item[i]->text = sysconf_str[i];
@@ -63,20 +59,8 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
     }
-}
-
-void PatchExecuteActionForSysconf(int action, int action_arg) {
-    if(!sysconf_plug) {
-        for(int i = 0; i < sizeof(sysconf_item) / 4; i++) {
-            sysconf_item [i] = NULL;
-        }
-    } else {
-        if(action == SYSCONF_ACTION) {
-            if(action_arg != last_action_arg) {
-                unload = 2;
-            }
-        }
-    }
+    sysconf_plug = 0;
+    context_mode = 0;
 }
 
 void HijackContext(SceRcoEntry *src, char **options, int n) {
@@ -134,7 +118,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
 
 SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
-    kprintf("called, item->text: %s\n", item->text);
+    kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
     for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
@@ -205,7 +189,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 // scePafGetPageStringPatched
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
-        kprintf("data: %s\n", data[1]);
+        kprintf("data: %s\n", (char *)data[1]);
         gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) data[1]);
         *(wchar_t **) string = (wchar_t *) user_buffer;
         return 0;
@@ -220,9 +204,9 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
         kprintf("name: %s, mode: %i\n", name, context_mode);
         if (sce_paf_private_strcmp(name, "page_psp_config_umd_autoboot") == 0) {
             switch(context_mode) {
-            case 0:
-                HijackContext(*child, NULL, 0);
-                break;
+            //case 0:
+            //    HijackContext(*child, NULL, 0);
+            //    break;
             case 1:
                 HijackContext(*child, gc_opts.options, sizeof(gc_opts.options) / sizeof(char *));
                 break;
