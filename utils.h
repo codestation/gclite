@@ -8,7 +8,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-void *redir2stub(u32 address, u32 stub, void *redir);
+void *redir2stub(u32 address, void *stub, void *redir);
 void *redir_call(u32 address, void *func);
 
 void gc_utf8_to_unicode(wchar_t *dest, char *src);

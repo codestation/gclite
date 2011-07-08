@@ -48,6 +48,7 @@ int OnModuleStart(SceModule2 *mod) {
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
         PatchVshmain2(mod->text_addr);
+        PatchVshmain3(mod->text_addr);
 
 		/* Make sceKernelGetCompiledSdkVersion clear the caches,
 			so that we don't have to create a kernel module just 
@@ -70,7 +71,6 @@ int OnModuleStart(SceModule2 *mod) {
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchPaf(mod->text_addr);
         PatchPaf2(mod->text_addr);
-        PatchPaf3(mod->text_addr);
         ClearCaches();
 
     }

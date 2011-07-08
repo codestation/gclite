@@ -26,22 +26,24 @@
 #include "psppaf.h"
 #include "vshitem.h"
 #include "utils.h"
+#include "stub_funcs.h"
 #include "config.h"
 #include "logger.h"
 
 #define GAME_ACTION 0x0F
 
 extern int unload;
+extern int type;
 
-static int last_action_arg = GAME_ACTION;
+int last_action_arg_cnt = GAME_ACTION;
 
 int (* OnXmbPush)(void *arg0, void *arg1);
 int (* OnXmbContextMenu)(void *arg0, void *arg1);
 int (* OnMenuListScrollIn)(void *arg0, void *arg1);
 
-int (*RegisterCallbacks)(void *arg, SceCallbackItem *callbacks);
+//int (*RegisterCallbacks)(void *arg, SceCallbackItem *callbacks);
 
-SceVshItem *original_item;
+SceVshItem *original_item = NULL;
 SceContextItem *original_context;
 SceContextItem *context_items[2] = { NULL, NULL };
 
@@ -50,6 +52,7 @@ int context_just_opened = 0;
 void *xmb_arg0, *xmb_arg1;
 
 extern int vsh_id;
+int context_action_arg;
 extern int vsh_action_arg;
 
 extern char category[52];
@@ -59,48 +62,46 @@ extern int game_plug;
 int PatchExecuteActionForContext(int *action, int *action_arg) {
     int location;
     int uncategorized;
-    category[0] = '\0';
-    if(*action_arg >= 100) {
-        if(*action_arg >= 1000) {
-            location = INTERNAL_STORAGE;
-        } else {
-            location = MEMORY_STICK;
-        }
-    } else {
-        location = 0;
-    }
+    kprintf("called, action: %i, action_arg: %i\n", *action, *action_arg);
 
-    if (*action == GAME_ACTION && *action_arg >= 100) {
+    category[0] = '\0';
+
+    location = *action_arg == 1000 ? 1 : (*action_arg == 100 ? 0 : 0);
+
+    if (*action == GAME_ACTION && (*action_arg == 100 || *action_arg == 1000)) {
+        //restore action_arg
+        *action_arg = vsh_action_arg;
         context_gamecats = 1;
         original_item->context = context_items[location];
         OnXmbContextMenu(xmb_arg0, xmb_arg1);
-
         return 2;
-    } else if (*action == 0x80000) {
+    } else if (*action >= 0x80000) {
+
         if(game_plug) {
-            if (*action_arg != last_action_arg) {
+            if (*action_arg != last_action_arg_cnt) {
+                kprintf("marking game_plugin for unload\n");
                 unload = 1;
             }
         }
 
         if(!location && (config.uncategorized & ONLY_MS)) {
             uncategorized = 1;
-            *action_arg -= 100;
         } else if(!location && (config.uncategorized & ONLY_IE)) {
             uncategorized = 1;
-            *action_arg -= 1000;
         } else {
             uncategorized = 0;
         }
 
         if (!(uncategorized && *action_arg == 0)) {
+            // set category
             Category *p = (Category *)sce_paf_private_strtoul(context_items[location][*action_arg].text+4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
         }
 
         config.selection = *action_arg;
-        last_action_arg = *action_arg;
+        last_action_arg_cnt = *action_arg;
 
+        // simulate MS selection
         *action = GAME_ACTION;
         *action_arg = vsh_action_arg;
 
@@ -114,7 +115,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
     int i;
-    kprintf("%s: called, location: %i\n", __func__, location);
+    kprintf("called, name: %s, location: %i\n", item->text, location);
     if(!location && (config.uncategorized & ONLY_MS)) {
         i = 1;
     } else if(location && (config.uncategorized & ONLY_IE)) {
@@ -123,17 +124,29 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         i = 0;
     }
     Category *p = NULL;
+
+    vsh_id = item->id;
+    vsh_action_arg = item->action_arg;
+    context_action_arg = item->context->action_arg;
+
+    item->action_arg = location ? 1000 : 100;
+    last_action_arg_cnt = GAME_ACTION;
+
+    //TODO: mark location in original context
     item->play_sound = 0;
-    context_items[location] = sce_paf_private_malloc((CountCategories(location)+i)*sizeof(SceContextItem)+1);
-    sce_paf_private_memset(context_items, 0, (CountCategories()+i)*sizeof(SceContextItem)+1);
+    int malloc_size = (CountCategories(location) + i) * sizeof(SceContextItem) + 1;
+    context_items[location] = sce_paf_private_malloc(malloc_size);
+    sce_paf_private_memset(context_items[location], 0, malloc_size);
 
     if (i) {
-        kprintf("%s: creating uncategorized context\n");
+        kprintf("creating uncategorized context\n");
         sce_paf_private_strcpy(context_items[location][0].text, "gc4");
         context_items[location][0].play_sound = 1;
         context_items[location][0].action = 0x80000;
-        context_items[location][0].action_arg = (!location ? 100 : 1000);
+        context_items[location][0].action_arg = 0;
     }
+
+    type = location;
 
     while ((p = GetNextCategory(p, location)))
     {
@@ -142,10 +155,10 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         } else {
             sce_paf_private_snprintf(context_items[location][i].text, 48, "gcw_%08X", (u32)p);
         }
-        kprintf("%s: creating %s\n", __func__, context_items[location][i].text);
+        kprintf("creating %s\n", context_items[location][i].text);
         context_items[location][i].play_sound = 1;
         context_items[location][i].action = 0x80000;
-        context_items[location][i].action_arg = (!location ? 100 : 1000) + i;
+        context_items[location][i].action_arg = i;
         i++;
     }
 
@@ -157,7 +170,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
 
 int OnMenuListScrollInPatched(void *arg0, void *arg1)
 {
-    kprintf("%s\n", __func__);
+    kprintf("called\n");
     if (context_just_opened)  {
         context_just_opened = 0;
         scePafSetSelectedItem(arg0, config.selection);
@@ -167,14 +180,14 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1)
 }
 
 int OnXmbPushPatched(void *arg0, void *arg1) {
-    kprintf("%s\n", __func__);
+    kprintf("called\n");
     xmb_arg0 = arg0;
     xmb_arg1 = arg1;
     return OnXmbPush(arg0, arg1);
 }
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
-    kprintf("%s\n", __func__);
+    kprintf("called\n");
     context_gamecats = 0;
     if (original_item) {
         original_item->context = original_context;
@@ -184,32 +197,8 @@ int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     return OnXmbContextMenu(arg0, arg1);
 }
 
-int RegisterCallbacksPatched(void *arg, SceCallbackItem *callbacks) {
-    int i;
-    kprintf("%s\n", __func__);
-    for (i = 0; callbacks[i].name && callbacks[i].callback; i++)
-    {
-        if (strcmp(callbacks[i].name, "OnXmbPush") == 0) {
-            OnXmbPush = (void *)callbacks[i].callback;
-            callbacks[i].callback = (void *)OnXmbPushPatched;
-        }
-        else if (strcmp(callbacks[i].name, "OnXmbContextMenu") == 0) {
-            OnXmbContextMenu = (void *)callbacks[i].callback;
-            callbacks[i].callback = (void *)OnXmbContextMenuPatched;
-        }
-        else if (strcmp(callbacks[i].name, "OnMenuListScrollIn") == 0) {
-            OnMenuListScrollIn = (void *)callbacks[i].callback;
-            callbacks[i].callback = (void *)OnMenuListScrollInPatched;
-        }
-    }
-
-    sceKernelDcacheWritebackAll();
-
-    return RegisterCallbacks(arg, callbacks);
-}
-
 void PatchGetPageChildForContext(SceRcoEntry *src) {
-    kprintf("%s\n", __func__);
+    kprintf("called\n");
     SceRcoEntry *plane = (SceRcoEntry *)(((u8 *)src)+src->first_child);
     SceRcoEntry *mlist = (SceRcoEntry *)(((u8 *)plane)+plane->first_child);
     u32 *mlist_param = (u32 *)(((u8 *)mlist)+mlist->param);
@@ -241,13 +230,15 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 }
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
-    kprintf("%s\n", __func__);
+    kprintf("called\n");
     if (item->id == vsh_id) {
         original_item = res;
         original_context = item->context;
     }
 }
 
-void PatchPaf3(u32 text_addr) {
-    //RegisterCallbacks = redir_call(text_addr + PATCHES->RegisterCallbacks, RegisterCallbacksPatched);
+void PatchVshmain3(u32 text_addr) {
+    OnXmbPush = redir2stub(text_addr+0x168EC, xmb_push_stub, OnXmbPushPatched);
+    OnXmbContextMenu = redir2stub(text_addr+0x163A0, xmb_context_stub, OnXmbContextMenuPatched);
+    //OnMenuListScrollIn = redir2stub(text_addr+0x0, xmb_context_stub, OnXmbContextMenuPatched);
 }

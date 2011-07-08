@@ -117,6 +117,7 @@ int ExecuteActionPatched(int action, int action_arg) {
         PatchExecuteActionForMultiMs(&action, &action_arg);
     } else if(config.mode == MODE_CONTEXT_MENU) {
         if(PatchExecuteActionForContext(&action, &action_arg) == 2) {
+            kprintf("original item found\n");
             return 0;
         }
     }
@@ -127,6 +128,7 @@ int ExecuteActionPatched(int action, int action_arg) {
 // from GCR v12, user/main.c
 int UnloadModulePatched(int skip) {
     if (unload) {
+        kprintf("called\n");
         skip = -1;
         game_plug = 0;
         unload = 0;
@@ -177,13 +179,13 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 }
 
 void PatchVshmain(u32 text_addr) {
-    AddVshItem = redir2stub(text_addr+PATCHES->AddVshItemOffset, (u32)add_vsh_item_stub, AddVshItemPatched);
+    AddVshItem = redir2stub(text_addr+PATCHES->AddVshItemOffset, add_vsh_item_stub, AddVshItemPatched);
     GetBackupVshItem = redir_call(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
-    ExecuteAction = redir2stub(text_addr+PATCHES->ExecuteActionOffset, (u32)execute_action_stub, ExecuteActionPatched);
-    UnloadModule = redir2stub(text_addr+PATCHES->UnloadModuleOffset, (u32)unload_module_stub, UnloadModulePatched);
+    ExecuteAction = redir2stub(text_addr+PATCHES->ExecuteActionOffset, execute_action_stub, ExecuteActionPatched);
+    UnloadModule = redir2stub(text_addr+PATCHES->UnloadModuleOffset, unload_module_stub, UnloadModulePatched);
 }
 
 void PatchPaf(u32 text_addr) {
     //sysconf called scePafGetText from offset: 0x052AC
-    scePafGetText = redir2stub(text_addr+PATCHES->scePafGetTextOffset, (u32)paf_get_text_stub, scePafGetTextPatched);
+    scePafGetText = redir2stub(text_addr+PATCHES->scePafGetTextOffset, paf_get_text_stub, scePafGetTextPatched);
 }

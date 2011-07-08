@@ -26,3 +26,5 @@ CREATE_STUB get_page_node_stub
 CREATE_STUB resolve_ref_wstring_stub
 CREATE_STUB get_registry_stub
 CREATE_STUB set_registry_stub
+CREATE_STUB xmb_push_stub
+CREATE_STUB xmb_context_stub

@@ -143,14 +143,14 @@ void PatchPaf2(u32 text_addr);
 void PatchExecuteActionForSysconf(int action, int action_arg);
 
 // Functions in: context.c
-void PatchPaf3(u32 text_addr);
+void PatchVshmain3(u32 text_addr);
 
 // Functions in: io.c
 void PatchIoFileMgrForGamePlugin(u32 text_addr);
 
 // Functions in: category.c
-int CountCategories();
-void ClearCategories();
+int CountCategories(int location);
+void ClearCategories(int location);
 void AddCategory(char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *prev, int location);
 Category *FindCategory(const char *category, int location);

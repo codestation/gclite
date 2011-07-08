@@ -1,12 +1,12 @@
 #include "game_categories_light.h"
 #include "logger.h"
 
-void *redir2stub(u32 address, u32 stub, void *redir) {
-    _sw(_lw(address), stub);
-    _sw(_lw(address + 4), stub + 4);
-    MAKE_JUMP(stub + 8, address + 8);
+void *redir2stub(u32 address, void *stub, void *redir) {
+    _sw(_lw(address), (u32)stub);
+    _sw(_lw(address + 4), (u32)stub + 4);
+    MAKE_JUMP((u32)stub + 8, address + 8);
     MAKE_STUB(address, redir);
-    return (void *)stub;
+    return stub;
 }
 
 void *redir_call(u32 address, void *func) {

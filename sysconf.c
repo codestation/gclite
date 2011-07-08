@@ -54,7 +54,7 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
         sysconf_item[i]->id = 5;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
-        kprintf("adding %s\n", sysconf_item[i]->text);
+        //kprintf("adding %s\n", sysconf_item[i]->text);
         sysconf_item[i]->page = "page_psp_config_umd_autoboot";
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
@@ -118,7 +118,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
 
 SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
-    kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
+    //kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
     for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
@@ -130,7 +130,7 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
     if (name) {
-        kprintf("name: %s\n", name);
+        //kprintf("name: %s\n", name);
         context_mode = 0;
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
@@ -158,7 +158,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     u32 *cfg;
     if (name) {
-        kprintf("name: %s\n", name);
+        //kprintf("name: %s\n", name);
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 switch(i) {
@@ -189,7 +189,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 // scePafGetPageStringPatched
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
-        kprintf("data: %s\n", (char *)data[1]);
+        //kprintf("data: %s\n", (char *)data[1]);
         gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) data[1]);
         *(wchar_t **) string = (wchar_t *) user_buffer;
         return 0;
@@ -201,7 +201,7 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
 int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
-        kprintf("name: %s, mode: %i\n", name, context_mode);
+        //kprintf("name: %s, mode: %i\n", name, context_mode);
         if (sce_paf_private_strcmp(name, "page_psp_config_umd_autoboot") == 0) {
             switch(context_mode) {
             //case 0:
@@ -223,13 +223,13 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
 }
 
 void PatchVshmain2(u32 text_addr) {
-    vshGetRegistryValue = redir2stub(text_addr+PATCHES->vshGetRegistryValueOffset, (u32)get_registry_stub, vshGetRegistryValuePatched);
-    vshSetRegistryValue = redir2stub(text_addr+PATCHES->vshSetRegistryValueOffset, (u32)set_registry_stub, vshSetRegistryValuePatched);
+    vshGetRegistryValue = redir2stub(text_addr+PATCHES->vshGetRegistryValueOffset, get_registry_stub, vshGetRegistryValuePatched);
+    vshSetRegistryValue = redir2stub(text_addr+PATCHES->vshSetRegistryValueOffset, set_registry_stub, vshSetRegistryValuePatched);
 }
 
 void PatchPaf2(u32 text_addr) {
-    GetPageNodeByID = redir2stub(text_addr+PATCHES->GetPageNodeByIDOffset, (u32)get_page_node_stub, GetPageNodeByIDPatched);
-    ResolveRefWString = redir2stub(text_addr+PATCHES->ResolveRefWStringOffset, (u32)resolve_ref_wstring_stub, ResolveRefWStringPatched);
+    GetPageNodeByID = redir2stub(text_addr+PATCHES->GetPageNodeByIDOffset, get_page_node_stub, GetPageNodeByIDPatched);
+    ResolveRefWString = redir2stub(text_addr+PATCHES->ResolveRefWStringOffset, resolve_ref_wstring_stub, ResolveRefWStringPatched);
 }
 
 void PatchSysconf(u32 text_addr) {

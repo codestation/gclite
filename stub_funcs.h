@@ -30,5 +30,7 @@ void get_page_node_stub();
 void resolve_ref_wstring_stub();
 void get_registry_stub();
 void set_registry_stub();
+void xmb_push_stub();
+void xmb_context_stub();
 
 #endif /* STUB_FUNCS_H_ */

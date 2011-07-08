@@ -30,7 +30,7 @@
 // from GCR v12, include/game_categories_info.h
 #define GAME_ACTION 0x0F
 
-static int last_action_arg = GAME_ACTION;
+int last_action_arg = GAME_ACTION;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern int game_plug;
@@ -48,6 +48,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     if (*action == GAME_ACTION) {
         if (game_plug) {
             if (*action_arg != last_action_arg) {
+                kprintf("marking game_plugin for unload\n");
                 unload = 1;
             }
         }
@@ -94,6 +95,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
     }
 
     type = location;
+    last_action_arg = GAME_ACTION;
 
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));

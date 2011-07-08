@@ -76,7 +76,7 @@ inline void fix_path(char **path) {
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            kprintf("prefix: %i, dir: %s, type: %i\n", config.prefix, dir->d_name, type);
+            //kprintf("prefix: %i, dir: %s, type: %i\n", config.prefix, dir->d_name, type);
             if(!config.prefix && FindCategory(dir->d_name, type)) {
                 return 1;
             }
