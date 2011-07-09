@@ -30,10 +30,14 @@ int load_config() {
     SceUID fd;
     if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
         kprintf("loading config\n");
-        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_RDONLY, 0777)) < 0)
-            return 0;
-        read = sceIoRead(fd, &config, sizeof(CategoryConfig));
-        sceIoClose(fd);
+        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_RDONLY, 0777)) < 0) {
+            kprintf("couldn't open gclite.bin for reading, using defaults\n");
+            sce_paf_private_memset(&config, 0, sizeof(CategoryConfig));
+            read = 0;
+        } else {
+            read = sceIoRead(fd, &config, sizeof(CategoryConfig));
+            sceIoClose(fd);
+        }
         sce_paf_private_memcpy(&prev_conf, &config, sizeof(CategoryConfig));
         return read == sizeof(CategoryConfig) ? 1 : 0;
     }
@@ -53,8 +57,10 @@ int save_config() {
             reset = 0;
         }
         kprintf("saving config\n");
-        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0)
+        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0) {
+            kprintf("couldn't open gclite.bin for writting\n");
             return 0;
+        }
         written = sceIoWrite(fd, &config, sizeof(CategoryConfig));
         sceIoClose(fd);
         sce_paf_private_memcpy(&prev_conf, &config, sizeof(CategoryConfig));
@@ -65,12 +71,12 @@ int save_config() {
             device[3] = 'm';
             device[4] = 's';
             reset = vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
-            kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
+            //kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
             // dunno if this works
             device[3] = 'e';
             device[4] = 'f';
             reset = vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
-            kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
+            //kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
         }
         return written == sizeof(CategoryConfig) ? 1 : 0;
     }

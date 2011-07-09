@@ -36,9 +36,9 @@ char user_buffer[256];
 
 int unload = 0;
 
-int vsh_id = -1;
-int vsh_action_arg = -1;
-int last_action_arg = GAME_ACTION;
+int vsh_id[2] = { -1, -1 };
+int vsh_action_arg[2] = { -1, -1 };
+int last_action_arg[2] = { GAME_ACTION, GAME_ACTION };
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -103,17 +103,17 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         IndexCategories("xxx:/PSP/GAME", location);
 
         // make a backup of the id and action_arg
-        if(vsh_id < 0 || vsh_action_arg < 0) {
-            vsh_id = item->id;
-            vsh_action_arg = item->action_arg;
+        if(vsh_id[location] < 0 || vsh_action_arg[location] < 0) {
+            vsh_id[location] = item->id;
+            vsh_action_arg[location] = item->action_arg;
         } else {
-            item->id = vsh_id;
-            item->action_arg = vsh_action_arg;
+            item->id = vsh_id[location];
+            item->action_arg = vsh_action_arg[location];
             item->play_sound = 1;
         }
 
-        kprintf("saved: id: %i, action: %i\n", vsh_id, vsh_action_arg);
-        last_action_arg = GAME_ACTION;
+        kprintf("saved: id: %i, action: %i\n", vsh_id[location], vsh_action_arg[location]);
+        last_action_arg[location] = GAME_ACTION;
 
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
@@ -136,20 +136,21 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 //}
 
 int ExecuteActionPatched(int action, int action_arg) {
-    int ret;
+    int location;
     kprintf("action: %i, action_arg: %i\n", action, action_arg);
     if(config.mode == MODE_MULTI_MS) {
-        if(PatchExecuteActionForMultiMs(&action, &action_arg) == 1) {
-            last_action_arg = action_arg;
-            action_arg = vsh_action_arg;
+        location = PatchExecuteActionForMultiMs(&action, &action_arg);
+        if(location >= 0) {
+            last_action_arg[location] = action_arg;
+            action_arg = vsh_action_arg[location];
         }
     } else if(config.mode == MODE_CONTEXT_MENU) {
-        ret = PatchExecuteActionForContext(&action, &action_arg);
-        if(ret == 2) {
+        location = PatchExecuteActionForContext(&action, &action_arg);
+        if(location == 2) {
             return 0;
-        } else if(ret == 1) {
-            last_action_arg = action_arg;
-            action_arg = vsh_action_arg;
+        } else if(location >= 0) {
+            last_action_arg[location] = action_arg;
+            action_arg = vsh_action_arg[location];
 
             // simulate MS selection
             action = GAME_ACTION;

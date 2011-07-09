@@ -36,6 +36,7 @@ int (* OnXmbPush)(void *arg0, void *arg1);
 int (* OnXmbContextMenu)(void *arg0, void *arg1);
 int (* OnMenuListScrollIn)(void *arg0, void *arg1);
 
+// separate those
 SceVshItem *original_item = NULL;
 SceContextItem *original_context;
 SceContextItem *context_items[2] = { NULL, NULL };
@@ -57,7 +58,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
     if (*action == GAME_ACTION && (*action_arg == 100 || *action_arg == 1000)) {
         //restore action_arg
-        *action_arg = vsh_action_arg;
+        *action_arg = vsh_action_arg[location];
         context_gamecats = 1;
         original_item->context = context_items[location];
         OnXmbContextMenu(xmb_arg0, xmb_arg1);
@@ -65,7 +66,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
     } else if (*action == 0x70000) {
 
         if(game_plug) {
-            if (*action_arg != last_action_arg) {
+            if (*action_arg != last_action_arg[location]) {
                 kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg);
                 unload = 1;
             }
@@ -89,10 +90,10 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
         save_config(&config);
 
-        return 1;
+        return location;
     }
 
-    return 0;
+    return -1;
 }
 
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
@@ -212,7 +213,8 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 }
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
-    if (item->id == vsh_id) {
+    kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
+    if (item->id == vsh_id [MEMORY_STICK]) {
         original_item = res;
         original_context = item->context;
     }
