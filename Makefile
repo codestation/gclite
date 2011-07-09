@@ -5,8 +5,15 @@ OBJS += $(STUBS)
 LIBS =  -lpsprtc
 
 CFLAGS = -O2 -G0 -Wall -std=c99 -fshort-wchar
-# -DDEBUG
-# -DME_READ
+
+ifeq ($(DEBUG), 1)
+CFLAGS+=-DDEBUG
+endif
+
+ifeq ($(ME_READ), 1)
+CFLAGS+=-DME_READ
+endif
+
 ASFLAGS = $(CFLAGS)
 
 PRX_EXPORTS = exports.exp
