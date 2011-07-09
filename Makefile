@@ -6,6 +6,7 @@ LIBS =  -lpsprtc
 
 CFLAGS = -O2 -G0 -Wall -std=c99 -fshort-wchar
 # -DDEBUG
+# -DME_READ
 ASFLAGS = $(CFLAGS)
 
 PRX_EXPORTS = exports.exp

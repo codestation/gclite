@@ -35,6 +35,11 @@ char mod_path[70];
 char orig_path[70];
 int type = -1;
 
+#ifdef ME_READ
+int multi_cat = 0;
+SceUID catdfd = -1;
+#endif
+
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
     while(str[i-1] == ' ') {
@@ -90,6 +95,92 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
     return 0;
 }
 
+#ifdef ME_READ
+SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
+    if(fd >= 0) {
+        while(1) {
+            int res = sceIoDread(fd, dir);
+            if(res > 0) {
+                kprintf(">> %s: checking %s\n", __func__, dir->d_name);
+                if(is_category_folder(dir, category)) {
+                    // full path
+                    sce_paf_private_snprintf(user_buffer, 256, "%s/%s", orig_path, dir->d_name);
+                    kprintf(">> %s: opening iso cat: %s\n", __func__, user_buffer);
+                    fd = sceIoDopen(user_buffer);
+                    break;
+                }
+            } else {
+                fd = -1;
+                break;
+            }
+        }
+    }
+    return fd;
+}
+
+SceUID sceIoDopenPatched(const char *path) {
+    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(path)) {
+        multi_cat = 1;
+        path = orig_path;
+        kprintf("%s: changed path to: %s\n", __func__, path);
+    }
+    kprintf("%s: path: %s\n", __func__, path);
+    if(*category) {
+        kprintf("%s: category: %s\n", __func__, category);
+    }
+    return sceIoDopen(path);
+}
+
+int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
+    int res = -1;
+    kprintf("%s: start\n", __func__);
+    while(1) {
+        if(catdfd >= 0) {
+            kprintf(">> %s: reading %s\n", __func__, category);
+            res = sceIoDread(catdfd, dir);
+            if(res <= 0) {
+                sceIoDclose(catdfd);
+                kprintf(">> %s: open next category\n", __func__);
+                if((catdfd = open_iso_cat(fd, dir)) < 0) {
+                    kprintf(">> %s: end (no more categories)\n", __func__);
+                    multi_cat = 0;
+                    break;
+                }
+                continue;
+            }
+            kprintf(">> %s: read %s\n", __FUNC__, dir->d_name);
+            kprintf(">> %s: end (normal)\n", __func__);
+            break;
+        }
+        if(multi_cat) {
+            kprintf(">> %s: found ISO category: %s\n", __func__, category);
+            if((catdfd = open_iso_cat(fd, dir)) < 0) {
+                kprintf(">> %s: end (no ISO category)\n", __func__);
+                multi_cat = 0;
+                break;
+            }
+            continue;
+        }
+        res = sceIoDread(fd, dir);
+        // filter out category folders in uncategorized view
+        if(category[0] == '\0' && res > 0) {
+            kprintf(">> %s: checking: %s\n", __func__, dir->d_name);
+            if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
+                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
+                kprintf(">> %s: skipping %s\n", __func__, dir->d_name);
+                continue;
+            }
+        }
+        if(res > 0) {
+            kprintf(">> %s: read %s\n", __func__, dir->d_name);
+        }
+        break;
+    }
+    return res;
+}
+
+#else
+
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
     while(1) {
@@ -106,6 +197,8 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     }
     return res;
 }
+
+#endif
 
 int sceIoGetstatPatched(char *file, SceIoStat *stat) {
     fix_path(&file);
@@ -158,8 +251,9 @@ void PatchGamePluginForGCread(u32 text_addr) {
     MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched);
     MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched);
     MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched);
-
-    //MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+#ifdef ME_READ
+    MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+#endif
     //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
     //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
 
