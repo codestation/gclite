@@ -64,11 +64,13 @@ int save_config() {
             sce_paf_private_strcpy(device, "fatxx0:");
             device[3] = 'm';
             device[4] = 's';
-            vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
+            reset = vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
+            kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
             // dunno if this works
             device[3] = 'e';
             device[4] = 'f';
-            vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
+            reset = vshIoDevctl(device, 0x0240D81E, NULL, 0, NULL, 0);
+            kprintf("vshIoDevctl for %s returned %08X\n", device, reset);
         }
         return written == sizeof(CategoryConfig) ? 1 : 0;
     }
