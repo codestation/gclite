@@ -32,18 +32,17 @@
 extern int type;
 extern int game_plug;
 
-int (* OnXmbPush)(void *arg0, void *arg1);
-int (* OnXmbContextMenu)(void *arg0, void *arg1);
-int (* OnMenuListScrollIn)(void *arg0, void *arg1);
+int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
+int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
+int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
 
-// separate those
-SceVshItem *original_item = NULL;
-SceContextItem *original_context;
+SceVshItem *original_item[2] = { NULL, NULL };
+SceContextItem *original_context[2] = { NULL, NULL };
 SceContextItem *context_items[2] = { NULL, NULL };
 
 int context_gamecats = 0;
 int context_just_opened = 0;
-void *xmb_arg0, *xmb_arg1;
+void *xmb_arg0[2], *xmb_arg1[2];
 
 int context_action_arg;
 
@@ -60,8 +59,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         //restore action_arg
         *action_arg = vsh_action_arg[location];
         context_gamecats = 1;
-        original_item->context = context_items[location];
-        OnXmbContextMenu(xmb_arg0, xmb_arg1);
+        original_item[location]->context = context_items[location];
+        OnXmbContextMenu(xmb_arg0[location], xmb_arg1[location]);
         return 2;
     } else if (*action == 0x70000) {
 
@@ -162,8 +161,8 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1) {
 int OnXmbPushPatched(void *arg0, void *arg1) {
     kprintf("called\n");
     if(config.mode == MODE_CONTEXT_MENU) {
-        xmb_arg0 = arg0;
-        xmb_arg1 = arg1;
+        xmb_arg0[MEMORY_STICK] = arg0;
+        xmb_arg1[MEMORY_STICK] = arg1;
     }
     return OnXmbPush(arg0, arg1);
 }
@@ -172,8 +171,8 @@ int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     kprintf("called\n");
     if(config.mode == MODE_CONTEXT_MENU) {
         context_gamecats = 0;
-        if (original_item) {
-            original_item->context = original_context;
+        if (original_item[MEMORY_STICK]) {
+            original_item[MEMORY_STICK]->context = original_context[MEMORY_STICK];
         }
         sceKernelDcacheWritebackAll();
     }
@@ -214,9 +213,9 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
-    if (item->id == vsh_id [MEMORY_STICK]) {
-        original_item = res;
-        original_context = item->context;
+    if (item->id == vsh_id[MEMORY_STICK]) {
+        original_item[MEMORY_STICK] = res;
+        original_context[MEMORY_STICK] = item->context;
     }
 }
 
