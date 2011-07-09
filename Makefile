@@ -10,10 +10,6 @@ ifeq ($(DEBUG), 1)
 CFLAGS+=-DDEBUG
 endif
 
-ifeq ($(ME_READ), 1)
-CFLAGS+=-DME_READ
-endif
-
 ASFLAGS = $(CFLAGS)
 
 PRX_EXPORTS = exports.exp

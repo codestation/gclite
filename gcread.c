@@ -35,10 +35,10 @@ char mod_path[70];
 char orig_path[70];
 int type = -1;
 
-#ifdef ME_READ
+// ME variables
 int multi_cat = 0;
 SceUID catdfd = -1;
-#endif
+extern int me_fw;
 
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
@@ -95,7 +95,6 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
     return 0;
 }
 
-#ifdef ME_READ
 SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
     if(fd >= 0) {
         while(1) {
@@ -131,7 +130,7 @@ SceUID sceIoDopenPatched(const char *path) {
     return sceIoDopen(path);
 }
 
-int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
+int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
     int res = -1;
     kprintf("%s: start\n", __func__);
     while(1) {
@@ -179,8 +178,6 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     return res;
 }
 
-#else
-
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
     while(1) {
@@ -197,8 +194,6 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     }
     return res;
 }
-
-#endif
 
 int sceIoGetstatPatched(char *file, SceIoStat *stat) {
     fix_path(&file);
@@ -246,14 +241,18 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 
 
 void PatchGamePluginForGCread(u32 text_addr) {
-    MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
+    if(me_fw) {
+    MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatchedME);
+    } else {
+        MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
+    }
     MAKE_STUB(text_addr+PATCHES->io_getstat_stub, sceIoGetstatPatched);
     MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched);
     MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched);
     MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched);
-#ifdef ME_READ
-    MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
-#endif
+    if(me_fw) {
+        MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+    }
     //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
     //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
 

@@ -37,6 +37,16 @@ STMOD_HANDLER previous;
 int game_plug = 0;
 int sysconf_plug = 0;
 
+int me_fw = 0;
+
+int checkME() {
+    // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
+    if(!sctrlHENFindFunction("SystemControl", "VersionSpoofer", 0x5B18622C)) {
+        me_fw = 1;
+    }
+    return me_fw;
+}
+
 int OnModuleStart(SceModule2 *mod) {
     //kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
 	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
@@ -83,6 +93,10 @@ int OnModuleStart(SceModule2 *mod) {
 int module_start(SceSize args, void *argp) {
     // paf isn't loaded yet
     kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
+    // check if the plugin was loaded from ME
+    if(checkME()) {
+        kwrite("ms0:/category_lite.log", "ME compatibility enabled\n", 25);
+    }
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {
