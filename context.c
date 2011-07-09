@@ -62,7 +62,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         original_item->context = context_items[location];
         OnXmbContextMenu(xmb_arg0, xmb_arg1);
         return 2;
-    } else if (*action >= 0x80000) {
+    } else if (*action == 0x70000) {
 
         if(game_plug) {
             if (*action_arg != last_action_arg) {
@@ -122,7 +122,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         kprintf("creating uncategorized context\n");
         sce_paf_private_strcpy(context_items[location][0].text, "gc4");
         context_items[location][0].play_sound = 1;
-        context_items[location][0].action = 0x80000;
+        context_items[location][0].action = 0x70000;
         context_items[location][0].action_arg = 0;
     }
 
@@ -137,7 +137,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         }
         kprintf("creating %s\n", context_items[location][i].text);
         context_items[location][i].play_sound = 1;
-        context_items[location][i].action = 0x80000;
+        context_items[location][i].action = 0x70000;
         context_items[location][i].action_arg = i;
         i++;
     }
