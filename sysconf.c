@@ -143,9 +143,9 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 }
 
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
+    context_mode = 0;
     if (name) {
         //kprintf("name: %s\n", name);
-        context_mode = 0;
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 context_mode = i + 1;
@@ -216,9 +216,9 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
         //kprintf("name: %s, mode: %i\n", name, context_mode);
         if (sce_paf_private_strcmp(name, "page_psp_config_umd_autoboot") == 0) {
             switch(context_mode) {
-            //case 0:
-            //    HijackContext(*child, NULL, 0);
-            //    break;
+            case 0:
+                HijackContext(*child, NULL, 0);
+                break;
             case 1:
                 HijackContext(*child, gc_opts.options, sizeof(gc_opts.options) / sizeof(char *));
                 break;
