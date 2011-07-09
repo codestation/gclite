@@ -124,6 +124,11 @@ GCPatches patches_620 =
 
     /** vshitem.c */
     0x3C404, // scePafGetTextOffset
+
+    /** context.c */
+    0x16284, // OnXmbPush
+    0x15D38, // OnXmbContextMenu
+    0x0DEAD, // OnMenuListScrollIn
 };
 
 GCPatches patches_63x =
@@ -176,6 +181,11 @@ GCPatches patches_63x =
 
     /** vshitem.c */
     0x3C3CC, // scePafGetTextOffset
+
+    /** context.c */
+    0x168EC, // OnXmbPush
+    0x163A0, // OnXmbContextMenu
+    0x0DEAD, // OnMenuListScrollIn
 };
 
 GCPatches *GetPatches(int fw_group) {

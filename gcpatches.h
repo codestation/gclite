@@ -71,6 +71,11 @@ typedef struct {
 
 	/** vshitem.c */
 	u32 scePafGetTextOffset;
+
+	/** context.c */
+	u32 OnXmbPush;
+	u32 OnXmbContextMenu;
+	u32 OnMenuListScrollIn;
 } GCPatches;
 
 extern GCPatches *PATCHES;
