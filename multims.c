@@ -29,7 +29,6 @@
 
 #define GAME_ACTION 0x0F
 
-extern int last_action_arg;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern int game_plug;
