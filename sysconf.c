@@ -66,10 +66,10 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
             sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
         }
         sce_paf_private_memcpy(sysconf_item[i], *item, sizeof(SceSysconfItem));
-        sysconf_item[i]->id = 5;
+        sysconf_item[i]->id = 6;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
-        sysconf_item[i]->page = "page_psp_config_umd_autoboot";
+        sysconf_item[i]->page = "page_psp_config_umd_cache";
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
     }
@@ -214,7 +214,7 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
         //kprintf("name: %s, mode: %i\n", name, context_mode);
-        if (sce_paf_private_strcmp(name, "page_psp_config_umd_autoboot") == 0) {
+        if (sce_paf_private_strcmp(name, "page_psp_config_umd_cache") == 0) {
             switch(context_mode) {
             case 0:
                 HijackContext(*child, NULL, 0);
