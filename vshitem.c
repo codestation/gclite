@@ -15,10 +15,17 @@
 #include "config.h"
 #include "logger.h"
 
+#define GAME_ACTION 0x0F
+
+extern int game_plug;
+
 char user_buffer[256];
 
 int unload = 0;
-extern int game_plug;
+
+int vsh_id = -1;
+int vsh_action_arg = -1;
+int last_action_arg = GAME_ACTION;
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -84,9 +91,18 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         ClearCategories(location);
         IndexCategories("xxx:/PSP/GAME", location);
 
-        // make a copy of a good vsh item
-        vsh_id = item->id;
-        vsh_action_arg = item->action_arg;
+        // make a backup of the id and action_arg
+        if(vsh_id < 0 || vsh_action_arg < 0) {
+            vsh_id = item->id;
+            vsh_action_arg = item->action_arg;
+        } else {
+            item->id = vsh_id;
+            item->action_arg = vsh_action_arg;
+            item->play_sound = 1;
+        }
+
+        kprintf("saved: id: %i, action: %i\n", vsh_id, vsh_action_arg);
+        last_action_arg = GAME_ACTION;
 
         //kprintf(">> # action: %i\n", vsh_id);
         //kprintf(">> # action_arg: %i\n", vsh_action_arg);
@@ -113,15 +129,26 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 
 // from GCR v12, user/main.c
 int ExecuteActionPatched(int action, int action_arg) {
+    int ret;
+    kprintf("action: %i, action_arg: %i\n", action, action_arg);
     if(config.mode == MODE_MULTI_MS) {
-        PatchExecuteActionForMultiMs(&action, &action_arg);
+        if(PatchExecuteActionForMultiMs(&action, &action_arg) == 1) {
+            last_action_arg = action_arg;
+            action_arg = vsh_action_arg;
+        }
     } else if(config.mode == MODE_CONTEXT_MENU) {
-        if(PatchExecuteActionForContext(&action, &action_arg) == 2) {
-            kprintf("original item found\n");
+        ret = PatchExecuteActionForContext(&action, &action_arg);
+        if(ret == 2) {
             return 0;
+        } else if(ret == 1) {
+            last_action_arg = action_arg;
+            action_arg = vsh_action_arg;
+
+            // simulate MS selection
+            action = GAME_ACTION;
         }
     }
-
+    kprintf("sending action: %i, action_arg: %i\n", action, action_arg);
     return ExecuteAction(action, action_arg);
 }
 

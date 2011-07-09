@@ -30,47 +30,39 @@
 // from GCR v12, include/game_categories_info.h
 #define GAME_ACTION 0x0F
 
-int last_action_arg = GAME_ACTION;
+//int last_action_arg = GAME_ACTION;
+extern int last_action_arg;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern int game_plug;
 
 //SceVshItem vsh_copy;
-int vsh_id;
-int vsh_action_arg;
+
 
 extern char category[52];
 extern int type;
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
+    int location;
     category[0] = '\0';
-
     if (*action == GAME_ACTION) {
+        if(*action_arg >= 100) {
+            if(*action_arg >= 1000) {
+                location = INTERNAL_STORAGE;
+                *action_arg -= 1000;
+            } else {
+                location = MEMORY_STICK;
+                *action_arg -= 100;
+            }
+            type = location;
+            Category *p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
+            sce_paf_private_strncpy(category, &p->name, sizeof(category));
+        }
         if (game_plug) {
             if (*action_arg != last_action_arg) {
-                kprintf("marking game_plugin for unload\n");
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg);
                 unload = 1;
             }
-        }
-        last_action_arg = *action_arg;
-
-        if(*action_arg >= 100) {
-            Category *p;
-            if(*action_arg >= 1000) {
-                //kprintf("action for Internal Storage called\n");
-                // force the path so the Internal Storage is read (PSPGo)
-                type = INTERNAL_STORAGE;
-                p = (Category *) sce_paf_private_strtoul(vsh_items[INTERNAL_STORAGE][*action_arg - 1000].text + 4, NULL, 16);
-            } else {
-                //kprintf("action for Memory Stick called\n");
-                // force the path so the Memory Stick is read (PSPGo)
-                type = MEMORY_STICK;
-                p = (Category *) sce_paf_private_strtoul(vsh_items[MEMORY_STICK][*action_arg - 100].text + 4, NULL, 16);
-            }
-            sce_paf_private_strncpy(category, &p->name, sizeof(category));
-            //kprintf("changed action_arg for %s to %i\n", category, vsh_action_arg);
-
-            *action_arg = vsh_action_arg;
         }
         return 1;
     }
@@ -95,7 +87,6 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
     }
 
     type = location;
-    last_action_arg = GAME_ACTION;
 
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));

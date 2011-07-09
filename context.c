@@ -26,22 +26,17 @@
 #include "psppaf.h"
 #include "vshitem.h"
 #include "utils.h"
+#include "gcread.h"
 #include "stub_funcs.h"
 #include "config.h"
 #include "logger.h"
 
-#define GAME_ACTION 0x0F
-
-extern int unload;
 extern int type;
-
-int last_action_arg_cnt = GAME_ACTION;
+extern int game_plug;
 
 int (* OnXmbPush)(void *arg0, void *arg1);
 int (* OnXmbContextMenu)(void *arg0, void *arg1);
 int (* OnMenuListScrollIn)(void *arg0, void *arg1);
-
-//int (*RegisterCallbacks)(void *arg, SceCallbackItem *callbacks);
 
 SceVshItem *original_item = NULL;
 SceContextItem *original_context;
@@ -51,13 +46,7 @@ int context_gamecats = 0;
 int context_just_opened = 0;
 void *xmb_arg0, *xmb_arg1;
 
-extern int vsh_id;
 int context_action_arg;
-extern int vsh_action_arg;
-
-extern char category[52];
-
-extern int game_plug;
 
 int PatchExecuteActionForContext(int *action, int *action_arg) {
     int location;
@@ -78,8 +67,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
     } else if (*action >= 0x80000) {
 
         if(game_plug) {
-            if (*action_arg != last_action_arg_cnt) {
-                kprintf("marking game_plugin for unload\n");
+            if (*action_arg != last_action_arg) {
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg);
                 unload = 1;
             }
         }
@@ -99,11 +88,6 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         }
 
         config.selection = *action_arg;
-        last_action_arg_cnt = *action_arg;
-
-        // simulate MS selection
-        *action = GAME_ACTION;
-        *action_arg = vsh_action_arg;
 
         save_config(&config);
 
@@ -125,12 +109,10 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
     }
     Category *p = NULL;
 
-    vsh_id = item->id;
-    vsh_action_arg = item->action_arg;
     context_action_arg = item->context->action_arg;
 
     item->action_arg = location ? 1000 : 100;
-    last_action_arg_cnt = GAME_ACTION;
+    //last_action_arg_cnt = GAME_ACTION;
 
     //TODO: mark location in original context
     item->play_sound = 0;
@@ -167,9 +149,8 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
     }
     return AddVshItem(arg, topitem, item);
 }
-
-int OnMenuListScrollInPatched(void *arg0, void *arg1)
-{
+/*
+int OnMenuListScrollInPatched(void *arg0, void *arg1) {
     kprintf("called\n");
     if (context_just_opened)  {
         context_just_opened = 0;
@@ -177,23 +158,26 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1)
     }
 
     return OnMenuListScrollIn(arg0, arg1);
-}
+}*/
 
 int OnXmbPushPatched(void *arg0, void *arg1) {
     kprintf("called\n");
-    xmb_arg0 = arg0;
-    xmb_arg1 = arg1;
+    if(config.mode == MODE_CONTEXT_MENU) {
+        xmb_arg0 = arg0;
+        xmb_arg1 = arg1;
+    }
     return OnXmbPush(arg0, arg1);
 }
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     kprintf("called\n");
-    context_gamecats = 0;
-    if (original_item) {
-        original_item->context = original_context;
+    if(config.mode == MODE_CONTEXT_MENU) {
+        context_gamecats = 0;
+        if (original_item) {
+            original_item->context = original_context;
+        }
+        sceKernelDcacheWritebackAll();
     }
-    sceKernelDcacheWritebackAll();
-
     return OnXmbContextMenu(arg0, arg1);
 }
 

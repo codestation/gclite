@@ -14,7 +14,5 @@ SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res);
 int PatchExecuteActionForMultiMs(int *action, int *action_arg);
 
 extern SceVshItem *vsh_items[2];
-extern int vsh_id;
-extern int vsh_action_arg;
 
 #endif /* MULTIMS_H_ */
