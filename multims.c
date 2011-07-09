@@ -1,49 +1,46 @@
 /*
-    Game Categories v 12.0
-    Copyright (C) 2009, Bubbletune
-
-    multims.c: Patches to handle Multiple Memsticks mode
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  this file is part of Game Categories Lite
+ *
+ *  Copyright (C) 2009  Bubbletune
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <pspiofilemgr.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
 #include "vshitem.h"
 #include "psppaf.h"
 #include "config.h"
 #include "logger.h"
 
-// from GCR v12, include/game_categories_info.h
 #define GAME_ACTION 0x0F
 
-//int last_action_arg = GAME_ACTION;
 extern int last_action_arg;
 SceVshItem *vsh_items[2] = { NULL, NULL };
 
 extern int game_plug;
 
-//SceVshItem vsh_copy;
-
-
 extern char category[52];
 extern int type;
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
+    Category *p;
     int location;
+
     category[0] = '\0';
     if (*action == GAME_ACTION) {
         if(*action_arg >= 100) {
@@ -55,7 +52,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 *action_arg -= 100;
             }
             type = location;
-            Category *p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
+            p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
         }
         if (game_plug) {

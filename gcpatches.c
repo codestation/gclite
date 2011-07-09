@@ -1,27 +1,29 @@
 /*
-	Game Categories Light v 1.3
-	Copyright (C) 2011, Bubbletune
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  this file is part of Game Categories Lite
+ *
+ *  Copyright (C) 2011  Bubbletune
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <string.h>
 #include <stdio.h>
 #include <pspmoduleinfo.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
 
 extern SceModuleInfo module_info;
 
@@ -34,7 +36,6 @@ nid nids[] =
 {
     { 0x8F95CC01, 0xE5A74996 }, // sce_paf_private_strcpy
     { 0xD38E62C6, 0x4F487FBC }, // sce_paf_private_strncpy
-    //{ 0x4C386F3C, 0xE8473E80 }, // sce_paf_private_sprintf
     { 0x726776D7, 0x5E7610DF }, // sce_paf_private_snprintf
     { 0x1B952318, 0x4900119B }, // sce_paf_private_strcmp
     { 0x9DF5623C, 0xE00E38F8 }, // sce_paf_private_strncmp
@@ -44,11 +45,11 @@ nid nids[] =
     { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free
     { 0x49A72E5D, 0x58189108 }, // sce_paf_private_strlen
     { 0x5612DE15, 0x0C962B6E }, // sce_paf_private_strtoul
+    { 0xE1C930B5, 0xF200AF8E }, // scePafSetSelectedItem
+    //{ 0x4C386F3C, 0xE8473E80 }, // sce_paf_private_sprintf
     //{ 0xBF2046E2, 0x39E9B515 }, // scePafGetPageChild
     //{ 0x9CFBB2D9, 0x62D2266B }, // scePafGetPageString
     //{ 0x70082F6F, 0xCB608DE5 }, // scePafGetText
-    { 0xE1C930B5, 0xF200AF8E }, // scePafSetSelectedItem
-    // add strcmp for vsh
     //{ 0x3A370539, 0xE73C355B }, // vshGetRegistryValue
     //{ 0xCD3AF2EC, 0x2375A440 }, // vshSetRegistryValue
 };

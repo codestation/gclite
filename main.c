@@ -1,27 +1,29 @@
 /*
-	Game Categories Light v 1.3
-	Copyright (C) 2011, Bubbletune
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  this file is part of Game Categories Lite
+ *
+ *  Copyright (C) 2011  Bubbletune
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <pspsdk.h>
 #include <pspkernel.h>
-#include <psprtc.h>
-#include "psppaf.h"
 #include <string.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
+#include "psppaf.h"
+#include "gcpatches.h"
 #include "pspdefs.h"
 #include "logger.h"
 
@@ -41,14 +43,14 @@ int OnModuleStart(SceModule2 *mod) {
 
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
 	    game_plug = 1;
-		PatchIoFileMgrForGamePlugin(mod->text_addr);
+		PatchGamePluginForGCread(mod->text_addr);
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
-        PatchVshmain2(mod->text_addr);
-        PatchVshmain3(mod->text_addr);
+        PatchVshmainForSysconf(mod->text_addr);
+        PatchVshmainForContext(mod->text_addr);
 
 		/* Make sceKernelGetCompiledSdkVersion clear the caches,
 			so that we don't have to create a kernel module just 
@@ -70,7 +72,7 @@ int OnModuleStart(SceModule2 *mod) {
 
 	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
         PatchPaf(mod->text_addr);
-        PatchPaf2(mod->text_addr);
+        PatchPafForSysconf(mod->text_addr);
         ClearCaches();
 
     }
@@ -80,7 +82,7 @@ int OnModuleStart(SceModule2 *mod) {
 
 int module_start(SceSize args, void *argp) {
     // paf isn't loaded yet
-    //kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
+    kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {

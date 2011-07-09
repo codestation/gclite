@@ -1,5 +1,5 @@
 /*
- *  Game Categories Lite 1.2
+ *  this file is part of Game Categories Lite
  *
  *  Copyright (C) 2011  Codestation
  *
@@ -43,8 +43,6 @@ int kwrite(const char *path, void *buffer, int buflen);
 
 #define kprintf(format, ...)
 #define kwrite(a, b, c)
-// uncomment this to use the logger with psplink
-//#define kprintf(format, ...) printf(format, ## __VA_ARGS__)
 
 #endif
 

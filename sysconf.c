@@ -1,12 +1,27 @@
 /*
- * sysconf.c
+ *  this file is part of Game Categories Lite
+ *  Contain parts of 6.39 TN-A, XmbControl
  *
- *  Created on: 03/07/2011
- *      Author: code
+ *  Copyright (C) 2009, Bubbletune
+ *  Copyright (C) 2011, Total_Noob
+ *  Copyright (C) 2011, Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <psputils.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
 #include "psppaf.h"
 #include "vshitem.h"
 #include "utils.h"
@@ -31,7 +46,7 @@ struct GCStrings {
 
 struct GCStrings gc_opts = {
         {"Multi MS", "Contextual menu"},
-        {"None", "Use CAT_ prefix"},
+        {"None", "Use CAT prefix"},
         {"No", "Only Memory Stick", "Only Internal Storage", "Both"},
 };
 
@@ -54,7 +69,6 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
         sysconf_item[i]->id = 5;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
-        //kprintf("adding %s\n", sysconf_item[i]->text);
         sysconf_item[i]->page = "page_psp_config_umd_autoboot";
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
@@ -186,7 +200,6 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     return vshSetRegistryValue(option, name, size, value);
 }
 
-// scePafGetPageStringPatched
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
         //kprintf("data: %s\n", (char *)data[1]);
@@ -197,7 +210,6 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
     return ResolveRefWString(resource, data, a2, string, t0);
 }
 
-// scePafGetPageChildPatched
 int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
@@ -222,12 +234,12 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     return res;
 }
 
-void PatchVshmain2(u32 text_addr) {
+void PatchVshmainForSysconf(u32 text_addr) {
     vshGetRegistryValue = redir2stub(text_addr+PATCHES->vshGetRegistryValueOffset, get_registry_stub, vshGetRegistryValuePatched);
     vshSetRegistryValue = redir2stub(text_addr+PATCHES->vshSetRegistryValueOffset, set_registry_stub, vshSetRegistryValuePatched);
 }
 
-void PatchPaf2(u32 text_addr) {
+void PatchPafForSysconf(u32 text_addr) {
     GetPageNodeByID = redir2stub(text_addr+PATCHES->GetPageNodeByIDOffset, get_page_node_stub, GetPageNodeByIDPatched);
     ResolveRefWString = redir2stub(text_addr+PATCHES->ResolveRefWStringOffset, resolve_ref_wstring_stub, ResolveRefWStringPatched);
 }

@@ -1,33 +1,31 @@
 /*
-    Game Categories v 12.0
-    Copyright (C) 2009, Bubbletune
-
-    context.c: Patches to handle Context Menu mode
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  this file is part of Game Categories Lite
+ *
+ *  Copyright (C) 2009  Bubbletune
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <pspsdk.h>
 #include <pspkernel.h>
-#include <string.h>
-#include <stdio.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
+#include "stub_funcs.h"
 #include "psppaf.h"
 #include "vshitem.h"
 #include "utils.h"
 #include "gcread.h"
-#include "stub_funcs.h"
 #include "config.h"
 #include "logger.h"
 
@@ -214,14 +212,13 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 }
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
-    kprintf("called\n");
     if (item->id == vsh_id) {
         original_item = res;
         original_context = item->context;
     }
 }
 
-void PatchVshmain3(u32 text_addr) {
+void PatchVshmainForContext(u32 text_addr) {
     OnXmbPush = redir2stub(text_addr+0x168EC, xmb_push_stub, OnXmbPushPatched);
     OnXmbContextMenu = redir2stub(text_addr+0x163A0, xmb_context_stub, OnXmbContextMenuPatched);
     //OnMenuListScrollIn = redir2stub(text_addr+0x0, xmb_context_stub, OnXmbContextMenuPatched);

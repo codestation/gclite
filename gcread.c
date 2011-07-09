@@ -1,27 +1,29 @@
 /*
-	Game Categories Lite 1.3
-	Copyright (C) 2011, codestation
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  this file is part of Game Categories Lite
+ *
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <psprtc.h>
-#include "psppaf.h"
 #include <string.h>
-#include "game_categories_light.h"
+#include "categories_lite.h"
+#include "psppaf.h"
+#include "gcpatches.h"
 #include "pspdefs.h"
 #include "config.h"
 #include "logger.h"
@@ -34,12 +36,13 @@ char orig_path[70];
 int type = -1;
 
 inline void trim(char *str) {
-    int i = sce_paf_private_strlen(user_buffer) - 1;
-    while(user_buffer[i] == ' ')
+    int i = sce_paf_private_strlen(str);
+    while(str[i-1] == ' ') {
         --i;
-    ++i;
-    if(user_buffer[i] == ' ')
-        user_buffer[i] = '\0';
+    }
+    if(str[i] == ' ') {
+        str[i] = '\0';
+    }
 }
 
 int is_iso_cat(const char *path) {
@@ -58,13 +61,7 @@ int is_iso_cat(const char *path) {
     trim(user_buffer);
 
     sce_paf_private_memset(&st, 0, sizeof(SceIoStat));
-    //kprintf("checking if %s is a ISO category\n", user_buffer);
-    if(sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode)) {
-        //kprintf("true\n");
-        return 1;
-    }
-    //kprintf("false\n");
-    return 0;
+    return sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode) ? 1 : 0;
 }
 
 inline void fix_path(char **path) {
@@ -76,7 +73,6 @@ inline void fix_path(char **path) {
 int is_category_folder(SceIoDirent *dir, char *cat) {
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            //kprintf("prefix: %i, dir: %s, type: %i\n", config.prefix, dir->d_name, type);
             if(!config.prefix && FindCategory(dir->d_name, type)) {
                 return 1;
             }
@@ -96,15 +92,13 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-    //kprintf("called\n");
     while(1) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
-            //kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
-                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
-                //kprintf("skipping %s\n", dir->d_name);
+                // skip the VIDEO folder
+                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) {
                 continue;
             }
         }
@@ -134,7 +128,6 @@ int sceIoRmdirPatched(char *path) {
 }
 
 char *ReturnBasePathPatched(char *base) {
-    //kprintf("base: %s\n", base);
     if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
@@ -148,7 +141,6 @@ char *ReturnBasePathPatched(char *base) {
         // force the device name
         SET_DEVICENAME(orig_path, type);
         SET_DEVICENAME(mod_path, type);
-        //kprintf("changing %s to %s\n", base, mod_path);
         return mod_path;
     }
     return base;
@@ -160,15 +152,16 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 }
 
 
-void PatchIoFileMgrForGamePlugin(u32 text_addr) {
-    //MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+void PatchGamePluginForGCread(u32 text_addr) {
     MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
-    //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
-    //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
     MAKE_STUB(text_addr+PATCHES->io_getstat_stub, sceIoGetstatPatched);
     MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched);
     MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched);
     MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched);
+
+    //MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+    //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
+    //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
 
     MAKE_JUMP(text_addr + PATCHES->base_path, ReturnBasePathPatched);
     _sw(0x00602021, text_addr + PATCHES->base_path_arg); // move $a0, $v1

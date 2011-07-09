@@ -1,11 +1,24 @@
 /*
- * vshitem.c
+ *  this file is part of Game Categories Lite
  *
- *  Created on: 03/07/2011
- *      Author: code
+ *  Copyright (C) 2009, Bubbletune
+ *  Copyright (C) 2011, Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "game_categories_light.h"
+#include "categories_lite.h"
 #include "psppaf.h"
 #include "stub_funcs.h"
 #include "utils.h"
@@ -56,7 +69,6 @@ int get_item_location(int topitem, SceVshItem *item) {
     return -1;
 }
 
-// from GCR v12, user/main.c
 SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     SceVshItem *ret;
     kprintf("item: %s, topitem: %i, id: %i\n", item->text, topitem, item->id);
@@ -71,7 +83,6 @@ SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
     return res;
 }
 
-// from GCR v12, user/main.c
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
@@ -104,9 +115,6 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         kprintf("saved: id: %i, action: %i\n", vsh_id, vsh_action_arg);
         last_action_arg = GAME_ACTION;
 
-        //kprintf(">> # action: %i\n", vsh_id);
-        //kprintf(">> # action_arg: %i\n", vsh_action_arg);
-
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
         sce_paf_private_strcpy(item->text, msg);
@@ -127,7 +135,6 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
 //    return sceVshCommonGuiDisplayContext(arg, page, plane, width, mlist, temp1, temp2);
 //}
 
-// from GCR v12, user/main.c
 int ExecuteActionPatched(int action, int action_arg) {
     int ret;
     kprintf("action: %i, action_arg: %i\n", action, action_arg);
@@ -152,10 +159,8 @@ int ExecuteActionPatched(int action, int action_arg) {
     return ExecuteAction(action, action_arg);
 }
 
-// from GCR v12, user/main.c
 int UnloadModulePatched(int skip) {
     if (unload) {
-        kprintf("called\n");
         skip = -1;
         game_plug = 0;
         unload = 0;
@@ -163,7 +168,6 @@ int UnloadModulePatched(int skip) {
     return UnloadModule(skip);
 }
 
-// based on GCR v12, user/main.c
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
     if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
         kprintf("match name: %s\n", name);

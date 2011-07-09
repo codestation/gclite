@@ -1,5 +1,5 @@
 /*
- *  Game Categories Lite module
+ *  this file is part of Game Categories Lite
  *
  *  Copyright (C) 2011  Codestation
  *

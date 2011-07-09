@@ -1,10 +1,21 @@
 /*
- * config.c
+ *  this file is part of Game Categories Lite
  *
- *  Created on: 06/07/2011
- *      Author: code
+ *  Copyright (C) 2011  Codestation
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include <pspiofilemgr.h>
 #include "config.h"
@@ -14,28 +25,28 @@
 CategoryConfig config;
 CategoryConfig prev_conf = {-1, -1, -1, -1};
 
-int load_config(CategoryConfig *conf) {
+int load_config() {
     int read;
     SceUID fd;
-    if(sce_paf_private_memcmp(conf, &prev_conf, sizeof(CategoryConfig)) != 0) {
+    if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
         kprintf("loading config\n");
         if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_RDONLY, 0777)) < 0)
             return 0;
-        read = sceIoRead(fd, conf, sizeof(CategoryConfig));
+        read = sceIoRead(fd, &config, sizeof(CategoryConfig));
         sceIoClose(fd);
-        sce_paf_private_memcpy(&prev_conf, conf, sizeof(CategoryConfig));
+        sce_paf_private_memcpy(&prev_conf, &config, sizeof(CategoryConfig));
         return read == sizeof(CategoryConfig) ? 1 : 0;
     }
     return 1;
 }
 
-int save_config(CategoryConfig *conf) {
+int save_config() {
     int written;
     SceUID fd;
     int reset;
     char device[12];
 
-    if(sce_paf_private_memcmp(conf, &prev_conf, sizeof(CategoryConfig)) != 0) {
+    if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
         if(prev_conf.mode != config.mode || prev_conf.prefix != config.prefix || prev_conf.uncategorized != config.uncategorized) {
             reset = 1;
         } else {
@@ -44,9 +55,9 @@ int save_config(CategoryConfig *conf) {
         kprintf("saving config\n");
         if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0)
             return 0;
-        written = sceIoWrite(fd, conf, sizeof(CategoryConfig));
+        written = sceIoWrite(fd, &config, sizeof(CategoryConfig));
         sceIoClose(fd);
-        sce_paf_private_memcpy(&prev_conf, conf, sizeof(CategoryConfig));
+        sce_paf_private_memcpy(&prev_conf, &config, sizeof(CategoryConfig));
         if(reset) {
             kprintf("reset MS\n");
             // Fake MS Reinsertion
