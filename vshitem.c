@@ -36,6 +36,8 @@ char user_buffer[256];
 
 int unload = 0;
 
+int global_pos = 0;
+
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
 int last_action_arg[2] = { GAME_ACTION, GAME_ACTION };

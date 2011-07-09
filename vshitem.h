@@ -39,4 +39,6 @@ extern int vsh_id[2];
 extern int vsh_action_arg[2];
 extern int last_action_arg[2];
 
+extern int global_pos;
+
 #endif /* VSHITEM_H_ */

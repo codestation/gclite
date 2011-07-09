@@ -57,6 +57,11 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             kprintf("must not happen!\n");
             location = 0;
         }
+
+        // there are some places where we do know the access (ms0/ef0), so we try to
+        // maintain a global pointer and update whenever possible
+        global_pos = location;
+
         if (game_plug) {
             if (*action_arg != last_action_arg[location]) {
                 kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[location]);
