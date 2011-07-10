@@ -53,10 +53,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
     kprintf("called, action: %i, action_arg: %i\n", *action, *action_arg);
 
-    location = get_location(*action_arg);
-
-    if (*action == GAME_ACTION && location != INVALID) {
-
+    if (*action == GAME_ACTION && (*action_arg == 100 || *action_arg == 1000)) {
+        location = get_location(*action_arg);
         type = location;
         global_pos = location;
 
@@ -70,6 +68,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         kprintf("returning 2\n");
         return 2;
     } else if (*action == 0x70000 || *action == 0x9000) {
+        location = get_location(*action);
         global_pos = location;
         if(game_plug) {
             if (*action_arg != last_action_arg[location]) {
@@ -83,7 +82,6 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         } else if(!location && (config.uncategorized & ONLY_IE)) {
             uncategorized = 1;
         } else {
-            kprintf("must not happen, uncategorized default\n");
             uncategorized = 0;
         }
 
