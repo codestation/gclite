@@ -178,11 +178,11 @@ void IndexCategories(const char *path, int location) {
 
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
-            //kprintf("%s: End of directory list\n");
+            kprintf("End of directory list\n");
             sceIoDclose(fd);
             break;
         }
-        //kprintf("Checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
+        kprintf("checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.') {
             if(!config.prefix && is_category(full_path, dir.d_name)) {
                 match = 1;
@@ -193,7 +193,7 @@ void IndexCategories(const char *path, int location) {
             if(match) {
                 match = 0;
                 sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
-                //kprintf("Adding %s as category\n", dir.d_name);
+                kprintf("Adding %s as category\n", dir.d_name);
                 AddCategory(dir.d_name, mtime, location);
             }
         }

@@ -113,6 +113,7 @@ typedef struct
 enum CategoryLocation {
     MEMORY_STICK,
     INTERNAL_STORAGE,
+    INVALID = -1,
 };
 
 enum GameCategoriesModes {

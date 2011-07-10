@@ -191,7 +191,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
                 }
                 if(cfg) {
                     *cfg = *value;
-                    save_config(&config);
+                    save_config();
                     return 0;
                 }
             }

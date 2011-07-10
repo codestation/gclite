@@ -88,7 +88,7 @@ SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
-        load_config(&config);
+        load_config();
         kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);
         category[0] = '\0';
 
