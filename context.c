@@ -163,14 +163,14 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1) {
 }*/
 
 int OnXmbPushPatched(void *arg0, void *arg1) {
-    kprintf("called\n");
+    kprintf("called, global_pos: %i\n", global_pos);
     xmb_arg0[global_pos] = arg0;
     xmb_arg1[global_pos] = arg1;
     return OnXmbPush(arg0, arg1);
 }
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
-    kprintf("called\n");
+    kprintf("called, global_pos: %i\n", global_pos);
     context_gamecats[global_pos] = 0;
     if (original_item[global_pos]) {
         original_item[global_pos]->context = original_context[global_pos];
@@ -180,7 +180,7 @@ int OnXmbContextMenuPatched(void *arg0, void *arg1) {
 }
 
 void PatchGetPageChildForContext(SceRcoEntry *src) {
-    kprintf("called\n");
+    kprintf("called, globs_pos: %i\n", global_pos);
     SceRcoEntry *plane = (SceRcoEntry *)(((u8 *)src)+src->first_child);
     SceRcoEntry *mlist = (SceRcoEntry *)(((u8 *)plane)+plane->first_child);
     u32 *mlist_param = (u32 *)(((u8 *)mlist)+mlist->param);
@@ -213,8 +213,8 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
-
     int location = get_location(item->action_arg);
+    global_pos = location;
     if(location != INVALID && item->id == vsh_id[location]) {
         kprintf("restoring original content, loc: %i\n", location);
         original_item[location] = res;
