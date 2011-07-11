@@ -52,13 +52,12 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             type = location;
             global_pos = location;
         } else {
-            kprintf("must not happen!\n");
-            location = 0;
+            kprintf("uncategorized content\n");
         }
 
         if (game_plug) {
-            if (*action_arg != last_action_arg[location]) {
-                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[location]);
+            if (*action_arg != last_action_arg[global_pos]) {
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[global_pos]);
                 unload = 1;
             }
         }

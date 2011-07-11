@@ -113,7 +113,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
             item->action_arg = vsh_action_arg[location];
             item->play_sound = 1;
         }
-
+        global_pos = location;
         kprintf("saved: id: %i, action: %i\n", vsh_id[location], vsh_action_arg[location]);
         last_action_arg[location] = GAME_ACTION;
 
