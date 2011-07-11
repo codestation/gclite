@@ -171,8 +171,8 @@ int OnXmbPushPatched(void *arg0, void *arg1) {
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     kprintf("called, global_pos: %i\n", global_pos);
-    context_gamecats = 0;
     if (original_item[global_pos]) {
+        context_gamecats = 0;
         original_item[global_pos]->context = original_context[global_pos];
     }
     sceKernelDcacheWritebackAll();
