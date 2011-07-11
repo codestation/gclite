@@ -53,6 +53,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             global_pos = location;
         } else {
             kprintf("uncategorized content\n");
+            type = global_pos;
         }
 
         if (game_plug) {
