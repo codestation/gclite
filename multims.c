@@ -49,13 +49,12 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("using %s as category\n", category);
+            type = location;
+            global_pos = location;
         } else {
             kprintf("must not happen!\n");
             location = 0;
         }
-
-        type = location;
-        global_pos = location;
 
         if (game_plug) {
             if (*action_arg != last_action_arg[location]) {

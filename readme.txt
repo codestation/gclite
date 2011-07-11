@@ -14,15 +14,17 @@ content and change the category mode in system settings.
 The source code is also available in https://github.com/codestation/gclite
 
 TODO:
-* Restore support for contextual categories (from GCR v12).
-* Add option to use the categories "new" format (without CAT_ prefix).
-* Restore options menu.
+* Add folder categories like GC Light
+
+Known issues:
+Change of category in the PSPGo requires a VSH reset.
 
 Changelog
 v1.3:
-[+]Support for categories in contextual menu
-[+]Support for categories configuration in system settings
-[+]Added runtime detection for ME, so category games are now shown
+[+]Support for categories in contextual menu.
+[+]Support for plugin configuration in system settings.
+[+]Added runtime detection for ME, so category games are now shown.
+[!]Fixed issues with PSPGo (big thanks to raing3 to help me with the debugging).
 v1.2:
 [!]Fixed PSPGo categories, again (thx RUSTII for the tests)
 [!]Fixed the free space display when the psp returns from sleep

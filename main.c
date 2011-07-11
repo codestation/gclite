@@ -25,6 +25,7 @@
 #include "psppaf.h"
 #include "gcpatches.h"
 #include "pspdefs.h"
+#include "config.h"
 #include "logger.h"
 
 PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 3);
@@ -38,6 +39,7 @@ int game_plug = 0;
 int sysconf_plug = 0;
 
 int me_fw = 0;
+int model;
 
 int checkME() {
     // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
@@ -91,11 +93,14 @@ int OnModuleStart(SceModule2 *mod) {
 }
 
 int module_start(SceSize args, void *argp) {
+    model = kuKernelGetModel();
+    sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");
+    SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
-    kwrite("ms0:/category_lite.log", "GCLite starting (5)\n", 20);
+    kwrite(filebuf, "GCLite 1.3 starting\n", 20);
     // check if the plugin was loaded from ME
     if(checkME()) {
-        kwrite("ms0:/category_lite.log", "ME compatibility enabled\n", 25);
+        kwrite(filebuf, "ME compatibility enabled\n", 25);
     }
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();

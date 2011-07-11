@@ -79,8 +79,8 @@ typedef int (* STMOD_HANDLER)(SceModule2 *);
 extern "C" {
 #endif
 
-int sceKernelGetModel();
 char *sceKernelGetUMDData(void);
+int kuKernelGetModel(void);
 unsigned int sceKernelQuerySystemCall(void * function);
 STMOD_HANDLER sctrlHENSetStartModuleHandler(STMOD_HANDLER handler);
 u32 sctrlHENFindFunction(char* szMod, char* szLib, u32 nid);

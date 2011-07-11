@@ -37,6 +37,7 @@ enum uncat {
 };
 
 extern CategoryConfig config;
+extern char filebuf[32];
 
 int load_config();
 int save_config();

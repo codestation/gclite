@@ -25,12 +25,18 @@
 CategoryConfig config;
 CategoryConfig prev_conf = {-1, -1, -1, -1};
 
+extern int model;
+
+char filebuf[32];
+
 int load_config() {
     int read;
     SceUID fd;
     if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
         kprintf("loading config\n");
-        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_RDONLY, 0777)) < 0) {
+        sce_paf_private_strcpy(filebuf, "xx0:/seplugins/gclite.bin");
+        SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+        if((fd = sceIoOpen(filebuf, PSP_O_RDONLY, 0777)) < 0) {
             kprintf("couldn't open gclite.bin for reading, using defaults\n");
             sce_paf_private_memset(&config, 0, sizeof(CategoryConfig));
             read = 0;
@@ -57,7 +63,9 @@ int save_config() {
             reset = 0;
         }
         kprintf("saving config\n");
-        if((fd = sceIoOpen("ms0:/seplugins/gclite.bin", PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0) {
+        sce_paf_private_strcpy(filebuf, "xx0:/seplugins/gclite.bin");
+        SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+        if((fd = sceIoOpen(filebuf, PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777)) < 0) {
             kprintf("couldn't open gclite.bin for writting\n");
             return 0;
         }
