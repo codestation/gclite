@@ -92,7 +92,7 @@ int OnModuleStart(SceModule2 *mod) {
 
 int module_start(SceSize args, void *argp) {
     // paf isn't loaded yet
-    kwrite("ms0:/category_lite.log", "GCLite starting (3)\n", 20);
+    kwrite("ms0:/category_lite.log", "GCLite starting (4)\n", 20);
     // check if the plugin was loaded from ME
     if(checkME()) {
         kwrite("ms0:/category_lite.log", "ME compatibility enabled\n", 25);

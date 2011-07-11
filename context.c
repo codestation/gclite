@@ -67,7 +67,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         OnXmbContextMenu(xmb_arg0[location], xmb_arg1[location]);
         kprintf("returning 2\n");
         return 2;
-    } else if (*action == 0x70000 || *action == 0x9000) {
+    } else if (*action == PSPMS_CONTEXT_SENTINEL || *action == PSPGO_CONTEXT_SENTINEL) {
         location = get_location(*action);
         global_pos = location;
         if(game_plug) {
@@ -128,7 +128,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         kprintf("creating uncategorized context\n");
         sce_paf_private_strcpy(context_items[location][0].text, "gc4");
         context_items[location][0].play_sound = 1;
-        context_items[location][0].action = !location ? 0x70000 : 0x90000;
+        context_items[location][0].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
         context_items[location][0].action_arg = 0;
     }
 
@@ -141,7 +141,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         }
         kprintf("creating %s\n", context_items[location][i].text);
         context_items[location][i].play_sound = 1;
-        context_items[location][i].action = !location ? 0x70000 : 0x90000;
+        context_items[location][i].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
         context_items[location][i].action_arg = i;
         i++;
     }

@@ -44,6 +44,9 @@ int sceKernelGetCompiledSdkVersion();
 #define XORED_MEMORY_STICK 0xE49DB3B3
 #define XORED_INTERNAL_STORAGE 0xE49DA6BB
 
+#define PSPGO_CONTEXT_SENTINEL 0x90000
+#define PSPMS_CONTEXT_SENTINEL 0x70000
+
 typedef struct
 {
 	void *next;
