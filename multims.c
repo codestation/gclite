@@ -104,10 +104,8 @@ SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
     if(item->id >= 100) {
         if(item->id >= 1000) {
             item->id = vsh_id[INTERNAL_STORAGE];
-            global_pos = INTERNAL_STORAGE;
         } else {
             item->id = vsh_id[MEMORY_STICK];
-            global_pos = MEMORY_STICK;
         }
         return item;
     }
