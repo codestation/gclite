@@ -43,23 +43,29 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     category[0] = '\0';
     if (*action == GAME_ACTION) {
         location = get_location(*action_arg);
-        if(location != INVALID) {
+        if(location != INVALID && (*action_arg != 200 && *action_arg != 2000)) {
             *action_arg -= (location == INTERNAL_STORAGE) ? 1000 : 100;
             p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("using %s as category\n", category);
-            global_pos = location;
         } else {
-            kprintf("uncategorized content\n");
+            if(location != INVALID) {
+                location = *action_arg == 200 ? MEMORY_STICK : INTERNAL_STORAGE;
+            } else {
+                kprintf("must not happen!\n");
+            }
+            kprintf("uncategorized content, location: %i\n", location);
         }
 
+        global_pos = location;
+
         if (game_plug) {
-            if (*action_arg != last_action_arg[global_pos]) {
-                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[global_pos]);
+            if (*action_arg != last_action_arg[location]) {
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[location]);
                 unload = 1;
             }
         }
-        return global_pos;
+        return location;
     }
     return -1;
 }
@@ -72,11 +78,13 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
     if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
+        item->action_arg = 200;
         kprintf("adding uncategorized for Memory Stick\n");
         AddVshItem(arg, topitem, item);
     }
     if (location && (config.uncategorized & ONLY_IE)) {
         sce_paf_private_strcpy(item->text, "gc5");
+        item->action_arg = 2000;
         kprintf("adding uncategorized for Internal Storage\n");
         AddVshItem(arg, topitem, item);
     }
