@@ -61,7 +61,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 unload = 1;
             }
         }
-        return location;
+        return global_pos;
     }
     return -1;
 }
