@@ -130,13 +130,6 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     return AddVshItem(arg, topitem, item);
 }
 
-//int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
-//    if (context_gamecats) {
-//        width = 1;
-//    }
-//    return sceVshCommonGuiDisplayContext(arg, page, plane, width, mlist, temp1, temp2);
-//}
-
 int ExecuteActionPatched(int action, int action_arg) {
     int location;
     kprintf("action: %i, action_arg: %i\n", action, action_arg);
