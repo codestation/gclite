@@ -35,7 +35,6 @@ SceVshItem *vsh_items[2] = { NULL, NULL };
 extern int game_plug;
 
 extern char category[52];
-extern int type;
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     Category *p;
@@ -49,11 +48,9 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("using %s as category\n", category);
-            type = location;
             global_pos = location;
         } else {
             kprintf("uncategorized content\n");
-            type = global_pos;
         }
 
         if (game_plug) {
@@ -98,6 +95,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }
+    global_pos = location;
     return 0;
 }
 
@@ -106,8 +104,10 @@ SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
     if(item->id >= 100) {
         if(item->id >= 1000) {
             item->id = vsh_id[INTERNAL_STORAGE];
+            global_pos = INTERNAL_STORAGE;
         } else {
             item->id = vsh_id[MEMORY_STICK];
+            global_pos = MEMORY_STICK;
         }
         return item;
     }

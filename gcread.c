@@ -25,6 +25,7 @@
 #include "psppaf.h"
 #include "gcpatches.h"
 #include "pspdefs.h"
+#include "vshitem.h"
 #include "config.h"
 #include "logger.h"
 
@@ -33,7 +34,6 @@ char category[52];
 
 char mod_path[70];
 char orig_path[70];
-int type = -1;
 
 // ME variables
 int multi_cat = 0;
@@ -60,7 +60,7 @@ int is_iso_cat(const char *path) {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
         sce_paf_private_strcpy(user_buffer + 9, category);
     }
-    SET_DEVICENAME(user_buffer, type);
+    SET_DEVICENAME(user_buffer, global_pos);
 
     // workaround for ME bug or "feature"
     trim(user_buffer);
@@ -79,7 +79,7 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
     kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            if(!config.prefix && FindCategory(dir->d_name, type)) {
+            if(!config.prefix && FindCategory(dir->d_name, global_pos)) {
                 return 1;
             }
             if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
@@ -233,8 +233,8 @@ char *ReturnBasePathPatched(char *base) {
             sce_paf_private_strcpy(mod_path + 14, category);
         }
         // force the device name
-        SET_DEVICENAME(orig_path, type);
-        SET_DEVICENAME(mod_path, type);
+        SET_DEVICENAME(orig_path, global_pos);
+        SET_DEVICENAME(mod_path, global_pos);
         kprintf("modified path: %s\n", mod_path);
         return mod_path;
     }

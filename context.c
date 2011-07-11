@@ -29,7 +29,6 @@
 #include "config.h"
 #include "logger.h"
 
-extern int type;
 extern int game_plug;
 
 int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
@@ -55,7 +54,6 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
     if (*action == GAME_ACTION && (*action_arg == 100 || *action_arg == 1000)) {
         location = get_location(*action_arg);
-        type = location;
         global_pos = location;
 
         //restore action_arg
