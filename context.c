@@ -42,7 +42,7 @@ SceContextItem *context_items[2] = { NULL, NULL };
 
 int context_gamecats[2] = { 0, 0 };
 int context_just_opened[2] = { 0, 0 };
-void *xmb_arg0[2], *xmb_arg1[2];
+void *xmb_arg0, *xmb_arg1;
 
 int context_action_arg[2];
 
@@ -64,7 +64,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         kprintf("lets hope this doesn't crash, addr: %08X\n", original_item[location]);
         original_item[location]->context = context_items[location];
         kprintf("calling OnXmbContextMenu\n");
-        OnXmbContextMenu(xmb_arg0[location], xmb_arg1[location]);
+        OnXmbContextMenu(xmb_arg0, xmb_arg1);
         kprintf("returning 2\n");
         return 2;
     } else if (*action == PSPMS_CONTEXT_SENTINEL || *action == PSPGO_CONTEXT_SENTINEL) {
@@ -163,9 +163,9 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1) {
 }*/
 
 int OnXmbPushPatched(void *arg0, void *arg1) {
-    kprintf("called, global_pos: %i\n", global_pos);
-    xmb_arg0[global_pos] = arg0;
-    xmb_arg1[global_pos] = arg1;
+    kprintf("called\n");
+    xmb_arg0 = arg0;
+    xmb_arg1 = arg1;
     return OnXmbPush(arg0, arg1);
 }
 
