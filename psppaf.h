@@ -42,6 +42,8 @@ int scePafSetSelectedItem(void *, int);
 
 int vshIoDevctl(const char *dev, unsigned int cmd, void *indata, int inlen, void *outdata, int outlen);
 
+int sceVshCommonGuiDisplayContext(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2);
+
 //wchar_t* scePafGetText(void *, char *);
 
 //int vshGetRegistryValue(u32 *option, char *name, void *arg2, int size, int *value);

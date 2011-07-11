@@ -130,13 +130,6 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     return AddVshItem(arg, topitem, item);
 }
 
-//int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
-//    if (context_gamecats) {
-//        width = 1;
-//    }
-//    return sceVshCommonGuiDisplayContext(arg, page, plane, width, mlist, temp1, temp2);
-//}
-
 int ExecuteActionPatched(int action, int action_arg) {
     int location;
     kprintf("action: %i, action_arg: %i\n", action, action_arg);
@@ -194,7 +187,6 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, "gc4") == 0) {
-            global_pos = MEMORY_STICK;
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
@@ -205,7 +197,6 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, "gc5") == 0) {
-            global_pos = INTERNAL_STORAGE;
             gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;

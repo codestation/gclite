@@ -71,6 +71,7 @@ typedef struct {
 
 	/** vshitem.c */
 	u32 scePafGetTextOffset;
+	u32 CommonGuiDisplayContextOffset;
 
 	/** context.c */
 	u32 OnXmbPush;

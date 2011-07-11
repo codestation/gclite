@@ -35,12 +35,14 @@ int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
 int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
 int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
 
+int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2);
+
 SceVshItem *original_item[2] = { NULL, NULL };
 SceContextItem *original_context[2] = { NULL, NULL };
 SceContextItem *context_items[2] = { NULL, NULL };
 
-int context_gamecats[2] = { 0, 0 };
-int context_just_opened[2] = { 0, 0 };
+int context_gamecats = 0;
+//int context_just_opened = 0;
 void *xmb_arg0, *xmb_arg1;
 
 int context_action_arg[2];
@@ -58,7 +60,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 
         //restore action_arg
         *action_arg = vsh_action_arg[location];
-        context_gamecats[location] = 1;
+        context_gamecats = 1;
         kprintf("lets hope this doesn't crash, addr: %08X\n", original_item[location]);
         original_item[location]->context = context_items[location];
         kprintf("calling OnXmbContextMenu\n");
@@ -169,7 +171,7 @@ int OnXmbPushPatched(void *arg0, void *arg1) {
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     kprintf("called, global_pos: %i\n", global_pos);
-    context_gamecats[global_pos] = 0;
+    context_gamecats = 0;
     if (original_item[global_pos]) {
         original_item[global_pos]->context = original_context[global_pos];
     }
@@ -177,37 +179,37 @@ int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     return OnXmbContextMenu(arg0, arg1);
 }
 
-void PatchGetPageChildForContext(SceRcoEntry *src) {
-    kprintf("called, globs_pos: %i\n", global_pos);
-    SceRcoEntry *plane = (SceRcoEntry *)(((u8 *)src)+src->first_child);
-    SceRcoEntry *mlist = (SceRcoEntry *)(((u8 *)plane)+plane->first_child);
-    u32 *mlist_param = (u32 *)(((u8 *)mlist)+mlist->param);
-
-    if (context_gamecats[global_pos])
-    {
-        /* Set OnMenuListScrollIn as Init function */
-        mlist_param[14] = mlist_param[23];
-        mlist_param[15] = mlist_param[24];
-
-        /* Show more than only four items */
-        mlist_param[13] = 0;
-        mlist_param[16] = 0xC;
-        mlist_param[18] = 0x6;
-
-        context_just_opened[global_pos] = 1;
-    }
-    else
-    {
-        /* Restore original items */
-        mlist_param[13] = 0x10;
-        mlist_param[14] = 0xFFFF;
-        mlist_param[15] = 0xFFFFFFFF;
-        mlist_param[16] = 4;
-        mlist_param[18] = 0xFFFFFFFF;
-    }
-
-    sceKernelDcacheWritebackAll();
-}
+//void PatchGetPageChildForContext(SceRcoEntry *src) {
+//    kprintf("called, globs_pos: %i\n", global_pos);
+//    SceRcoEntry *plane = (SceRcoEntry *)(((u8 *)src)+src->first_child);
+//    SceRcoEntry *mlist = (SceRcoEntry *)(((u8 *)plane)+plane->first_child);
+//    u32 *mlist_param = (u32 *)(((u8 *)mlist)+mlist->param);
+//
+//    if (context_gamecats)
+//    {
+//        /* Set OnMenuListScrollIn as Init function */
+//        mlist_param[14] = mlist_param[23];
+//        mlist_param[15] = mlist_param[24];
+//
+//        /* Show more than only four items */
+//        mlist_param[13] = 0;
+//        mlist_param[16] = 0xC;
+//        mlist_param[18] = 0x6;
+//
+//        context_just_opened = 1;
+//    }
+//    else
+//    {
+//        /* Restore original items */
+//        mlist_param[13] = 0x10;
+//        mlist_param[14] = 0xFFFF;
+//        mlist_param[15] = 0xFFFFFFFF;
+//        mlist_param[16] = 4;
+//        mlist_param[18] = 0xFFFFFFFF;
+//    }
+//
+//    sceKernelDcacheWritebackAll();
+//}
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
@@ -220,8 +222,16 @@ void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     }
 }
 
+int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
+    if (context_gamecats) {
+        width = 1;
+    }
+    return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
+}
+
 void PatchVshmainForContext(u32 text_addr) {
     OnXmbPush = redir2stub(text_addr+PATCHES->OnXmbPush, xmb_push_stub, OnXmbPushPatched);
     OnXmbContextMenu = redir2stub(text_addr+PATCHES->OnXmbContextMenu, xmb_context_stub, OnXmbContextMenuPatched);
     //OnMenuListScrollIn = redir2stub(text_addr+PATCHES->OnMenuListScrollIn, menu_scroll_stub, OnMenuListScrollInPatched);
+    sceVshCommonGuiDisplayContext_func = redir_call(text_addr+PATCHES->CommonGuiDisplayContextOffset, sceVshCommonGuiDisplayContextPatched);
 }
