@@ -214,8 +214,8 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
     int location = get_location(item->action_arg);
-    global_pos = location;
     if(location != INVALID && item->id == vsh_id[location]) {
+        global_pos = location;
         kprintf("restoring original content, loc: %i\n", location);
         original_item[location] = res;
         original_context[location] = item->context;
