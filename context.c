@@ -76,10 +76,10 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
                 unload = 1;
             }
         }
-
+        kprintf("location: %i, uncategorized: %i\n", location, config.uncategorized);
         if(!location && (config.uncategorized & ONLY_MS)) {
             uncategorized = 1;
-        } else if(!location && (config.uncategorized & ONLY_IE)) {
+        } else if(location && (config.uncategorized & ONLY_IE)) {
             uncategorized = 1;
         } else {
             uncategorized = 0;
