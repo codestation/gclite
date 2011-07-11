@@ -25,6 +25,7 @@
 #include "psppaf.h"
 #include "gcpatches.h"
 #include "pspdefs.h"
+#include "config.h"
 #include "logger.h"
 
 PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 3);
@@ -38,6 +39,7 @@ int game_plug = 0;
 int sysconf_plug = 0;
 
 int me_fw = 0;
+int model;
 
 int checkME() {
     // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
@@ -51,13 +53,13 @@ int OnModuleStart(SceModule2 *mod) {
     //kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
 	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
 
-	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
+	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
 	    game_plug = 1;
 		PatchGamePluginForGCread(mod->text_addr);
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
-	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
+	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
         PatchVshmainForSysconf(mod->text_addr);
         PatchVshmainForContext(mod->text_addr);
@@ -73,14 +75,14 @@ int OnModuleStart(SceModule2 *mod) {
 		
 	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
 
-	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
+	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
 	    sysconf_plug = 1;
 	    PatchSysconf(mod->text_addr);
 	    ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "scePaf_Module") == 0) {
 
-	    kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
+	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchPaf(mod->text_addr);
         PatchPafForSysconf(mod->text_addr);
         ClearCaches();
@@ -91,11 +93,14 @@ int OnModuleStart(SceModule2 *mod) {
 }
 
 int module_start(SceSize args, void *argp) {
+    model = kuKernelGetModel();
+    sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");
+    SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
-    kwrite("ms0:/category_lite.log", "GCLite starting\n", 16);
+    kwrite(filebuf, "GCLite 1.3 starting\n", 20);
     // check if the plugin was loaded from ME
     if(checkME()) {
-        kwrite("ms0:/category_lite.log", "ME compatibility enabled\n", 25);
+        kwrite(filebuf, "ME compatibility enabled\n", 25);
     }
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();

@@ -36,6 +36,22 @@ void *redir_call(u32 address, void *func) {
     return f;
 }
 
+int get_location(int action_arg) {
+    if(action_arg == PSPGO_CONTEXT_SENTINEL) {
+        return INTERNAL_STORAGE;
+    } else if(action_arg == PSPMS_CONTEXT_SENTINEL) {
+        return MEMORY_STICK;
+    }
+    if(action_arg >= 100) {
+        if(action_arg >= 1000) {
+            return INTERNAL_STORAGE;
+        } else {
+            return MEMORY_STICK;
+        }
+    }
+    return INVALID;
+}
+
 void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last) {
     int i, x, len, found;
 

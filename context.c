@@ -29,51 +29,55 @@
 #include "config.h"
 #include "logger.h"
 
-extern int type;
 extern int game_plug;
 
-int (* OnXmbPush)(void *arg0, void *arg1);
-int (* OnXmbContextMenu)(void *arg0, void *arg1);
-int (* OnMenuListScrollIn)(void *arg0, void *arg1);
+int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
+int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
+int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
 
-SceVshItem *original_item = NULL;
-SceContextItem *original_context;
+SceVshItem *original_item[2] = { NULL, NULL };
+SceContextItem *original_context[2] = { NULL, NULL };
 SceContextItem *context_items[2] = { NULL, NULL };
 
-int context_gamecats = 0;
-int context_just_opened = 0;
+int context_gamecats[2] = { 0, 0 };
+int context_just_opened[2] = { 0, 0 };
 void *xmb_arg0, *xmb_arg1;
 
-int context_action_arg;
+int context_action_arg[2];
 
 int PatchExecuteActionForContext(int *action, int *action_arg) {
     int location;
     int uncategorized;
-    kprintf("called, action: %i, action_arg: %i\n", *action, *action_arg);
-
     category[0] = '\0';
 
-    location = *action_arg == 1000 ? 1 : (*action_arg == 100 ? 0 : 0);
+    kprintf("called, action: %i, action_arg: %i\n", *action, *action_arg);
 
     if (*action == GAME_ACTION && (*action_arg == 100 || *action_arg == 1000)) {
-        //restore action_arg
-        *action_arg = vsh_action_arg;
-        context_gamecats = 1;
-        original_item->context = context_items[location];
-        OnXmbContextMenu(xmb_arg0, xmb_arg1);
-        return 2;
-    } else if (*action == 0x70000) {
+        location = get_location(*action_arg);
+        global_pos = location;
 
+        //restore action_arg
+        *action_arg = vsh_action_arg[location];
+        context_gamecats[location] = 1;
+        kprintf("lets hope this doesn't crash, addr: %08X\n", original_item[location]);
+        original_item[location]->context = context_items[location];
+        kprintf("calling OnXmbContextMenu\n");
+        OnXmbContextMenu(xmb_arg0, xmb_arg1);
+        kprintf("returning 2\n");
+        return 2;
+    } else if (*action == PSPMS_CONTEXT_SENTINEL || *action == PSPGO_CONTEXT_SENTINEL) {
+        location = get_location(*action);
+        global_pos = location;
         if(game_plug) {
-            if (*action_arg != last_action_arg) {
-                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg);
+            if (*action_arg != last_action_arg[location]) {
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[location]);
                 unload = 1;
             }
         }
-
+        kprintf("location: %i, uncategorized: %i\n", location, config.uncategorized);
         if(!location && (config.uncategorized & ONLY_MS)) {
             uncategorized = 1;
-        } else if(!location && (config.uncategorized & ONLY_IE)) {
+        } else if(location && (config.uncategorized & ONLY_IE)) {
             uncategorized = 1;
         } else {
             uncategorized = 0;
@@ -83,16 +87,17 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
             // set category
             Category *p = (Category *)sce_paf_private_strtoul(context_items[location][*action_arg].text+4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
+            kprintf("selected category: %s\n", category);
         }
 
         config.selection = *action_arg;
 
-        save_config(&config);
+        save_config();
 
-        return 1;
+        return location;
     }
 
-    return 0;
+    return -1;
 }
 
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
@@ -107,10 +112,9 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
     }
     Category *p = NULL;
 
-    context_action_arg = item->context->action_arg;
+    context_action_arg[location] = item->context->action_arg;
 
     item->action_arg = location ? 1000 : 100;
-    //last_action_arg_cnt = GAME_ACTION;
 
     //TODO: mark location in original context
     item->play_sound = 0;
@@ -122,11 +126,9 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         kprintf("creating uncategorized context\n");
         sce_paf_private_strcpy(context_items[location][0].text, "gc4");
         context_items[location][0].play_sound = 1;
-        context_items[location][0].action = 0x70000;
+        context_items[location][0].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
         context_items[location][0].action_arg = 0;
     }
-
-    type = location;
 
     while ((p = GetNextCategory(p, location)))
     {
@@ -137,7 +139,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         }
         kprintf("creating %s\n", context_items[location][i].text);
         context_items[location][i].play_sound = 1;
-        context_items[location][i].action = 0x70000;
+        context_items[location][i].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
         context_items[location][i].action_arg = i;
         i++;
     }
@@ -160,32 +162,28 @@ int OnMenuListScrollInPatched(void *arg0, void *arg1) {
 
 int OnXmbPushPatched(void *arg0, void *arg1) {
     kprintf("called\n");
-    if(config.mode == MODE_CONTEXT_MENU) {
-        xmb_arg0 = arg0;
-        xmb_arg1 = arg1;
-    }
+    xmb_arg0 = arg0;
+    xmb_arg1 = arg1;
     return OnXmbPush(arg0, arg1);
 }
 
 int OnXmbContextMenuPatched(void *arg0, void *arg1) {
-    kprintf("called\n");
-    if(config.mode == MODE_CONTEXT_MENU) {
-        context_gamecats = 0;
-        if (original_item) {
-            original_item->context = original_context;
-        }
-        sceKernelDcacheWritebackAll();
+    kprintf("called, global_pos: %i\n", global_pos);
+    context_gamecats[global_pos] = 0;
+    if (original_item[global_pos]) {
+        original_item[global_pos]->context = original_context[global_pos];
     }
+    sceKernelDcacheWritebackAll();
     return OnXmbContextMenu(arg0, arg1);
 }
 
 void PatchGetPageChildForContext(SceRcoEntry *src) {
-    kprintf("called\n");
+    kprintf("called, globs_pos: %i\n", global_pos);
     SceRcoEntry *plane = (SceRcoEntry *)(((u8 *)src)+src->first_child);
     SceRcoEntry *mlist = (SceRcoEntry *)(((u8 *)plane)+plane->first_child);
     u32 *mlist_param = (u32 *)(((u8 *)mlist)+mlist->param);
 
-    if (context_gamecats)
+    if (context_gamecats[global_pos])
     {
         /* Set OnMenuListScrollIn as Init function */
         mlist_param[14] = mlist_param[23];
@@ -196,7 +194,7 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
         mlist_param[16] = 0xC;
         mlist_param[18] = 0x6;
 
-        context_just_opened = 1;
+        context_just_opened[global_pos] = 1;
     }
     else
     {
@@ -212,9 +210,13 @@ void PatchGetPageChildForContext(SceRcoEntry *src) {
 }
 
 void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
-    if (item->id == vsh_id) {
-        original_item = res;
-        original_context = item->context;
+    kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
+    int location = get_location(item->action_arg);
+    if(location != INVALID && item->id == vsh_id[location]) {
+        global_pos = location;
+        kprintf("restoring original content, loc: %i\n", location);
+        original_item[location] = res;
+        original_context[location] = item->context;
     }
 }
 

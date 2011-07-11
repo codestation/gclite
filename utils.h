@@ -22,7 +22,7 @@
 
 void *redir2stub(u32 address, void *stub, void *redir);
 void *redir_call(u32 address, void *func);
-
+int get_location(int action_arg);
 void gc_utf8_to_unicode(wchar_t *dest, char *src);
 void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last);
 

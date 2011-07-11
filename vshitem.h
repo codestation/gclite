@@ -35,8 +35,10 @@ void PatchVshItem(u32 text_addr);
 
 extern int unload;
 
-extern int vsh_id;
-extern int vsh_action_arg;
-extern int last_action_arg;
+extern int vsh_id[2];
+extern int vsh_action_arg[2];
+extern int last_action_arg[2];
+
+extern int global_pos;
 
 #endif /* VSHITEM_H_ */

@@ -25,6 +25,7 @@
 #include "psppaf.h"
 #include "gcpatches.h"
 #include "pspdefs.h"
+#include "vshitem.h"
 #include "config.h"
 #include "logger.h"
 
@@ -33,7 +34,6 @@ char category[52];
 
 char mod_path[70];
 char orig_path[70];
-int type = -1;
 
 // ME variables
 int multi_cat = 0;
@@ -60,7 +60,7 @@ int is_iso_cat(const char *path) {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
         sce_paf_private_strcpy(user_buffer + 9, category);
     }
-    SET_DEVICENAME(user_buffer, type);
+    SET_DEVICENAME(user_buffer, global_pos);
 
     // workaround for ME bug or "feature"
     trim(user_buffer);
@@ -76,9 +76,10 @@ inline void fix_path(char **path) {
 }
 
 int is_category_folder(SceIoDirent *dir, char *cat) {
+    kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            if(!config.prefix && FindCategory(dir->d_name, type)) {
+            if(!config.prefix && FindCategory(dir->d_name, global_pos)) {
                 return 1;
             }
             if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
@@ -163,7 +164,7 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
-            kprintf(">> %s: checking: %s\n", dir->d_name);
+            kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                     sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
                 kprintf("skipping %s\n", dir->d_name);
@@ -180,10 +181,12 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
+    kprintf("called\n");
     while(1) {
         res = sceIoDread(fd, dir);
         // filter out category folders in uncategorized view
         if(category[0] == '\0' && res > 0) {
+            kprintf("read %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                 // skip the VIDEO folder
                 sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) {
@@ -196,7 +199,9 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
 }
 
 int sceIoGetstatPatched(char *file, SceIoStat *stat) {
+    kprintf("checking %s\n", file);
     fix_path(&file);
+    kprintf("modcheck %s\n", file);
     return sceIoGetstat(file, stat);
 }
 
@@ -216,6 +221,7 @@ int sceIoRmdirPatched(char *path) {
 }
 
 char *ReturnBasePathPatched(char *base) {
+    kprintf("name: %s\n", base);
     if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
@@ -227,8 +233,9 @@ char *ReturnBasePathPatched(char *base) {
             sce_paf_private_strcpy(mod_path + 14, category);
         }
         // force the device name
-        SET_DEVICENAME(orig_path, type);
-        SET_DEVICENAME(mod_path, type);
+        SET_DEVICENAME(orig_path, global_pos);
+        SET_DEVICENAME(mod_path, global_pos);
+        kprintf("modified path: %s\n", mod_path);
         return mod_path;
     }
     return base;

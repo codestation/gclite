@@ -25,6 +25,7 @@
 #include "vshitem.h"
 #include "psppaf.h"
 #include "config.h"
+#include "utils.h"
 #include "logger.h"
 
 #define GAME_ACTION 0x0F
@@ -34,7 +35,6 @@ SceVshItem *vsh_items[2] = { NULL, NULL };
 extern int game_plug;
 
 extern char category[52];
-extern int type;
 
 int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     Category *p;
@@ -42,27 +42,26 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
 
     category[0] = '\0';
     if (*action == GAME_ACTION) {
-        if(*action_arg >= 100) {
-            if(*action_arg >= 1000) {
-                location = INTERNAL_STORAGE;
-                *action_arg -= 1000;
-            } else {
-                location = MEMORY_STICK;
-                *action_arg -= 100;
-            }
-            type = location;
+        location = get_location(*action_arg);
+        if(location != INVALID) {
+            *action_arg -= (location == INTERNAL_STORAGE) ? 1000 : 100;
             p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
+            kprintf("using %s as category\n", category);
+            global_pos = location;
+        } else {
+            kprintf("uncategorized content\n");
         }
+
         if (game_plug) {
-            if (*action_arg != last_action_arg) {
-                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg);
+            if (*action_arg != last_action_arg[global_pos]) {
+                kprintf("marking game_plugin for unload, %i != %i\n", *action_arg, last_action_arg[global_pos]);
                 unload = 1;
             }
         }
-        return 1;
+        return global_pos;
     }
-    return 0;
+    return -1;
 }
 
 int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
@@ -73,16 +72,14 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
     if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
-        //kprintf("adding uncategorized for Memory Stick\n");
+        kprintf("adding uncategorized for Memory Stick\n");
         AddVshItem(arg, topitem, item);
     }
     if (location && (config.uncategorized & ONLY_IE)) {
         sce_paf_private_strcpy(item->text, "gc5");
-        //kprintf("adding uncategorized for Internal Storage\n");
+        kprintf("adding uncategorized for Internal Storage\n");
         AddVshItem(arg, topitem, item);
     }
-
-    type = location;
 
     while ((p = GetNextCategory(p, location))) {
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
@@ -94,16 +91,22 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         } else {
             sce_paf_private_snprintf(vsh_items[location][i].text, 37, "gcw_%08X", (u32) p);
         }
-        //kprintf("adding %s for loc: %i\n", vsh_items[location][i].text, location);
+        kprintf("adding %s for loc: %i\n", vsh_items[location][i].text, location);
         AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }
+    global_pos = location;
     return 0;
 }
 
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
+    kprintf("text: %s, id: %i\n", item->text, item->id);
     if(item->id >= 100) {
-        item->id = vsh_id;
+        if(item->id >= 1000) {
+            item->id = vsh_id[INTERNAL_STORAGE];
+        } else {
+            item->id = vsh_id[MEMORY_STICK];
+        }
         return item;
     }
     return NULL;
