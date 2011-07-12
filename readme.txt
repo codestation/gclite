@@ -11,6 +11,11 @@ and GCR (the plugin is based heavily in GCL since it doesn't use a kernel/user a
 You can configure the folder prefix (use CAT_ for folders or not), showing uncategorized
 content and change the category mode in system settings.
 
+If you want a translation of the visible options then edit the file category_lite_en.txt
+and save it using the language code that first you (e.g. "es" for spanish).
+
+Languages supported: "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko", "ch1", "ch2"
+
 The source code is also available in https://github.com/codestation/gclite
 
 TODO:
@@ -20,6 +25,7 @@ Known issues:
 Change of category in the PSPGo requires a VSH reset.
 
 Changelog
+[+]Multiple language support.
 v1.3:
 [+]Support for categories in contextual menu.
 [+]Support for plugin configuration in system settings.

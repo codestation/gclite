@@ -1,0 +1,12 @@
+Modo Categoria
+Multiples MS
+Menu Contextual
+Prefijo Categorias
+Ninguno
+Usar "CAT"
+Mostrar sin categoria
+No
+Solo Memory Stick
+Solo Memoria Interna
+Ambos
+Sin categorizar

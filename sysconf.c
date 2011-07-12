@@ -27,6 +27,7 @@
 #include "utils.h"
 #include "config.h"
 #include "stub_funcs.h"
+#include "language.h"
 #include "logger.h"
 
 char user_buffer[256];
@@ -36,6 +37,8 @@ SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 
 extern int sysconf_plug;
 
+extern int model;
+
 char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 struct GCStrings {
@@ -43,12 +46,6 @@ struct GCStrings {
     char *prefix[2];
     char *show[4];
 } GCStrings;
-
-struct GCStrings gc_opts = {
-        {"Multi MS", "Contextual menu"},
-        {"None", "Use CAT prefix"},
-        {"No", "Only Memory Stick", "Only Internal Storage", "Both"},
-};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -146,6 +143,9 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
     context_mode = 0;
     if (name) {
         //kprintf("name: %s\n", name);
+        if (strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0) {
+            LoadLanguage(get_registry_value("/CONFIG/SYSTEM/XMB", "language"), model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+        }
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 context_mode = i + 1;
@@ -220,13 +220,13 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
                 HijackContext(*child, NULL, 0);
                 break;
             case 1:
-                HijackContext(*child, gc_opts.options, sizeof(gc_opts.options) / sizeof(char *));
+                HijackContext(*child, lang_container.mode, sizeof(lang_container.mode) / sizeof(char *));
                 break;
             case 2:
-                HijackContext(*child, gc_opts.prefix, sizeof(gc_opts.prefix) / sizeof(char *));
+                HijackContext(*child, lang_container.prefix, sizeof(lang_container.prefix) / sizeof(char *));
                 break;
             case 3:
-                HijackContext(*child, gc_opts.show, sizeof(gc_opts.show) / sizeof(char *));
+                HijackContext(*child, lang_container.show, sizeof(lang_container.show) / sizeof(char *));
                 break;
             }
         }

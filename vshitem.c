@@ -27,16 +27,22 @@
 #include "gcread.h"
 #include "config.h"
 #include "logger.h"
+#include "language.h"
+#include "utils.h"
 
 #define GAME_ACTION 0x0F
 
 extern int game_plug;
+
+extern int model;
 
 char user_buffer[256];
 
 int unload = 0;
 
 int global_pos = 0;
+
+char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -89,6 +95,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
         load_config();
+        LoadLanguage(get_registry_value("/CONFIG/SYSTEM/XMB", "language"), model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
         kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);
         category[0] = '\0';
 
@@ -165,39 +172,39 @@ int UnloadModulePatched(int skip) {
 }
 
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
-    if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
+    if (name && sce_paf_private_strncmp(name, cat_str[0], 2) == 0) {
         kprintf("match name: %s\n", name);
         //TODO: optimize this code
         // sysconf 1
-        if (sce_paf_private_strcmp(name, "gc0") == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, "Category mode");
+        if (sce_paf_private_strcmp(name, cat_str[1]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_mode);
             return (wchar_t *) user_buffer;
         // sysconf 2
-        } else if (sce_paf_private_strcmp(name, "gc1") == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, "Category prefix");
+        } else if (sce_paf_private_strcmp(name, cat_str[2]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_prefix);
             return (wchar_t *) user_buffer;
         // sysconf 3
-        } else if (sce_paf_private_strcmp(name, "gc2") == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, "Show uncategorized");
+        } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
             return (wchar_t *) user_buffer;
         // Memory Stick
-        } else if (sce_paf_private_strncmp(name, "gcv_", 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, "gc4") == 0) {
-            gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
+        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+            gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         // Internal Storage
-        } else if (sce_paf_private_strncmp(name, "gcw_", 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, "gc5") == 0) {
-            gc_utf8_to_unicode((wchar_t *) user_buffer, "Uncategorized");
+        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
+            gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         }

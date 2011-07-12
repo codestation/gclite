@@ -1,0 +1,12 @@
+Category mode
+Multi MS
+Contextual menu
+Category prefix
+None
+Use CAT prefix
+Show uncategorized
+No
+Only Memory Stick
+Only Internal Storage
+Both
+Uncategorized

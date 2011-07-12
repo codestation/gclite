@@ -19,6 +19,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <pspsdk.h>
+#include <pspreg.h>
 #include "categories_lite.h"
 #include "logger.h"
 
@@ -99,4 +101,38 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
     for (i = 0; i == 0 || src[i - 1]; i++) {
         dest[i] = src[i];
     }
+}
+
+
+int get_registry_value(const char *dir, const char *name) {
+    int res = -1;
+    struct RegParam reg;
+    REGHANDLE h;
+
+    sce_paf_private_memset(&reg, 0, sizeof(reg));
+    reg.regtype = 1;
+    reg.namelen = sce_paf_private_strlen("/system");
+    reg.unk2 = 1;
+    reg.unk3 = 1;
+    sce_paf_private_strcpy(reg.name, "/system");
+
+    if (sceRegOpenRegistry(&reg, 2, &h) >= 0) {
+        REGHANDLE hd;
+
+        if (sceRegOpenCategory(h, dir, 2, &hd) >= 0) {
+            REGHANDLE hk;
+            unsigned int type, size;
+
+            if (sceRegGetKeyInfo(hd, name, &hk, &type, &size) >= 0) {
+                if (sceRegGetKeyValue(hd, hk, &res, 4) < 0) {
+                    res = -1;
+                }
+            }
+
+            sceRegCloseCategory(hd);
+        }
+
+        sceRegCloseRegistry(h);
+    }
+    return res;
 }

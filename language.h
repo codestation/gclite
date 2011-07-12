@@ -1,7 +1,7 @@
 /*
  *  this file is part of Game Categories Lite
  *
- *  Copyright (C) 2011, Codestation
+ *  Copyright (C) 2011  Codestation
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,14 +17,25 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILS_H_
-#define UTILS_H_
+#ifndef LANGUAGE_H_
+#define LANGUAGE_H_
 
-void *redir2stub(u32 address, void *stub, void *redir);
-void *redir_call(u32 address, void *func);
-int get_location(int action_arg);
-void gc_utf8_to_unicode(wchar_t *dest, char *src);
-void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last);
-int get_registry_value(const char *dir, const char *name);
+typedef struct {
+    char *msg_mode;
+    char *mode[2];
 
-#endif /* UTILS_H_ */
+    char *msg_prefix;
+    char *prefix[2];
+
+    char *msg_show;
+    char *show[4];
+
+    char *msg_uncategorized;
+
+} LanguageContainer;
+
+extern LanguageContainer lang_container;
+
+void LoadLanguage(int id, int location);
+
+#endif /* LANGUAGE_H_ */
