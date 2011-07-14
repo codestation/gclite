@@ -140,8 +140,8 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 }
 
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
-    context_mode = 0;
     if (name) {
+        context_mode = 0;
         //kprintf("name: %s\n", name);
         if (strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0) {
             LoadLanguage(get_registry_value("/CONFIG/SYSTEM/XMB", "language"), model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
