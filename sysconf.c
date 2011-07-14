@@ -143,8 +143,8 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 }
 
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
-    context_mode = 0;
     if (name) {
+        context_mode = 0;
         //kprintf("name: %s\n", name);
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
