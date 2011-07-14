@@ -29,3 +29,4 @@ CREATE_STUB get_registry_stub
 CREATE_STUB set_registry_stub
 CREATE_STUB xmb_push_stub
 CREATE_STUB xmb_context_stub
+CREATE_STUB display_context_stub
