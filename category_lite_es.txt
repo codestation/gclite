@@ -1,12 +1,12 @@
-Modo Categoria
-Multiples MS
-Menu Contextual
-Prefijo Categorias
+Modo Categoría
+MÃºltiples MS
+MenÃº Contextual
+Prefijo Categorías
 Ninguno
 Usar "CAT"
-Mostrar sin categoria
+Mostrar sin categoría
 No
-Solo Memory Stick
-Solo Memoria Interna
+Solo Memory Stickâ„¢
+Solo memoria interna
 Ambos
 Sin categorizar

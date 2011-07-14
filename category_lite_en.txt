@@ -6,7 +6,7 @@ None
 Use CAT prefix
 Show uncategorized
 No
-Only Memory Stick
+Only Memory Stick™
 Only Internal Storage
 Both
 Uncategorized

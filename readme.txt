@@ -14,6 +14,10 @@ content and change the category mode in system settings.
 If you want a translation of the visible options then edit the file category_lite_en.txt
 and save it using the language code that first you (e.g. "es" for spanish).
 
+Note: you must use following encoding for the file:
+* CP-1252 for the category options.
+* UTF-8 for the option items. 
+
 Languages supported: "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko", "ch1", "ch2"
 
 The source code is also available in https://github.com/codestation/gclite
