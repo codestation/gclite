@@ -14,6 +14,7 @@ CONFIG_LANG = en
 endif
 
 all: category_lang
+	-pspgz.py category_lite.prx Game_Categories_Light 0x0007
 
 category_lang:
 	bin2c category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang
