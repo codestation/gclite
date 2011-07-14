@@ -99,7 +99,7 @@ void gc_utf8_to_unicode(wchar_t *dest, char *src) {
     int i;
 
     for (i = 0; i == 0 || src[i - 1]; i++) {
-        dest[i] = (unsigned int)src[i];
+        dest[i] = (unsigned char)src[i];
     }
 }
 
