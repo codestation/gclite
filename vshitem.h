@@ -34,7 +34,7 @@ SceVshItem *GetBackupVshItemPatched(int topitem, u32 unk, SceVshItem *item);
 void PatchVshItem(u32 text_addr);
 
 extern int unload;
-
+extern int lang_id;
 extern int vsh_id[2];
 extern int vsh_action_arg[2];
 extern int last_action_arg[2];

@@ -144,7 +144,8 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         context_mode = 0;
         //kprintf("name: %s\n", name);
         if (strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0) {
-            LoadLanguage(get_registry_value("/CONFIG/SYSTEM/XMB", "language"), model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+            lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
+            LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
         }
         for(int i = 0; i < sizeof(sysconf_str) / 4; i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {

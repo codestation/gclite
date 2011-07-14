@@ -29,6 +29,8 @@
 
 char *lang[] = { "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko", "ch1", "ch2" };
 
+int lang_width[] = {1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
+
 LanguageContainer lang_container;
 
 // trim and GetLine are taken from this thread:

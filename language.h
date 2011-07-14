@@ -36,6 +36,8 @@ typedef struct {
 
 extern LanguageContainer lang_container;
 
+extern int lang_width[];
+
 void LoadLanguage(int id, int location);
 
 #endif /* LANGUAGE_H_ */

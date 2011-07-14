@@ -39,7 +39,7 @@ extern int context_mode;
 char user_buffer[256];
 
 int unload = 0;
-
+int lang_id = 1;
 int global_pos = 0;
 
 char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
@@ -96,7 +96,8 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
         load_config();
-        LoadLanguage(get_registry_value("/CONFIG/SYSTEM/XMB", "language"), model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+        lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
+        LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
         kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);
         category[0] = '\0';
 
@@ -215,7 +216,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 
 
 int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
-    if (context_gamecats || context_mode == 3) {
+    if (context_gamecats || (context_mode > 0 && lang_width[lang_id])) {
         width = 1;
     }
     return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
