@@ -142,6 +142,7 @@ void PatchGameText(u32 text_addr);
 
 // Functions in: vshitem.c
 void PatchPaf(u32 text_addr);
+void PatchVshCommonGui(u32 text_addr);
 
 // Functions in: sysconf.c
 void PatchSysconf(u32 text_addr);

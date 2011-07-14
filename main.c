@@ -87,6 +87,12 @@ int OnModuleStart(SceModule2 *mod) {
         PatchPafForSysconf(mod->text_addr);
         ClearCaches();
 
+    } else if (sce_paf_private_strcmp(mod->modname, "sceVshCommonGui_Module") == 0) {
+
+        kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
+        PatchVshCommonGui(mod->text_addr);
+        ClearCaches();
+
     }
 
 	return previous ? previous(mod) : 0;

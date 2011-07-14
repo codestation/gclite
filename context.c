@@ -35,8 +35,6 @@ int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
 int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
 int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
 
-int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2);
-
 SceVshItem *original_item[2] = { NULL, NULL };
 SceContextItem *original_context[2] = { NULL, NULL };
 SceContextItem *context_items[2] = { NULL, NULL };
@@ -222,16 +220,8 @@ void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     }
 }
 
-int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
-    if (context_gamecats) {
-        width = 1;
-    }
-    return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
-}
-
 void PatchVshmainForContext(u32 text_addr) {
     OnXmbPush = redir2stub(text_addr+PATCHES->OnXmbPush, xmb_push_stub, OnXmbPushPatched);
     OnXmbContextMenu = redir2stub(text_addr+PATCHES->OnXmbContextMenu, xmb_context_stub, OnXmbContextMenuPatched);
     //OnMenuListScrollIn = redir2stub(text_addr+PATCHES->OnMenuListScrollIn, menu_scroll_stub, OnMenuListScrollInPatched);
-    sceVshCommonGuiDisplayContext_func = redir_call(text_addr+PATCHES->CommonGuiDisplayContextOffset, sceVshCommonGuiDisplayContextPatched);
 }

@@ -124,7 +124,7 @@ GCPatches patches_620 =
 
     /** vshitem.c */
     0x3C404, // scePafGetTextOffset
-    0x1C40C, // CommonGuiDisplayContextOffset
+    0x03C54, // CommonGuiDisplayContextOffset
 
     /** context.c */
     0x16284, // OnXmbPush
@@ -182,7 +182,7 @@ GCPatches patches_63x =
 
     /** vshitem.c */
     0x3C3CC, // scePafGetTextOffset
-    0x1CBAC, // CommonGuiDisplayContextOffset
+    0x03C54, // CommonGuiDisplayContextOffset
 
     /** context.c */
     0x168EC, // OnXmbPush

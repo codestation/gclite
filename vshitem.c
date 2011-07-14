@@ -31,6 +31,7 @@
 #define GAME_ACTION 0x0F
 
 extern int game_plug;
+extern int context_mode;
 
 char user_buffer[256];
 
@@ -47,6 +48,7 @@ int (*ExecuteAction)(int action, int action_arg) = NULL;
 int (*AddVshItem)(void *arg, int topitem, SceVshItem *item) = NULL;
 wchar_t* (*scePafGetText)(void *arg, char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
+int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) = NULL;
 
 int get_item_location(int topitem, SceVshItem *item) {
     /*
@@ -205,6 +207,14 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
     return scePafGetText(arg, name);
 }
 
+
+int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
+    if (context_gamecats || context_mode > 0) {
+        width = 1;
+    }
+    return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
+}
+
 void PatchVshmain(u32 text_addr) {
     AddVshItem = redir2stub(text_addr+PATCHES->AddVshItemOffset, add_vsh_item_stub, AddVshItemPatched);
     GetBackupVshItem = redir_call(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
@@ -215,4 +225,8 @@ void PatchVshmain(u32 text_addr) {
 void PatchPaf(u32 text_addr) {
     //sysconf called scePafGetText from offset: 0x052AC
     scePafGetText = redir2stub(text_addr+PATCHES->scePafGetTextOffset, paf_get_text_stub, scePafGetTextPatched);
+}
+
+void PatchVshCommonGui(u32 text_addr) {
+    sceVshCommonGuiDisplayContext_func = redir2stub(text_addr+PATCHES->CommonGuiDisplayContextOffset, display_context_stub, sceVshCommonGuiDisplayContextPatched);
 }
