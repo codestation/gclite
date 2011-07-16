@@ -9,4 +9,7 @@ No
 Solo Memory Stick™
 Solo memoria interna
 Ambos
+Categorias multimedia
+Desabilitado
+Habilitado
 Sin categorizar

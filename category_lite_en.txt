@@ -9,4 +9,7 @@ No
 Only Memory Stick™
 Only Internal Storage
 Both
+Multimedia categories
+Disabled
+Enabled
 Uncategorized

@@ -113,6 +113,17 @@ typedef struct
     u32 unknown[2]; //20
 } SceRcoEntry;
 
+enum CategoryItem {
+    ITEM_SYSCONF,
+    ITEM_EXTRA,
+    ITEM_PICTURES,
+    ITEM_MUSIC,
+    ITEM_VIDEO,
+    ITEM_GAME,
+    ITEM_NETWORK,
+    ITEM_STORE,
+};
+
 enum CategoryLocation {
     MEMORY_STICK,
     INTERNAL_STORAGE,
@@ -162,7 +173,7 @@ void ClearCategories(int location);
 void AddCategory(char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *prev, int location);
 Category *FindCategory(const char *category, int location);
-void IndexCategories(const char *path, int location);
+void IndexCategories(const char *path, int location, int topitem);
 
 // Functions in: gcpatches.c
 void ResolveNIDs();

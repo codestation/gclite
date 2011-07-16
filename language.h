@@ -30,6 +30,9 @@ typedef struct {
     char *msg_show;
     char *show[4];
 
+    char *msg_multimedia;
+    char *multimedia[2];
+
     char *msg_uncategorized;
 
 } LanguageContainer;

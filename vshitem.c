@@ -30,11 +30,16 @@
 #include "language.h"
 #include "utils.h"
 
+#define PICTURE_ACTION 0x0
+#define AUDIO_ACTION 0x0
+#define VIDEO_ACTION 0x0
 #define GAME_ACTION 0x0F
 
 extern int game_plug;
 extern int model;
 extern int context_mode;
+
+int topitem_pos;
 
 char user_buffer[256];
 
@@ -42,11 +47,69 @@ int unload = 0;
 int lang_id = 1;
 int global_pos = 0;
 
-char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
+/**
+ * Nomenclature:
+ * gc: game categories
+ * s: sysconf
+ * p: picture
+ * a: audio
+ * v: video
+ * g: game
+ * m: memory stick
+ * i: internal storage
+ */
 
-int vsh_id[2] = { -1, -1 };
-int vsh_action_arg[2] = { -1, -1 };
-int last_action_arg[2] = { GAME_ACTION, GAME_ACTION };
+char *cat_str_sys[] = {
+        "gcs0",
+        "gcs1",
+        "gcs2",
+        "gcs3"
+};
+
+char *search_path[] = {
+        "xxx:/PICTURE",
+        "xxx:/MUSIC",
+        "xxx:/VIDEO",
+        "xxx:/PSP/GAME"
+};
+
+char *cat_unc[4][2] =  {
+        { "gcp0", "gcp1" },
+        { "gca0", "gca1" },
+        { "gcv0", "gcv1" },
+        { "gcg0", "gcg1" },
+};
+
+char *cat_str[4][2] =  {
+        { "gcpm_", "gcpi_" },
+        { "gcam_", "gcai_" },
+        { "gcvm_", "gcvi_" },
+        { "gcgm_", "gcgi_" },
+};
+
+int vsh_id[4][2] = {
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+};
+
+int vsh_action_arg[4][2] = {
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+};
+
+int last_action_arg[4][2] = {
+        {PICTURE_ACTION, PICTURE_ACTION},
+        {AUDIO_ACTION, AUDIO_ACTION},
+        {VIDEO_ACTION, VIDEO_ACTION},
+        { GAME_ACTION, GAME_ACTION },
+};
+
+
+int vsh_actions[] = { PICTURE_ACTION, AUDIO_ACTION, VIDEO_ACTION, GAME_ACTION };
 
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
@@ -55,23 +118,26 @@ wchar_t* (*scePafGetText)(void *arg, char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) = NULL;
 
-int get_item_location(int topitem, SceVshItem *item) {
-    /*
-     * 0: sysconf
-     * 1: extra (digital comics)
-     * 2: pictures
-     * 3: music
-     * 4: videos
-     * 5: games
-     * 6: network
-     * 7: store
-     */
-    if(topitem == 5) {
+int topitem_index(int topitem) {
+    if(topitem == ITEM_PICTURES) {
+        return 0;
+    } else if(topitem == ITEM_MUSIC) {
+        return 1;
+    } else if(topitem == ITEM_VIDEO) {
+        return 2;
+    } else if(topitem == ITEM_GAME) {
+        return 3;
+    }
+    return -1;
+}
+
+int get_item_location(int pos, SceVshItem *item) {
+    if(pos >= 0) {
         if(sce_paf_private_strcmp(item->text, "msgshare_ms") == 0 ||
-                sce_paf_private_strcmp(item->text, "gc4") == 0) {
+                sce_paf_private_strcmp(item->text, cat_unc[pos][MEMORY_STICK]) == 0) {
             return MEMORY_STICK;
         } else if(sce_paf_private_strcmp(item->text, "msg_em") == 0 ||
-                sce_paf_private_strcmp(item->text, "gc5") == 0) {
+                sce_paf_private_strcmp(item->text, cat_unc[pos][INTERNAL_STORAGE]) == 0) {
             return INTERNAL_STORAGE;
         }
     }
@@ -94,37 +160,36 @@ SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
 
 int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
-    if((location = get_item_location(topitem, item)) >= 0) {
-        load_config();
-        lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
-        LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
+    int index = topitem_index(topitem);
+    if(index >= 0 && (location = get_item_location(index, item)) >= 0) {
         kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);
         category[0] = '\0';
 
-        if (vsh_items[location]) {
-            sce_paf_private_free(vsh_items[location]);
-            vsh_items[location] = NULL;
+        if (vsh_items[index][location]) {
+            sce_paf_private_free(vsh_items[index][location]);
+            vsh_items[index][location] = NULL;
         }
-        if(context_items[location]) {
-            sce_paf_private_free(context_items[location]);
-            context_items[location] = NULL;
+        if(context_items[index][location]) {
+            sce_paf_private_free(context_items[index][location]);
+            context_items[index][location] = NULL;
         }
 
-        ClearCategories(location);
-        IndexCategories("xxx:/PSP/GAME", location);
+        topitem_pos = topitem;
+        ClearCategories(location, index);
+        IndexCategories(search_path[index], location, index);
 
         // make a backup of the id and action_arg
-        if(vsh_id[location] < 0 || vsh_action_arg[location] < 0) {
-            vsh_id[location] = item->id;
-            vsh_action_arg[location] = item->action_arg;
+        if(vsh_id[index][location] < 0 || vsh_action_arg[index][location] < 0) {
+            vsh_id[index][location] = item->id;
+            vsh_action_arg[index][location] = item->action_arg;
         } else {
-            item->id = vsh_id[location];
-            item->action_arg = vsh_action_arg[location];
+            item->id = vsh_id[index][location];
+            item->action_arg = vsh_action_arg[index][location];
             item->play_sound = 1;
         }
         global_pos = location;
-        kprintf("saved: id: %i, action: %i\n", vsh_id[location], vsh_action_arg[location]);
-        last_action_arg[location] = GAME_ACTION;
+        kprintf("saved: id: %i, action: %i\n", vsh_id[index][location], vsh_action_arg[index][location]);
+        last_action_arg[index][location] = vsh_actions[index];
 
         /* Restore in case it was changed by MultiMs */
         const char *msg = location == MEMORY_STICK ? "msgshare_ms" : "msg_em";
@@ -145,19 +210,19 @@ int ExecuteActionPatched(int action, int action_arg) {
     if(config.mode == MODE_MULTI_MS) {
         location = PatchExecuteActionForMultiMs(&action, &action_arg);
         if(location >= 0) {
-            last_action_arg[location] = action_arg;
-            action_arg = vsh_action_arg[location];
+            last_action_arg[index][location] = action_arg;
+            action_arg = vsh_action_arg[index][location];
         }
     } else if(config.mode == MODE_CONTEXT_MENU) {
         location = PatchExecuteActionForContext(&action, &action_arg);
         if(location == 2) {
             return 0;
         } else if(location >= 0) {
-            last_action_arg[location] = action_arg;
-            action_arg = vsh_action_arg[location];
+            last_action_arg[index][location] = action_arg;
+            action_arg = vsh_action_arg[index][location];
 
             // simulate MS selection
-            action = GAME_ACTION;
+            action = vsh_action[index];
         }
     }
     kprintf("sending action: %i, action_arg: %i\n", action, action_arg);
@@ -174,38 +239,42 @@ int UnloadModulePatched(int skip) {
 }
 
 wchar_t* scePafGetTextPatched(void *arg, char *name) {
-    if (name && sce_paf_private_strncmp(name, cat_str[0], 2) == 0) {
+    if (name && sce_paf_private_strncmp(name, "gc", 2) == 0) {
         kprintf("match name: %s\n", name);
         //TODO: optimize this code
         // sysconf 1
-        if (sce_paf_private_strcmp(name, cat_str[1]) == 0) {
+        if (sce_paf_private_strcmp(name, cat_str_sys[0]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_mode);
             return (wchar_t *) user_buffer;
         // sysconf 2
-        } else if (sce_paf_private_strcmp(name, cat_str[2]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str_sys[1]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_prefix);
             return (wchar_t *) user_buffer;
         // sysconf 3
-        } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str_sys[2]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
             return (wchar_t *) user_buffer;
+        // sysconf 4
+        } else if (sce_paf_private_strcmp(name, cat_str_sys[3]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_multimedia);
+            return (wchar_t *) user_buffer;
         // Memory Stick
-        } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[0], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str_unc[0]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         // Internal Storage
-        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[1], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str_unc[1]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
@@ -227,6 +296,9 @@ void PatchVshmain(u32 text_addr) {
     GetBackupVshItem = redir_call(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
     ExecuteAction = redir2stub(text_addr+PATCHES->ExecuteActionOffset, execute_action_stub, ExecuteActionPatched);
     UnloadModule = redir2stub(text_addr+PATCHES->UnloadModuleOffset, unload_module_stub, UnloadModulePatched);
+    load_config();
+    lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
+    LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
 }
 
 void PatchPaf(u32 text_addr) {

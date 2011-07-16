@@ -158,12 +158,13 @@ int is_category(const char *base, const char *path) {
     return 1;
 }
 
-void IndexCategories(const char *path, int location) {
+void IndexCategories(const char *path, int location, int topitem) {
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
     char full_path[16];
     int match;
+    int prefix;
 
     sce_paf_private_strcpy(full_path, path);
     SET_DEVICENAME(full_path, location);
@@ -175,7 +176,7 @@ void IndexCategories(const char *path, int location) {
     kprintf("Indexing categories from %s, loc: %i\n", path, location);
     match = 0;
     sce_paf_private_memset(&dir, 0, sizeof(SceIoDirent));
-
+    prefix = config.prefix || topitem != 5 ? 1 : 0;
     while(1) {
         if(sceIoDread(fd, &dir) <= 0) {
             kprintf("End of directory list\n");
@@ -184,9 +185,9 @@ void IndexCategories(const char *path, int location) {
         }
         kprintf("checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.') {
-            if(!config.prefix && is_category(full_path, dir.d_name)) {
+            if(!prefix && is_category(full_path, dir.d_name)) {
                 match = 1;
-            }else if(config.prefix && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
+            }else if(prefix && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
                 sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
                 match = 1;
             }

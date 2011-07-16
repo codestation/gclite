@@ -40,6 +40,8 @@ int multi_cat = 0;
 SceUID catdfd = -1;
 extern int me_fw;
 
+extern int topitem_pos;
+
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
     while(str[i-1] == ' ') {
@@ -53,6 +55,8 @@ inline void trim(char *str) {
 int is_iso_cat(const char *path) {
     SceIoStat st;
 
+    if(topitem_pos != 5)
+        return 0;
     if(config.prefix) {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
         sce_paf_private_strcpy(user_buffer + 13, category);
@@ -76,20 +80,21 @@ inline void fix_path(char **path) {
 }
 
 int is_category_folder(SceIoDirent *dir, char *cat) {
+    int prefix = config.prefix || topitem_pos != 5 ? 1 : 0;
     kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            if(!config.prefix && FindCategory(dir->d_name, global_pos)) {
+            if(!prefix && FindCategory(dir->d_name, global_pos)) {
                 return 1;
             }
-            if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
+            if(prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
                 return 1;
             }
         }
-        if(!config.prefix && sce_paf_private_strcmp(dir->d_name, cat) == 0) {
+        if(!prefix && sce_paf_private_strcmp(dir->d_name, cat) == 0) {
             return 1;
         }
-        if(config.prefix && sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
+        if(prefix && sce_paf_private_strcmp(dir->d_name + 4, cat) == 0) {
             return 1;
         }
     }
@@ -166,7 +171,7 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
         if(category[0] == '\0' && res > 0) {
             kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
-                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
+                    (topitem_pos == 5 && sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0)) { // skip the VIDEO folder too
                 kprintf("skipping %s\n", dir->d_name);
                 continue;
             }
@@ -189,7 +194,7 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
             kprintf("read %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                 // skip the VIDEO folder
-                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) {
+                (topitem_pos == 5 && sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0)) {
                 continue;
             }
         }
@@ -221,8 +226,9 @@ int sceIoRmdirPatched(char *path) {
 }
 
 char *ReturnBasePathPatched(char *base) {
+    const char *cmp = topitem_pos == 5 ? "/PSP/GAME" : "/MUSIC";
     kprintf("name: %s\n", base);
-    if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
+    if(*category && base && sce_paf_private_strcmp(base + 4, cmp) == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
         if(config.prefix) {
