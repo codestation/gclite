@@ -1,8 +1,10 @@
 /*
  *  this file is part of Game Categories Lite
  *  Contain parts of Game Categories Revised/Light
+ *  Contain parts of 6.39 TN-A, XmbControl
  *
  *  Copyright (C) 2009-2011, Bubbletune
+ *  Copyright (C) 2011, Total_Noob
  *  Copyright (C) 2011, Codestation
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -23,6 +25,10 @@
 #include <pspreg.h>
 #include "categories_lite.h"
 #include "logger.h"
+
+#define MASKBITS 0x3F
+#define MASK2BYTES 0xC0
+#define MASK3BYTES 0xE0
 
 void *redir2stub(u32 address, void *stub, void *redir) {
     _sw(_lw(address), (u32)stub);
@@ -95,14 +101,33 @@ void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
     sce_paf_private_memcpy(&fake[len], &real[x], (found * 2));
 }
 
-void gc_utf8_to_unicode(wchar_t *dest, char *src) {
-    int i;
+int gc_utf8_to_unicode(wchar_t *dest, char *src) {
+    int i, x;
+    unsigned char *usrc = (unsigned char *) src;
 
-    for (i = 0; i == 0 || src[i - 1]; i++) {
-        dest[i] = (unsigned char)src[i];
+    for (i = 0, x = 0; usrc[i];) {
+        wchar_t ch;
+
+        if (ISSET(usrc[i], MASK3BYTES)) {
+            ch = ((usrc[i] & 0x0F) << 12) | ((usrc[i + 1] & MASKBITS) << 6) | (usrc[i + 2] & MASKBITS);
+            i += 3;
+        }
+
+        else if (ISSET(usrc[i], MASK2BYTES)) {
+            ch = ((usrc[i] & 0x1F) << 6) | (usrc[i + 1] & MASKBITS);
+            i += 2;
+        } else {
+            ch = usrc[i];
+            i += 1;
+        }
+
+        dest[x++] = ch;
     }
-}
 
+    dest[x++] = '\0';
+
+    return x;
+}
 
 int get_registry_value(const char *dir, const char *name) {
     int res = -1;

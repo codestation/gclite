@@ -32,6 +32,8 @@ int sceKernelGetCompiledSdkVersion();
 #define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
 
+#define ISSET(v, m)  (((v) & (m)) == (m))
+
 // useful to know who is the caller
 #define GET_RA(x) __asm__("move %0,$ra" : "=r"((x)))
 

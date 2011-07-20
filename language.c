@@ -119,6 +119,10 @@ int LoadLanguageContainer(void *data, int size) {
 
 void LoadLanguage(int id, int location) {
     int loaded = 0;
+    union _d {
+        char *temp;
+        u32 magic;
+    } d;
 
     if (id >= 0 && id < (sizeof(lang) / sizeof(char *))) {
         char path[128];
@@ -130,11 +134,15 @@ void LoadLanguage(int id, int location) {
             int size = sceIoLseek(fd, 0, PSP_SEEK_END);
             sceIoLseek(fd, 0, PSP_SEEK_SET);
 
-            char *temp = (void *) sce_paf_private_malloc(size);
-            sceIoRead(fd, temp, size);
-            loaded = LoadLanguageContainer(temp, size);
+            d.temp = (char *)sce_paf_private_malloc(size);
+            sceIoRead(fd, d.temp, size);
 
-            sce_paf_private_free(temp);
+            // skip unicode BOM (if present)
+            loaded = ISSET(d.magic & 0xFFFFFF, 0xBFBBEF) ? 3 : 0;
+
+            loaded = LoadLanguageContainer(d.temp + loaded, size - loaded);
+
+            sce_paf_private_free(d.temp);
         }
     }
 

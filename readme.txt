@@ -14,9 +14,7 @@ content and change the category mode in system settings.
 If you want a translation of the visible options then edit the file category_lite_en.txt
 and save it using the language code that first you (e.g. "es" for spanish).
 
-Note: you must use following encoding for the file:
-* CP-1252 for the category options.
-* UTF-8 for the option items. 
+Note: you must use UTF-8 encoding for the translation files (without unicode BOM).
 
 Languages supported: "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko", "ch1", "ch2"
 
@@ -30,6 +28,7 @@ Change of category in the PSPGo requires a VSH reset.
 
 Changelog
 [+]Multiple language support.
+[+]Added ja translation by popsdeco
 v1.3:
 [+]Support for categories in contextual menu.
 [+]Support for plugin configuration in system settings.

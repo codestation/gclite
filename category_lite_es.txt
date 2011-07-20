@@ -1,10 +1,10 @@
-Modo Categor�a
+Modo Categoría
 Múltiples MS
 Menú Contextual
-Prefijo Categor�as
+Prefijo Categorías
 Ninguno
-Usar "CAT"
-Mostrar sin categor�a
+Usar prefijo CAT
+Mostrar sin categoría
 No
 Solo Memory Stick™
 Solo memoria interna
