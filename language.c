@@ -121,7 +121,7 @@ void LoadLanguage(int id, int location) {
     int loaded = 0;
     union _d {
         char *temp;
-        u32 magic;
+        u32 *magic;
     } d;
 
     if (id >= 0 && id < (sizeof(lang) / sizeof(char *))) {
@@ -138,7 +138,7 @@ void LoadLanguage(int id, int location) {
             sceIoRead(fd, d.temp, size);
 
             // skip unicode BOM (if present)
-            loaded = ISSET(d.magic & 0xFFFFFF, 0xBFBBEF) ? 3 : 0;
+            loaded = ISSET(*d.magic & 0xFFFFFF, 0xBFBBEF) ? 3 : 0;
 
             loaded = LoadLanguageContainer(d.temp + loaded, size - loaded);
 
@@ -147,6 +147,8 @@ void LoadLanguage(int id, int location) {
     }
 
     if (!loaded) {
+        // not doing unicode BOM check here, all the source files must not
+        // contain the BOM without exceptions
         LoadLanguageContainer(category_lite_lang, size_category_lite_lang);
     }
 }
