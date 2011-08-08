@@ -29,6 +29,7 @@ Change of category in the PSPGo requires a VSH reset.
 Changelog
 [+]Multiple language support.
 [+]Added ja translation by popsdeco
+[+]Added de translation by KOlle
 v1.3:
 [+]Support for categories in contextual menu.
 [+]Support for plugin configuration in system settings.

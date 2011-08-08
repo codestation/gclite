@@ -1,0 +1,12 @@
+Kategorie-Modus
+Multi MS
+Auswahl-Menu
+Kategorie-PreFix
+Kein
+CAT-PreFix
+Zeige Unsortierte
+Nein
+Nur Memory Stick™
+Nur Interner Speicher
+Beides
+Unsortierte
