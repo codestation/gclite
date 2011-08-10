@@ -67,12 +67,12 @@ int OnModuleStart(SceModule2 *mod) {
 		/* Make sceKernelGetCompiledSdkVersion clear the caches,
 			so that we don't have to create a kernel module just 
 			to be able to clear the caches from user mode.*/
-		
+
 		//6.20: 0xFC114573 [0x00009B0C] - SysMemUserForUser_FC114573
 		//6.35:	0xFC114573 [0x000099EC] - SysMemUserForUser_FC114573
 		MAKE_JUMP(PATCHES->get_compiled_sdk_version, ClearCaches);
 		ClearCaches();
-		
+
 	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
 
 	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
@@ -99,6 +99,9 @@ int OnModuleStart(SceModule2 *mod) {
 }
 
 int module_start(SceSize args, void *argp) {
+	UNUSED_ARGUMENT(args);
+	UNUSED_ARGUMENT(argp);
+
     model = kuKernelGetModel();
     sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);

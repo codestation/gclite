@@ -101,7 +101,7 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
 }
 
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
-    int i;
+    u32 i;
     kprintf("called, name: %s, location: %i\n", item->text, location);
     if(!location && (config.uncategorized & ONLY_MS)) {
         i = 1;

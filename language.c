@@ -108,7 +108,7 @@ int LoadLanguageContainer(void *data, int size) {
 
         size -= res;
         p += res;
-    } while (res > 0 && i < (sizeof(lang_container) / sizeof(char **)));
+    } while (res > 0 && i < (int)(sizeof(lang_container) / sizeof(char **)));
 
     if (i == (sizeof(lang_container) / sizeof(char **))) {
         return 1;
@@ -124,7 +124,7 @@ void LoadLanguage(int id, int location) {
         u32 *magic;
     } d;
 
-    if (id >= 0 && id < (sizeof(lang) / sizeof(char *))) {
+    if (id >= 0 && id < (int)(sizeof(lang) / sizeof(char *))) {
         char path[128];
         sce_paf_private_snprintf(path, 128, "xx0:/seplugins/category_lite_%s.txt", lang[id]);
         SET_DEVICENAME(path, location);

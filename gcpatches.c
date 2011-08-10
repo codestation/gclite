@@ -70,7 +70,7 @@ void ResolveNIDs() {
                 }
             }
         }
-        stub_top += (stub->len * 4);
+        stub_top += (u32)(stub->len * 4);
     }
 }
 

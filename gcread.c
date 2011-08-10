@@ -50,15 +50,15 @@ inline void trim(char *str) {
     }
 }
 
-int is_iso_cat(const char *path) {
+int is_iso_cat(const char *cat) {
     SceIoStat st;
 
     if(config.prefix) {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
-        sce_paf_private_strcpy(user_buffer + 13, category);
+        sce_paf_private_strcpy(user_buffer + 13, cat);
     } else {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/");
-        sce_paf_private_strcpy(user_buffer + 9, category);
+        sce_paf_private_strcpy(user_buffer + 9, cat);
     }
     SET_DEVICENAME(user_buffer, global_pos);
 
@@ -70,7 +70,7 @@ int is_iso_cat(const char *path) {
 }
 
 inline void fix_path(char **path) {
-    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat(*path)) {
+    if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat(category)) {
         *path = orig_path;
     }
 }
@@ -119,7 +119,7 @@ SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
 }
 
 SceUID sceIoDopenPatched(const char *path) {
-    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(path)) {
+    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(category)) {
         multi_cat = 1;
         path = orig_path;
         kprintf("changed path to: %s\n", path);
