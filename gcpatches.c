@@ -30,23 +30,24 @@ extern SceModuleInfo module_info;
 typedef struct {
 	u32 nid63x;
 	u32 nid620;
+	u32 nid660;
 } nid;
 
 nid nids[] =
 {
-    { 0x8F95CC01, 0xE5A74996 }, // sce_paf_private_strcpy
-    { 0xD38E62C6, 0x4F487FBC }, // sce_paf_private_strncpy
-    { 0x726776D7, 0x5E7610DF }, // sce_paf_private_snprintf
-    { 0x1B952318, 0x4900119B }, // sce_paf_private_strcmp
-    { 0x9DF5623C, 0xE00E38F8 }, // sce_paf_private_strncmp
-    { 0x861C4627, 0x16789955 }, // sce_paf_private_memcmp
-    { 0xE281261E, 0x23C8DAB5 }, // sce_paf_private_memmove
-    { 0x9E9FFBFB, 0xF0D98BD1 }, // sce_paf_private_malloc
-    { 0xB0363C2E, 0xE0E8820F }, // sce_paf_private_free
-    { 0x49A72E5D, 0x58189108 }, // sce_paf_private_strlen
-    { 0x5612DE15, 0x0C962B6E }, // sce_paf_private_strtoul
-    { 0xE1C930B5, 0xF200AF8E }, // scePafSetSelectedItem
-    //{ 0x4C386F3C, 0xE8473E80 }, // sce_paf_private_sprintf
+    { 0x8F95CC01, 0xE5A74996, 0x726DFBA9 }, // sce_paf_private_strcpy
+    { 0xD38E62C6, 0x4F487FBC, 0x706ABBFF }, // sce_paf_private_strncpy
+    { 0x726776D7, 0x5E7610DF, 0x7B7133D5 }, // sce_paf_private_snprintf
+    { 0x1B952318, 0x4900119B, 0x4CF09BA2 }, // sce_paf_private_strcmp
+    { 0x9DF5623C, 0xE00E38F8, 0xE0B32AE8 }, // sce_paf_private_strncmp
+    { 0x861C4627, 0x16789955, 0xB05D9677 }, // sce_paf_private_memcmp
+    { 0xE281261E, 0x23C8DAB5, 0xF7C46E37 }, // sce_paf_private_memmove
+    { 0x9E9FFBFB, 0xF0D98BD1, 0x5E909060 }, // sce_paf_private_malloc
+    { 0xB0363C2E, 0xE0E8820F, 0xDB1612F1 }, // sce_paf_private_free
+    { 0x49A72E5D, 0x58189108, 0xD7DCB972 }, // sce_paf_private_strlen
+    { 0x5612DE15, 0x0C962B6E, 0xA4B8A4E3 }, // sce_paf_private_strtoul
+    { 0xE1C930B5, 0xF200AF8E, 0x02119936 }, // scePafSetSelectedItem
+    //{ 0x4C386F3C, 0xE8473E80, 0xA138A376 }, // sce_paf_private_sprintf
     //{ 0xBF2046E2, 0x39E9B515 }, // scePafGetPageChild
     //{ 0x9CFBB2D9, 0x62D2266B }, // scePafGetPageString
     //{ 0x70082F6F, 0xCB608DE5 }, // scePafGetText
@@ -61,8 +62,8 @@ void ResolveNIDs() {
     while (stub_top < stub_end) {
         SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
         if (strcmp(stub->libname, "scePaf") == 0) {
-            for (int i = 0; i < stub->stubcount; i++) {
-                for (int x = 0; x < sizeof(nids) / sizeof(nid); x++) {
+            for (u32 i = 0; i < stub->stubcount; i++) {
+                for (u32 x = 0; x < sizeof(nids) / sizeof(nid); x++) {
                     if (stub->nidtable[i] == nids[x].nid63x) {
                         stub->nidtable[i] = nids[x].nid620;
                     }
