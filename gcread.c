@@ -249,32 +249,32 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 
 void PatchGamePluginForGCread(u32 text_addr) {
     if(me_fw) {
-    MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatchedME);
+    MAKE_STUB(text_addr+patches.io_dread_stub[patch_index], sceIoDreadPatchedME);
     } else {
-        MAKE_STUB(text_addr+PATCHES->io_dread_stub, sceIoDreadPatched);
+        MAKE_STUB(text_addr+patches.io_dread_stub[patch_index], sceIoDreadPatched);
     }
-    MAKE_STUB(text_addr+PATCHES->io_getstat_stub, sceIoGetstatPatched);
-    MAKE_STUB(text_addr+PATCHES->io_chstat_stub, sceIoChstatPatched);
-    MAKE_STUB(text_addr+PATCHES->io_remove_stub, sceIoRemovePatched);
-    MAKE_STUB(text_addr+PATCHES->io_rmdir_stub, sceIoRmdirPatched);
+    MAKE_STUB(text_addr+patches.io_getstat_stub[patch_index], sceIoGetstatPatched);
+    MAKE_STUB(text_addr+patches.io_chstat_stub[patch_index], sceIoChstatPatched);
+    MAKE_STUB(text_addr+patches.io_remove_stub[patch_index], sceIoRemovePatched);
+    MAKE_STUB(text_addr+patches.io_rmdir_stub[patch_index], sceIoRmdirPatched);
     if(me_fw) {
-        MAKE_STUB(text_addr+PATCHES->io_dopen_stub, sceIoDopenPatched);
+        MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     }
-    //MAKE_STUB(text_addr+PATCHES->io_dclose_stub, sceIoDclosePatched);
-    //MAKE_STUB(text_addr+PATCHES->io_open_stub, sceIoOpenPatched);
+    //MAKE_STUB(text_addr+patches.io_dclose_stub, sceIoDclosePatched);
+    //MAKE_STUB(text_addr+patches.io_open_stub, sceIoOpenPatched);
 
-    MAKE_JUMP(text_addr + PATCHES->base_path, ReturnBasePathPatched);
-    _sw(0x00602021, text_addr + PATCHES->base_path_arg); // move $a0, $v1
+    MAKE_JUMP(text_addr + patches.base_path[patch_index], ReturnBasePathPatched);
+    _sw(0x00602021, text_addr + patches.base_path_arg[patch_index]); // move $a0, $v1
 
     /* SCE renames folders before removal, but it doesn't handle
         categories in doing so. It will try to move things out of
         the category with the rename function... just get rid of
         renaming to fix this lame bug. */
     // #1
-    MAKE_CALL(text_addr+PATCHES->snprintf_call_arg_1[0], sce_paf_private_snprintf_patched);
-    _sw(0x02402821, text_addr+PATCHES->snprintf_call_arg_1[1]); // li $a1, 291 -> move $a1, $s2
+    MAKE_CALL(text_addr+patches.snprintf_call_arg_1[patch_index][0], sce_paf_private_snprintf_patched);
+    _sw(0x02402821, text_addr+patches.snprintf_call_arg_1[patch_index][1]); // li $a1, 291 -> move $a1, $s2
 
     // #2
-    MAKE_CALL(text_addr+PATCHES->snprintf_call_arg_2[0], sce_paf_private_snprintf_patched);
-    _sw(0x02002821, text_addr+PATCHES->snprintf_call_arg_2[1]); // li $a1, 291 -> move $a1, $s0
+    MAKE_CALL(text_addr+patches.snprintf_call_arg_2[patch_index][0], sce_paf_private_snprintf_patched);
+    _sw(0x02002821, text_addr+patches.snprintf_call_arg_2[patch_index][1]); // li $a1, 291 -> move $a1, $s0
 }

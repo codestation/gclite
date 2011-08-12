@@ -221,7 +221,7 @@ void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
 }
 
 void PatchVshmainForContext(u32 text_addr) {
-    OnXmbPush = redir2stub(text_addr+PATCHES->OnXmbPush, xmb_push_stub, OnXmbPushPatched);
-    OnXmbContextMenu = redir2stub(text_addr+PATCHES->OnXmbContextMenu, xmb_context_stub, OnXmbContextMenuPatched);
-    //OnMenuListScrollIn = redir2stub(text_addr+PATCHES->OnMenuListScrollIn, menu_scroll_stub, OnMenuListScrollInPatched);
+    OnXmbPush = redir2stub(text_addr+patches.OnXmbPush[patch_index], xmb_push_stub, OnXmbPushPatched);
+    OnXmbContextMenu = redir2stub(text_addr+patches.OnXmbContextMenu[patch_index], xmb_context_stub, OnXmbContextMenuPatched);
+    //OnMenuListScrollIn = redir2stub(text_addr+patches.OnMenuListScrollIn, menu_scroll_stub[patch_index], OnMenuListScrollInPatched);
 }

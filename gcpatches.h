@@ -25,61 +25,65 @@
 
 typedef struct {
 	/** main.c */
-	u32 get_compiled_sdk_version;
+	u32 get_compiled_sdk_version[3];
 	
 	/** io.c */
-	u32 io_dopen_stub;
-	u32 io_dread_stub;
-	u32 io_dclose_stub;
+	u32 io_dopen_stub[3];
+	u32 io_dread_stub[3];
+	u32 io_dclose_stub[3];
 
-	u32 io_open_stub;
-	u32 io_getstat_stub;
-	u32 io_chstat_stub;
-	u32 io_remove_stub;
-	u32 io_rmdir_stub;
+	u32 io_open_stub[3];
+	u32 io_getstat_stub[3];
+	u32 io_chstat_stub[3];
+	u32 io_remove_stub[3];
+	u32 io_rmdir_stub[3];
 	
-	u32 base_path;
-	u32 base_path_arg;
+	u32 base_path[3];
+	u32 base_path_arg[3];
 
-	u32 snprintf_call_arg_1[2];
-	u32 snprintf_call_arg_2[2];
+	u32 snprintf_call_arg_1[3][2];
+	u32 snprintf_call_arg_2[3][2];
 
 	//u32 sce_paf_get_text_call[2];
 	
 	/** multi.c */
-	u32 RegisterCallbacks;
-	u32 AddVshItem;
-	u32 GetBackupVshItem;
-	//u32 ExecuteAction[2];
-	//u32 UnloadModule;
+	u32 RegisterCallbacks[3];
+	u32 AddVshItem[3];
+	u32 GetBackupVshItem[3];
+	//u32 ExecuteAction[3][2];
+	//u32 UnloadModule[3];
 
-	u32 AddVshItemOffset;
-	u32 ExecuteActionOffset;
-	u32 UnloadModuleOffset;
+	u32 AddVshItemOffset[3];
+	u32 ExecuteActionOffset[3];
+	u32 UnloadModuleOffset[3];
 
 	//u32 sce_paf_get_text_call;
 
 	/** sysconf.c */
-	u32 AddSysconfItem;
-	u32 GetSysconfItem;
+	u32 AddSysconfItem[3];
+	u32 GetSysconfItem[3];
 
-    u32 GetPageNodeByIDOffset;
-	u32 ResolveRefWStringOffset;
+    u32 GetPageNodeByIDOffset[3];
+	u32 ResolveRefWStringOffset[3];
 
-	u32 vshGetRegistryValueOffset;
-	u32 vshSetRegistryValueOffset;
+	u32 vshGetRegistryValueOffset[3];
+	u32 vshSetRegistryValueOffset[3];
 
 	/** vshitem.c */
-	u32 scePafGetTextOffset;
-	u32 CommonGuiDisplayContextOffset;
+	u32 scePafGetTextOffset[3];
+	u32 CommonGuiDisplayContextOffset[3];
 
 	/** context.c */
-	u32 OnXmbPush;
-	u32 OnXmbContextMenu;
-	u32 OnMenuListScrollIn;
+	u32 OnXmbPush[3];
+	u32 OnXmbContextMenu[3];
+	u32 OnMenuListScrollIn[3];
 } GCPatches;
 
-extern GCPatches *PATCHES;
+
+enum fw_ver { FW_620, FW_630, FW_660};
+
+extern GCPatches patches;
+extern int patch_index;
 
 void ResolveNIDs();
 GCPatches *GetPatches(int fw_group);

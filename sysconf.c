@@ -236,16 +236,16 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
 }
 
 void PatchVshmainForSysconf(u32 text_addr) {
-    vshGetRegistryValue = redir2stub(text_addr+PATCHES->vshGetRegistryValueOffset, get_registry_stub, vshGetRegistryValuePatched);
-    vshSetRegistryValue = redir2stub(text_addr+PATCHES->vshSetRegistryValueOffset, set_registry_stub, vshSetRegistryValuePatched);
+    vshGetRegistryValue = redir2stub(text_addr+patches.vshGetRegistryValueOffset[patch_index], get_registry_stub, vshGetRegistryValuePatched);
+    vshSetRegistryValue = redir2stub(text_addr+patches.vshSetRegistryValueOffset[patch_index], set_registry_stub, vshSetRegistryValuePatched);
 }
 
 void PatchPafForSysconf(u32 text_addr) {
-    GetPageNodeByID = redir2stub(text_addr+PATCHES->GetPageNodeByIDOffset, get_page_node_stub, GetPageNodeByIDPatched);
-    ResolveRefWString = redir2stub(text_addr+PATCHES->ResolveRefWStringOffset, resolve_ref_wstring_stub, ResolveRefWStringPatched);
+    GetPageNodeByID = redir2stub(text_addr+patches.GetPageNodeByIDOffset[patch_index], get_page_node_stub, GetPageNodeByIDPatched);
+    ResolveRefWString = redir2stub(text_addr+patches.ResolveRefWStringOffset[patch_index], resolve_ref_wstring_stub, ResolveRefWStringPatched);
 }
 
 void PatchSysconf(u32 text_addr) {
-    AddSysconfItem = redir_call(text_addr+PATCHES->AddSysconfItem, AddSysconfItemPatched);
-    GetSysconfItem = redir_call(text_addr+PATCHES->GetSysconfItem, GetSysconfItemPatched);
+    AddSysconfItem = redir_call(text_addr+patches.AddSysconfItem[patch_index], AddSysconfItemPatched);
+    GetSysconfItem = redir_call(text_addr+patches.GetSysconfItem[patch_index], GetSysconfItemPatched);
 }

@@ -223,17 +223,17 @@ int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int
 }
 
 void PatchVshmain(u32 text_addr) {
-    AddVshItem = redir2stub(text_addr+PATCHES->AddVshItemOffset, add_vsh_item_stub, AddVshItemPatched);
-    GetBackupVshItem = redir_call(text_addr+PATCHES->GetBackupVshItem, GetBackupVshItemPatched);
-    ExecuteAction = redir2stub(text_addr+PATCHES->ExecuteActionOffset, execute_action_stub, ExecuteActionPatched);
-    UnloadModule = redir2stub(text_addr+PATCHES->UnloadModuleOffset, unload_module_stub, UnloadModulePatched);
+    AddVshItem = redir2stub(text_addr+patches.AddVshItemOffset[patch_index], add_vsh_item_stub, AddVshItemPatched);
+    GetBackupVshItem = redir_call(text_addr+patches.GetBackupVshItem[patch_index], GetBackupVshItemPatched);
+    ExecuteAction = redir2stub(text_addr+patches.ExecuteActionOffset[patch_index], execute_action_stub, ExecuteActionPatched);
+    UnloadModule = redir2stub(text_addr+patches.UnloadModuleOffset[patch_index], unload_module_stub, UnloadModulePatched);
 }
 
 void PatchPaf(u32 text_addr) {
     //sysconf called scePafGetText from offset: 0x052AC
-    scePafGetText = redir2stub(text_addr+PATCHES->scePafGetTextOffset, paf_get_text_stub, scePafGetTextPatched);
+    scePafGetText = redir2stub(text_addr+patches.scePafGetTextOffset[patch_index], paf_get_text_stub, scePafGetTextPatched);
 }
 
 void PatchVshCommonGui(u32 text_addr) {
-    sceVshCommonGuiDisplayContext_func = redir2stub(text_addr+PATCHES->CommonGuiDisplayContextOffset, display_context_stub, sceVshCommonGuiDisplayContextPatched);
+    sceVshCommonGuiDisplayContext_func = redir2stub(text_addr+patches.CommonGuiDisplayContextOffset[patch_index], display_context_stub, sceVshCommonGuiDisplayContextPatched);
 }

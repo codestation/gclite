@@ -32,7 +32,8 @@ PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 3);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
-GCPatches *PATCHES;
+//GCPatches *PATCHES;
+int patch_index;
 
 STMOD_HANDLER previous;
 int game_plug = 0;
@@ -70,7 +71,8 @@ int OnModuleStart(SceModule2 *mod) {
 
 		//6.20: 0xFC114573 [0x00009B0C] - SysMemUserForUser_FC114573
 		//6.35:	0xFC114573 [0x000099EC] - SysMemUserForUser_FC114573
-		MAKE_JUMP(PATCHES->get_compiled_sdk_version, ClearCaches);
+
+		MAKE_JUMP(patches.get_compiled_sdk_version[patch_index], ClearCaches);
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
@@ -114,17 +116,17 @@ int module_start(SceSize args, void *argp) {
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {
-        // Firmware(s): 6.20
-        PATCHES = GetPatches(0);
-        // Nids changed 6.20->6.3x, resolve them (paf & vshmain isn't loaded yet :))
-        ResolveNIDs();
+        patch_index = FW_620;
+        ResolveNIDs(FW_620);
     } else if (devkit >= 0x06030010 && devkit < 0x06040010) {
-        // Firmware(s): 6.3x
-        PATCHES = GetPatches(1);
+        patch_index = FW_630;
+    } else if (devkit >= 0x06060010 && devkit < 0x06070010) {
+        patch_index = FW_660;
+        ResolveNIDs(FW_660);
     } else {
-        // Unsupported firmware
         return 1;
     }
+
     previous = sctrlHENSetStartModuleHandler(OnModuleStart);
     return 0;
 }
