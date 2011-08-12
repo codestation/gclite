@@ -26,5 +26,6 @@ int get_location(int action_arg);
 void gc_utf8_to_unicode(wchar_t *dest, char *src);
 void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last);
 int get_registry_value(const char *dir, const char *name);
+u64 get_mtime(const char *dir, int location);
 
 #endif /* UTILS_H_ */

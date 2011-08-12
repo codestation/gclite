@@ -100,15 +100,26 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
     return -1;
 }
 
+void createUncategorized(int index, int location) {
+    kprintf("creating uncategorized context\n");
+    sce_paf_private_strcpy(context_items[location][index].text, "gc4");
+    context_items[location][index].play_sound = 1;
+    context_items[location][index].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
+    context_items[location][index].action_arg = 0;
+}
+
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
-    u32 i;
+    u32 index = 0;
+    u64 mtime = 0;
+    int uncategorized;
+
     kprintf("called, name: %s, location: %i\n", item->text, location);
     if(!location && (config.uncategorized & ONLY_MS)) {
-        i = 1;
+        uncategorized = 1;
     } else if(location && (config.uncategorized & ONLY_IE)) {
-        i = 1;
+        uncategorized = 1;
     } else  {
-        i = 0;
+        uncategorized = 0;
     }
     Category *p = NULL;
 
@@ -118,34 +129,41 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
 
     //TODO: mark location in original context
     item->play_sound = 0;
-    int malloc_size = (CountCategories(location) + i) * sizeof(SceContextItem) + 1;
+    int malloc_size = (CountCategories(location) + uncategorized) * sizeof(SceContextItem) + 1;
     context_items[location] = sce_paf_private_malloc(malloc_size);
     sce_paf_private_memset(context_items[location], 0, malloc_size);
 
-    if (i) {
-        kprintf("creating uncategorized context\n");
-        sce_paf_private_strcpy(context_items[location][0].text, "gc4");
-        context_items[location][0].play_sound = 1;
-        context_items[location][0].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
-        context_items[location][0].action_arg = 0;
+    if (uncategorized) {
+        mtime = get_mtime("xxx:/PSP/GAME", location);
     }
 
-    while ((p = GetNextCategory(p, location)))
-    {
+    while ((p = GetNextCategory(p, location))) {
+
+        if(uncategorized && mtime > p->mtime) {
+            createUncategorized(index, location);
+            uncategorized = 0;
+            index++;
+        }
+
         if(p->location == MEMORY_STICK) {
-            sce_paf_private_snprintf(context_items[location][i].text, 48, "gcv_%08X", (u32)p);
+            sce_paf_private_snprintf(context_items[location][index].text, 48, "gcv_%08X", (u32)p);
         } else {
-            sce_paf_private_snprintf(context_items[location][i].text, 48, "gcw_%08X", (u32)p);
+            sce_paf_private_snprintf(context_items[location][index].text, 48, "gcw_%08X", (u32)p);
         }
         kprintf("creating %s\n", context_items[location][i].text);
-        context_items[location][i].play_sound = 1;
-        context_items[location][i].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
-        context_items[location][i].action_arg = i;
-        i++;
+        context_items[location][index].play_sound = 1;
+        context_items[location][index].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
+        context_items[location][index].action_arg = index;
+        index++;
     }
 
-    if (config.selection > (i-1)) {
-        config.selection = i-1;
+    if(uncategorized) {
+        createUncategorized(index, location);
+        index++;
+    }
+
+    if (config.selection > (index-1)) {
+        config.selection = index-1;
     }
     return AddVshItem(arg, topitem, item);
 }

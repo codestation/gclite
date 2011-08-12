@@ -21,7 +21,7 @@ category_lang:
 
 #WARNS=-Wall -Wextra -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
 # -Wstrict-prototypes
-CFLAGS =-O2 -G0 -std=c99 -fshort-wchar $(WARNS)
+CFLAGS =-O2 -G0 -std=c99 -fshort-wchar $(WARNS) -Wall
 
 ifeq ($(DEBUG), 1)
 CFLAGS+=-DDEBUG

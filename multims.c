@@ -70,12 +70,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     return -1;
 }
 
-int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
-    int i = 0;
-    Category *p = NULL;
-
-    vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
-
+void addUncategorized(void *arg, int topitem, SceVshItem *item, int location) {
     if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
         item->action_arg = 200;
@@ -88,8 +83,26 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         kprintf("adding uncategorized for Internal Storage\n");
         AddVshItem(arg, topitem, item);
     }
+}
+
+int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
+    u64 mtime;
+    int i = 0;
+    Category *p = NULL;
+    int added_uncat = 0;
+
+    vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
+
+    // get the mtime from the uncategorized folder to allow it to be sorted
+    mtime = get_mtime("xxx:/PSP/GAME", location);
 
     while ((p = GetNextCategory(p, location))) {
+
+        if(!added_uncat && mtime > p->mtime) {
+            addUncategorized(arg, topitem, item, location);
+            added_uncat = 1;
+        }
+
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 
         vsh_items[location][i].id = i + (location ? 1000 : 100);
@@ -103,6 +116,10 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }
+    if(!added_uncat) {
+        addUncategorized(arg, topitem, item, location);
+    }
+
     global_pos = location;
     return 0;
 }

@@ -47,45 +47,20 @@ nid nids[] =
     { 0x58189108, 0x49A72E5D, 0xD7DCB972 }, // sce_paf_private_strlen
     { 0x0C962B6E, 0x5612DE15, 0xA4B8A4E3 }, // sce_paf_private_strtoul
     { 0xF200AF8E, 0xE1C930B5, 0x02119936 }, // scePafSetSelectedItem
-    //{ 0xE8473E80, 0x4C386F3C, 0xA138A376 }, // sce_paf_private_sprintf
-    //{ 0x39E9B515, 0xBF2046E2 }, // scePafGetPageChild
-    //{ 0x62D2266B, 0x9CFBB2D9 }, // scePafGetPageString
-    //{ 0xCB608DE5, 0x70082F6F }, // scePafGetText
-    //{ 0xE73C355B, 0x3A370539 }, // vshGetRegistryValue
-    //{ 0x2375A440, 0xCD3AF2EC }, // vshSetRegistryValue
+//    { 0xE8473E80, 0x4C386F3C, 0xA138A376 }, // sce_paf_private_sprintf
+//    { 0x39E9B515, 0xBF2046E2, 0xDEADC0DE }, // scePafGetPageChild
+//    { 0x62D2266B, 0x9CFBB2D9, 0xDEADC0DE }, // scePafGetPageString
+//    { 0xCB608DE5, 0x70082F6F, 0xDEADC0DE }, // scePafGetText
+//    { 0xE73C355B, 0x3A370539, 0xDEADC0DE }, // vshGetRegistryValue
+//    { 0x2375A440, 0xCD3AF2EC, 0xDEADC0DE }, // vshSetRegistryValue
 };
-
-void ResolveNIDs(int fw_ver) {
-    u32 stub_top = (u32) module_info.stub_top;
-    u32 stub_end = (u32) module_info.stub_end;
-
-    while (stub_top < stub_end) {
-        SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
-        if (strcmp(stub->libname, "scePaf") == 0) {
-            for (u32 i = 0; i < stub->stubcount; i++) {
-                for (u32 x = 0; x < sizeof(nids) / sizeof(nid); x++) {
-                    if (stub->nidtable[i] == nids[x].nid630) {
-                        if(fw_ver == FW_620) {
-                            stub->nidtable[i] = nids[x].nid620;
-                        } else if (fw_ver == FW_630) {
-                            stub->nidtable[i] = nids[x].nid630;
-                        } else if (fw_ver == FW_660) {
-                            stub->nidtable[i] = nids[x].nid660;
-                        }
-                    }
-                }
-            }
-        }
-        stub_top += (u32)(stub->len * 4);
-    }
-}
 
 GCPatches patches =
 {
 	/** main.c */
     { 0x88009A08, 0x88009B28 }, // get_compiled_sdk_version
 	
-	/** io.c (game_plugin_module) */
+	/** gcread.c (game_plugin_module) */
 
 	{ 0x28930, 0x2A5F0 }, // io_dopen_stub
 	{ 0x28940, 0x2A600 }, // io_dread_stub
@@ -138,3 +113,28 @@ GCPatches patches =
     { 0x15D38, 0x163A0 }, // OnXmbContextMenu
     { 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
 };
+
+void ResolveNIDs(int fw_ver) {
+    u32 stub_top = (u32) module_info.stub_top;
+    u32 stub_end = (u32) module_info.stub_end;
+
+    while (stub_top < stub_end) {
+        SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
+        if (strcmp(stub->libname, "scePaf") == 0) {
+            for (u32 i = 0; i < stub->stubcount; i++) {
+                for (u32 x = 0; x < sizeof(nids) / sizeof(nid); x++) {
+                    if (stub->nidtable[i] == nids[x].nid630) {
+                        if(fw_ver == FW_620) {
+                            stub->nidtable[i] = nids[x].nid620;
+                        } else if (fw_ver == FW_630) {
+                            stub->nidtable[i] = nids[x].nid630;
+                        } else if (fw_ver == FW_660) {
+                            stub->nidtable[i] = nids[x].nid660;
+                        }
+                    }
+                }
+            }
+        }
+        stub_top += (u32)(stub->len * 4);
+    }
+}
