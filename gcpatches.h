@@ -47,7 +47,7 @@ typedef struct {
 	//u32 sce_paf_get_text_call[2];
 	
 	/** multi.c */
-	u32 RegisterCallbacks[3];
+	//u32 RegisterCallbacks[3];
 	u32 AddVshItem[3];
 	u32 GetBackupVshItem[3];
 	//u32 ExecuteAction[3][2];

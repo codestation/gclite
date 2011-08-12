@@ -1,4 +1,4 @@
-Game Categories Lite v1.3 - Codestation
+Game Categories Lite v1.4 - Codestation
 
 This plugin is based and uses source code from Game Categories Revised v12 (GCR)
 and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible with
@@ -27,6 +27,9 @@ Known issues:
 Change of category in the PSPGo requires a VSH reset.
 
 Changelog
+v1.4:
+[+]6.60 firmware support
+[+]Allow the uncategorized folder to be sorted
 [+]Multiple language support.
 [+]Added ja translation by popsdeco
 [+]Added de translation by KOlle

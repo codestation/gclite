@@ -62,56 +62,59 @@ GCPatches patches =
 	
 	/** gcread.c (game_plugin_module) */
 
-	{ 0x28930, 0x2A5F0 }, // io_dopen_stub
-	{ 0x28940, 0x2A600 }, // io_dread_stub
-	{ 0x28948, 0x2A608 }, // io_dclose_stub
+	{ 0x28930, 0x2A5F0, 0x2A894 }, // io_dopen_stub
+	{ 0x28940, 0x2A600, 0x2A8A4 }, // io_dread_stub
+	{ 0x28948, 0x2A608, 0x2A8AC }, // io_dclose_stub
 
-	{ 0x28958, 0x2A618 }, // io_open_stub
-	{ 0x28928, 0x2A5E8 }, // io_getstat_stub
-	{ 0x28938, 0x2A5F8 }, // io_chstat_stub
-	{ 0x28950, 0x2A610 }, // io_remove_stub
-	{ 0x28960, 0x2A620 }, // io_rmdir_stub
+	{ 0x28958, 0x2A618, 0x2A8BC }, // io_open_stub
+	{ 0x28928, 0x2A5E8, 0x2A88C }, // io_getstat_stub
+	{ 0x28938, 0x2A5F8, 0x2A89C }, // io_chstat_stub
+	{ 0x28950, 0x2A610, 0x2A8B4 }, // io_remove_stub
+	{ 0x28960, 0x2A620, 0x2A8C4 }, // io_rmdir_stub
 	
-	{ 0x1FB4C, 0x21310 }, // base_path
-	{ 0x1FB50, 0x21314 }, // base_path_arg
+	{ 0x1FB4C, 0x21310, 0x215B4 }, // base_path
+	{ 0x1FB50, 0x21314, 0x215B8 }, // base_path_arg
 
-	{ { 0x1CD24, 0x1CD18 }, { 0x1E42C, 0x1E420 } }, // snprintf_call_arg_1
-	{ { 0x1F8F0, 0x1F8B4 }, { 0x2109C, 0x21060 } }, // snprintf_call_arg_2
+	{ { 0x1CD24, 0x1CD18 }, { 0x1E42C, 0x1E420 }, {0x1E6A8, 0x1E69C} }, // snprintf_call_arg_1
+	{ { 0x1F8F0, 0x1F8B4 }, { 0x2109C, 0x21060 }, {0x21340, 0x21304} }, // snprintf_call_arg_2
 
 	//{ { 0x10EFC, 0x11C68 }, { 0x1176C, 0x123A4 } }, // sce_paf_get_text_call
 	
-    /** multi.c (vshmain) */
+    /** vshitem.c (vshmain) */
 
-	{ 0x1F3BC, 0x1FB70 }, // RegisterCallbacks
-	{ 0x2348C, 0x23C7C }, // AddVshItem
-    { 0x21D68, 0x22558 }, // GetBackupVshItem
+	// { 0x1F3BC, 0x1FB70 }, // RegisterCallbacks
+	{ 0x2348C, 0x23C7C, 0x23CE8 }, // AddVshItem
+    { 0x21D68, 0x22558, 0x22598 }, // GetBackupVshItem
     //{ { 0x1631C, 0x2FF8C }, { 0x16984, 0x30828 } }, // ExecuteAction
     //{ 0x16514, 0x16B7C// UnloadModule
 
-    { 0x21E18, 0x22608 }, // AddVshItemOffset
-    { 0x16340, 0x169A8 }, // ExecuteActionOffset
-    { 0x16734, 0x16D9C }, // UnloadModuleOffset
+    { 0x21E18, 0x22608, 0x22648 }, // AddVshItemOffset
+    { 0x16340, 0x169A8, 0x16A70 }, // ExecuteActionOffset
+    { 0x16734, 0x16D9C, 0x16E64 }, // UnloadModuleOffset
 
     //{ 0x23BE0, 0x243D0 }, // sce_paf_get_text_call
 
-    /** sysconf.c */
-    { 0x1C4A8, 0x1CD18 }, // AddSysconfItem
-    { 0x02934, 0x02A28 }, // GetSysconfItem
+    /** sysconf.c (sysconf_plugin_module) */
+    { 0x1C4A8, 0x1CD18, 0x1D150 }, // AddSysconfItem
+    { 0x02934, 0x02A28, 0x02A28 }, // GetSysconfItem
 
-    { 0x6750C, 0x674D4 }, // GetPageNodeByIDOffset
-    { 0x677EC, 0x677B4 }, // ResolveRefWStringOffset
+    /** sysconf.c (scePaf) */
+    { 0x6750C, 0x674D4, 0x676F4 }, // GetPageNodeByIDOffset
+    { 0x677EC, 0x677B4, 0x679D4 }, // ResolveRefWStringOffset
 
-    { 0x03908, 0x03998 }, // vshGetRegistryValueOffset
-    { 0x03A38, 0x03AC8 }, // vshSetRegistryValueOffset
+    /** sysconf.c (vshmain) */
+    { 0x03908, 0x03998, 0x03998 }, // vshGetRegistryValueOffset
+    { 0x03A38, 0x03AC8, 0x03AC8 }, // vshSetRegistryValueOffset
 
-    /** vshitem.c */
-    { 0x3C404, 0x3C3CC }, // scePafGetTextOffset
-    { 0x03C54, 0x03C54 }, // CommonGuiDisplayContextOffset
+    /** vshitem.c (scePaf) */
+    { 0x3C404, 0x3C3CC, 0x3C5EC }, // scePafGetTextOffset
+    /** vshitem.c (commonGui) */
+    { 0x03C54, 0x03C54, 0x03C54 }, // CommonGuiDisplayContextOffset
 
     /** context.c */
-    { 0x16284, 0x168EC }, // OnXmbPush
-    { 0x15D38, 0x163A0 }, // OnXmbContextMenu
-    { 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
+    { 0x16284, 0x168EC, 0x169B4 }, // OnXmbPush
+    { 0x15D38, 0x163A0, 0x16464 }, // OnXmbContextMenu
+    { 0x0DEAD, 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
 };
 
 void ResolveNIDs(int fw_ver) {

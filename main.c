@@ -28,7 +28,7 @@
 #include "config.h"
 #include "logger.h"
 
-PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 3);
+PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 4);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
