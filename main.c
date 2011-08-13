@@ -60,20 +60,22 @@ int OnModuleStart(SceModule2 *mod) {
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
+
 	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
         PatchVshmainForSysconf(mod->text_addr);
         PatchVshmainForContext(mod->text_addr);
 
-		/* Make sceKernelGetCompiledSdkVersion clear the caches,
-			so that we don't have to create a kernel module just 
-			to be able to clear the caches from user mode.*/
+        /* Make sceKernelGetCompiledSdkVersion clear the caches,
+           so that we don't have to create a kernel module just
+           to be able to clear the caches from user mode.*/
 
-		//6.20: 0xFC114573 [0x00009B0C] - SysMemUserForUser_FC114573
-		//6.35:	0xFC114573 [0x000099EC] - SysMemUserForUser_FC114573
-
-		MAKE_JUMP(patches.get_compiled_sdk_version[patch_index], ClearCaches);
-		ClearCaches();
+        //6.20: 0xFC114573 [0x00009B0C] - SysMemUserForUser_FC114573
+        //6.35:	0xFC114573 [0x000099EC] - SysMemUserForUser_FC114573
+        //6.60: 0xFC114573 [0x000098B0] - SysMemUserForUser_FC114573
+        kprintf("Patching sceKernelGetCompiledSdkVersion, index: %i\n", patch_index);
+        MAKE_JUMP(patches.get_compiled_sdk_version[patch_index], ClearCaches);
+        ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
 
@@ -106,7 +108,7 @@ int module_start(SceSize args UNUSED, void *argp UNUSED) {
     sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
-    kwrite(filebuf, "GCLite 1.3 starting\n", 20);
+    kwrite(filebuf, "GCLite 1.4 starting\n", 20);
     // check if the plugin was loaded from ME
     if(checkME()) {
         kwrite(filebuf, "ME compatibility enabled\n", 25);
