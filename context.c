@@ -150,7 +150,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
         } else {
             sce_paf_private_snprintf(context_items[location][index].text, 48, "gcw_%08X", (u32)p);
         }
-        kprintf("creating %s\n", context_items[location][i].text);
+        kprintf("creating %s\n", context_items[location][index].text);
         context_items[location][index].play_sound = 1;
         context_items[location][index].action = !location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL;
         context_items[location][index].action_arg = index;
