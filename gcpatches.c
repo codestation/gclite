@@ -110,9 +110,9 @@ GCPatches patches =
     /** vshitem.c (commonGui) */
     { 0x03C54, 0x03C54, 0x03C54 }, // CommonGuiDisplayContextOffset
 
-    /** context.c */
+    /** context.c (vshmain) */
     { 0x16284, 0x168EC, 0x169B4 }, // OnXmbPush
-    { 0x15D38, 0x163A0, 0x16464 }, // OnXmbContextMenu
+    { 0x15D38, 0x163A0, 0x16468 }, // OnXmbContextMenu
     //{ 0x0DEAD, 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
 };
 
