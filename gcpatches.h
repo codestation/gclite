@@ -24,10 +24,10 @@
 #include <pspsdk.h>
 
 typedef struct {
-	/** main.c */
+	/** main.c (sceSystemMemoryManager) */
 	u32 get_compiled_sdk_version[3];
 	
-	/** io.c */
+	/** gcread.c (game_plugin_module) */
 	u32 io_dopen_stub[3];
 	u32 io_dread_stub[3];
 	u32 io_dclose_stub[3];
@@ -46,7 +46,7 @@ typedef struct {
 
 	//u32 sce_paf_get_text_call[2];
 	
-	/** multi.c */
+	/** vshitem.c (vshmain) */
 	//u32 RegisterCallbacks[3];
 	u32 AddVshItem[3];
 	u32 GetBackupVshItem[3];
@@ -59,24 +59,27 @@ typedef struct {
 
 	//u32 sce_paf_get_text_call;
 
-	/** sysconf.c */
+	/** sysconf.c (sysconf_plugin_module) */
 	u32 AddSysconfItem[3];
 	u32 GetSysconfItem[3];
 
+	/** sysconf.c (scePaf) */
     u32 GetPageNodeByIDOffset[3];
 	u32 ResolveRefWStringOffset[3];
 
+	/** sysconf.c (vshmain) */
 	u32 vshGetRegistryValueOffset[3];
 	u32 vshSetRegistryValueOffset[3];
 
-	/** vshitem.c */
+	/** vshitem.c (scePaf) */
 	u32 scePafGetTextOffset[3];
+	/** vshitem.c (commonGui) */
 	u32 CommonGuiDisplayContextOffset[3];
 
 	/** context.c */
 	u32 OnXmbPush[3];
 	u32 OnXmbContextMenu[3];
-	u32 OnMenuListScrollIn[3];
+	//u32 OnMenuListScrollIn[3];
 } GCPatches;
 
 

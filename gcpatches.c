@@ -57,11 +57,10 @@ nid nids[] =
 
 GCPatches patches =
 {
-	/** main.c */
-    { 0x88009A08, 0x88009B28 }, // get_compiled_sdk_version
+	/** main.c (sceSystemMemoryManager) */
+    { 0x88009B28, 0x88009A08, 0x880098CC }, // get_compiled_sdk_version
 	
 	/** gcread.c (game_plugin_module) */
-
 	{ 0x28930, 0x2A5F0, 0x2A894 }, // io_dopen_stub
 	{ 0x28940, 0x2A600, 0x2A8A4 }, // io_dread_stub
 	{ 0x28948, 0x2A608, 0x2A8AC }, // io_dclose_stub
@@ -114,7 +113,7 @@ GCPatches patches =
     /** context.c */
     { 0x16284, 0x168EC, 0x169B4 }, // OnXmbPush
     { 0x15D38, 0x163A0, 0x16464 }, // OnXmbContextMenu
-    { 0x0DEAD, 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
+    //{ 0x0DEAD, 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
 };
 
 void ResolveNIDs(int fw_ver) {
