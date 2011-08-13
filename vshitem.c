@@ -42,7 +42,7 @@ int unload = 0;
 int lang_id = 1;
 int global_pos = 0;
 
-char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
+const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -51,7 +51,7 @@ int last_action_arg[2] = { GAME_ACTION, GAME_ACTION };
 int (*UnloadModule)(int skip) = NULL;
 int (*ExecuteAction)(int action, int action_arg) = NULL;
 int (*AddVshItem)(void *arg, int topitem, SceVshItem *item) = NULL;
-wchar_t* (*scePafGetText)(void *arg, char *name) = NULL;
+wchar_t* (*scePafGetText)(void *arg, const char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) = NULL;
 

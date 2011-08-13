@@ -64,10 +64,10 @@ typedef struct
 {
     void *unk; // 0
     int id; // 4
-    char *regkey; // 8
-    char *text; // 12
-    char *subtitle; // 16
-    char *page; // 20
+    const char *regkey; // 8
+    const char *text; // 12
+    const char *subtitle; // 16
+    const char *page; // 20
 } SceSysconfItem; // 24
 
 typedef struct

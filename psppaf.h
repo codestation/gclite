@@ -33,7 +33,7 @@ int sce_paf_private_memcmp(const void *, const void *, int);
 void *sce_paf_private_memset(void *, char, int);
 void *sce_paf_private_memmove(void *, const void *, int);
 void sce_paf_private_free(void *);
-int sce_paf_private_strlen(char *);
+int sce_paf_private_strlen(const char *);
 void *sce_paf_private_memcpy(void *, void *, int);
 int sce_paf_private_strncmp(const char *, const char *, int);
 int sce_paf_private_strcmp(const char *, const char *);

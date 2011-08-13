@@ -39,7 +39,7 @@ extern int sysconf_plug;
 
 extern int model;
 
-char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
+const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 struct GCStrings {
     char *options[2];
@@ -204,7 +204,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
         //kprintf("data: %s\n", (char *)data[1]);
-        gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) data[1]);
+        gc_utf8_to_unicode((wchar_t *)user_buffer, (char *) data[1]);
         *(wchar_t **) string = (wchar_t *) user_buffer;
         return 0;
     }

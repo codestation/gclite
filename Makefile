@@ -19,9 +19,8 @@ all: category_lang
 category_lang:
 	bin2c category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang
 
-#WARNS=-Wall -Wextra -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
-# -Wstrict-prototypes
-CFLAGS =-O2 -G0 -std=c99 -fshort-wchar $(WARNS) -Wall
+EXTRA_WARNS= -Wextra -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wwrite-strings -Wunreachable-code
+CFLAGS =-O2 -Wall -G0 -std=c99 -fshort-wchar $(EXTRA_WARNS)
 
 ifeq ($(DEBUG), 1)
 CFLAGS+=-DDEBUG
