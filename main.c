@@ -100,9 +100,7 @@ int OnModuleStart(SceModule2 *mod) {
 	return previous ? previous(mod) : 0;
 }
 
-int module_start(SceSize args, void *argp) {
-	UNUSED_ARGUMENT(args);
-	UNUSED_ARGUMENT(argp);
+int module_start(SceSize args UNUSED, void *argp UNUSED) {
 
     model = kuKernelGetModel();
     sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");

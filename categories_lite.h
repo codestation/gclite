@@ -37,7 +37,7 @@ int sceKernelGetCompiledSdkVersion();
 // useful to know who is the caller
 #define GET_RA(x) __asm__("move %0,$ra" : "=r"((x)))
 
-#define UNUSED_ARGUMENT(x) (void)x
+#define UNUSED __attribute__((unused))
 
 // uncomment this once the oldplugin of Pro is gone
 //#define DEVICE_MEMORY_STICK "ms0:"

@@ -124,8 +124,7 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
     return 0;
 }
 
-SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res) {
-	UNUSED_ARGUMENT(res);
+SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res UNUSED) {
     kprintf("text: %s, id: %i\n", item->text, item->id);
     if(item->id >= 100) {
         if(item->id >= 1000) {
