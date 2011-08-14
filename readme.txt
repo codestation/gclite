@@ -29,7 +29,7 @@ Change of category in the PSPGo requires a VSH reset.
 Changelog
 v1.4:
 [+]6.60 firmware support
-[+]Allow the uncategorized folder to be sorted
+[+]Allow the uncategorized folder to be sorted with your favorite app (multi MS mode).
 [+]Multiple language support.
 [+]Added ja translation by popsdeco
 [+]Added de translation by KOlle
