@@ -59,11 +59,9 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         //restore action_arg
         *action_arg = vsh_action_arg[location];
         context_gamecats = 1;
-        kprintf("lets hope this doesn't crash, addr: %08X\n", original_item[location]);
         original_item[location]->context = context_items[location];
         kprintf("calling OnXmbContextMenu\n");
         OnXmbContextMenu(xmb_arg0, xmb_arg1);
-        kprintf("returning 2\n");
         return 2;
     } else if (*action == PSPMS_CONTEXT_SENTINEL || *action == PSPGO_CONTEXT_SENTINEL) {
         location = get_location(*action);
