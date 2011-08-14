@@ -2,7 +2,7 @@ Game Categories Lite v1.4 - Codestation
 
 This plugin is based and uses source code from Game Categories Revised v12 (GCR)
 and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible with
-6.20 and 6.3x CFW.
+6.20, 6.3x and 6.60 CFW.
 
 I changed the name of the project (doing a fork in the process) to avoid confusion
 with GCL (this plugin doesn't use the folder categories present in firmwares 6.xx)
