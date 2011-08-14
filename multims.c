@@ -53,7 +53,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 location = *action_arg == 200 ? MEMORY_STICK : INTERNAL_STORAGE;
             } else {
                 kprintf("must not happen!\n");
-                return -1;
+                return global_pos;
             }
             kprintf("uncategorized content, location: %i\n", location);
         }
