@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <pspmoduleinfo.h>
-#include "categories_lite.h"
+#include "gcpatches.h"
 
 extern SceModuleInfo module_info;
 
@@ -48,11 +48,22 @@ nid nids[] =
     { 0x0C962B6E, 0x5612DE15, 0xA4B8A4E3 }, // sce_paf_private_strtoul
     { 0xF200AF8E, 0xE1C930B5, 0x02119936 }, // scePafSetSelectedItem
 //    { 0xE8473E80, 0x4C386F3C, 0xA138A376 }, // sce_paf_private_sprintf
-//    { 0x39E9B515, 0xBF2046E2, 0xDEADC0DE }, // scePafGetPageChild
-//    { 0x62D2266B, 0x9CFBB2D9, 0xDEADC0DE }, // scePafGetPageString
-//    { 0xCB608DE5, 0x70082F6F, 0xDEADC0DE }, // scePafGetText
-//    { 0xE73C355B, 0x3A370539, 0xDEADC0DE }, // vshGetRegistryValue
-//    { 0x2375A440, 0xCD3AF2EC, 0xDEADC0DE }, // vshSetRegistryValue
+
+//    { 0x03A0E8C2, 0xDE69A6CD, 0xAF067FA2 }, // sce_paf_private_wcslen
+//    { 0xF7A832C8, 0xDCE3B13E, 0xB4652CFE }, // sce_paf_private_memcpy
+//    { 0xBF48C1FC, 0x5870455C, 0xD9E2D6E1 }, // sce_paf_private_memset
+//    { 0x3029535C, 0xFD6C776F, 0xC3B2D310 }, // sce_paf_private_strchr
+//    { 0x42D04DD2, 0xCFC81D9F, 0x22420CC7 }, // sce_paf_private_strrchr
+//    { 0x2C433251, 0x4853DF6E, 0x4CE9C8D7 }, // sce_paf_private_strpbrk
+
+//    { 0x39E9B515, 0xBF2046E2, 0xC907E7CF }, // scePafGetPageChild
+//    { 0x62D2266B, 0x9CFBB2D9, 0x4918DB1A }, // scePafGetPageString
+//    { 0xCB608DE5, 0x70082F6F, 0x3874A5F8 }, // scePafGetText
+//    { 0x511991AE, 0xE03A5C26, 0x50DCB767 }, // PAF_Resource_GetPageNodeByID
+//    { 0xC8C59436, 0xFDAFC9E9, 0x64A31513 }, // PAF_Resource_ResolveRefWString
+
+//    { 0xE73C355B, 0x3A370539, 0x6C582683 }, // vshGetRegistryValue
+//    { 0x2375A440, 0xCD3AF2EC, 0x858291A3 }, // vshSetRegistryValue
 };
 
 GCPatches patches =
