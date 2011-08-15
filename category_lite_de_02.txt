@@ -1,0 +1,12 @@
+Ansichtsart
+Mehrere MS
+Auswahl-Menü
+Sortierart
+Normal
+CAT_
+Unsortierte
+Ausblenden
+Nur ms0:/
+Nur ef0:/
+Anzeigen
+Unsortierte
