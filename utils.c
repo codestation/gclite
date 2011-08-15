@@ -48,9 +48,9 @@ void *redir_call(u32 address, void *func) {
 }
 
 int get_location(int action_arg) {
-    if(action_arg == PSPGO_CONTEXT_SENTINEL) {
+    if(action_arg == PSPGO_CONTEXT_SENTINEL || action_arg == PSPGO_CONTEXT_SENTINEL+1) {
         return INTERNAL_STORAGE;
-    } else if(action_arg == PSPMS_CONTEXT_SENTINEL) {
+    } else if(action_arg == PSPMS_CONTEXT_SENTINEL || action_arg == PSPMS_CONTEXT_SENTINEL+1) {
         return MEMORY_STICK;
     }
     if(action_arg >= 100) {

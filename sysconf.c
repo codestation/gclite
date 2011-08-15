@@ -72,6 +72,7 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     }
     sysconf_plug = 0;
     context_mode = 0;
+    kprintf("called, option addr: %08X\n", option);
 }
 
 void HijackContext(SceRcoEntry *src, char **options, int n) {

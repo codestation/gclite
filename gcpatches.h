@@ -80,6 +80,8 @@ typedef struct {
 	u32 OnXmbPush[3];
 	u32 OnXmbContextMenu[3];
 	//u32 OnMenuListScrollIn[3];
+
+	//u32 scePafGetPageChildContext[3];
 } GCPatches;
 
 

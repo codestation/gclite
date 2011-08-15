@@ -124,7 +124,9 @@ GCPatches patches =
     /** context.c (vshmain) */
     { 0x16284, 0x168EC, 0x169B4 }, // OnXmbPush
     { 0x15D38, 0x163A0, 0x16468 }, // OnXmbContextMenu
-    //{ 0x0DEAD, 0x0DEAD, 0x0DEAD }, // OnMenuListScrollIn
+    //{ 0x0DEAD, 0x0DEAD, 0x1643C }, // OnMenuListScrollIn
+
+    //{0xDEAD, 0xDEAD, 0x66E48}, // scePafGetPageChildOffset
 };
 
 void ResolveNIDs(int fw_ver) {
