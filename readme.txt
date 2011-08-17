@@ -27,6 +27,7 @@ Known issues:
 Change of category in the PSPGo requires a VSH reset.
 
 Changelog
+[+]Added Traditional-Chinese translation by Raiyou.
 v1.4:
 [+]6.60 firmware support
 [+]Allow the uncategorized folder to be sorted with your favorite app.
