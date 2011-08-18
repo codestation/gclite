@@ -98,18 +98,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
     return -1;
 }
 
-
-void createUncategorized(int index, int location) {
-    kprintf("creating uncategorized context\n");
-    sce_paf_private_strcpy(context_items[location][index].text, "gc4");
-    context_items[location][index].play_sound = 1;
-    context_items[location][index].action = (!location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL) + 1;
-    context_items[location][index].action_arg = index;
-}
-
 int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
     u32 index = 0;
-    u64 mtime = 0;
     int uncategorized;
 
     kprintf("called, name: %s, location: %i\n", item->text, location);
@@ -132,17 +122,7 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
     context_items[location] = sce_paf_private_malloc(malloc_size);
     sce_paf_private_memset(context_items[location], 0, malloc_size);
 
-    if (uncategorized) {
-        mtime = get_mtime("xxx:/PSP/GAME", location);
-    }
-
     while ((p = GetNextCategory(p, location))) {
-
-        if(uncategorized && mtime > p->mtime) {
-            createUncategorized(index, location);
-            uncategorized = 0;
-            index++;
-        }
 
         if(p->location == MEMORY_STICK) {
             sce_paf_private_snprintf(context_items[location][index].text, 48, "gcv_%08X", (u32)p);
@@ -157,7 +137,11 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
     }
 
     if(uncategorized) {
-        createUncategorized(index, location);
+        kprintf("creating uncategorized context\n");
+        sce_paf_private_strcpy(context_items[location][index].text, "gc4");
+        context_items[location][index].play_sound = 1;
+        context_items[location][index].action = (!location ? PSPMS_CONTEXT_SENTINEL : PSPGO_CONTEXT_SENTINEL) + 1;
+        context_items[location][index].action_arg = index;
         index++;
     }
 

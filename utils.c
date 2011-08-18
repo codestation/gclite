@@ -164,20 +164,3 @@ int get_registry_value(const char *dir, const char *name) {
     }
     return res;
 }
-
-u64 get_mtime(const char *dir, int location) {
-    u64 mtime;
-    char base_path[64];
-    SceIoStat stat;
-
-    // get the mtime from the uncategorized folder to allow it to be sorted
-    sce_paf_private_strcpy(base_path, dir);
-    SET_DEVICENAME(base_path, location);
-    sce_paf_private_memset(&stat, 0, sizeof(SceIoStat));
-    if(sceIoGetstat(base_path, &stat) >= 0) {
-        sceRtcGetTick((pspTime *) &stat.st_mtime, &mtime);
-    } else {
-        mtime = 0;
-    }
-    return mtime;
-}

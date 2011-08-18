@@ -71,38 +71,13 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     return -1;
 }
 
-void addUncategorized(void *arg, int topitem, SceVshItem *item, int location) {
-    if (!location && (config.uncategorized & ONLY_MS)) {
-        sce_paf_private_strcpy(item->text, "gc4");
-        item->action_arg = 200;
-        kprintf("adding uncategorized for Memory Stick\n");
-        AddVshItem(arg, topitem, item);
-    }
-    if (location && (config.uncategorized & ONLY_IE)) {
-        sce_paf_private_strcpy(item->text, "gc5");
-        item->action_arg = 2000;
-        kprintf("adding uncategorized for Internal Storage\n");
-        AddVshItem(arg, topitem, item);
-    }
-}
-
 int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
-    u64 mtime;
     int i = 0;
     Category *p = NULL;
-    int added_uncat = 0;
 
     vsh_items[location] = sce_paf_private_malloc(CountCategories(location) * sizeof(SceVshItem));
 
-    // get the mtime from the uncategorized folder to allow it to be sorted
-    mtime = get_mtime("xxx:/PSP/GAME", location);
-
     while ((p = GetNextCategory(p, location))) {
-
-        if(!added_uncat && mtime > p->mtime) {
-            addUncategorized(arg, topitem, item, location);
-            added_uncat = 1;
-        }
 
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 
@@ -117,8 +92,18 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
         AddVshItem(arg, topitem, &vsh_items[location][i]);
         i++;
     }
-    if(!added_uncat) {
-        addUncategorized(arg, topitem, item, location);
+
+    if (!location && (config.uncategorized & ONLY_MS)) {
+        sce_paf_private_strcpy(item->text, "gc4");
+        item->action_arg = 200;
+        kprintf("adding uncategorized for Memory Stick\n");
+        AddVshItem(arg, topitem, item);
+    }
+    if (location && (config.uncategorized & ONLY_IE)) {
+        sce_paf_private_strcpy(item->text, "gc5");
+        item->action_arg = 2000;
+        kprintf("adding uncategorized for Internal Storage\n");
+        AddVshItem(arg, topitem, item);
     }
 
     global_pos = location;
