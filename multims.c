@@ -40,7 +40,6 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     Category *p;
     int location;
 
-    category[0] = '\0';
     if (*action == GAME_ACTION) {
         location = get_location(*action_arg);
         if(location != INVALID && (*action_arg != 200 && *action_arg != 2000)) {
