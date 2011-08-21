@@ -27,6 +27,7 @@ Known issues:
 Change of category in the PSPGo requires a VSH reset.
 
 Changelog
+[!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
 v1.4:
 [+]6.60 firmware support
