@@ -218,6 +218,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
     if (context_gamecats || (context_mode > 0 && lang_width[lang_id])) {
         width = 1;
+        context_gamecats = 0;
     }
     return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
 }

@@ -25,6 +25,7 @@
 #include "psppaf.h"
 #include "vshitem.h"
 #include "utils.h"
+#include "context.h"
 #include "config.h"
 #include "stub_funcs.h"
 #include "language.h"
@@ -72,6 +73,7 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     }
     sysconf_plug = 0;
     context_mode = 0;
+    context_gamecats = 0;
     kprintf("called, option addr: %08X\n", option);
 }
 
