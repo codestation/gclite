@@ -83,6 +83,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
             Category *p = (Category *)sce_paf_private_strtoul(context_items[location][*action_arg].text+4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("selected category: %s\n", category);
+        } else {
+            category[0] = '\0';
         }
 
         config.selection = *action_arg;

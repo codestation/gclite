@@ -55,6 +55,7 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
                 return global_pos;
             }
             kprintf("uncategorized content, location: %i\n", location);
+            category[0] = '\0';
         }
 
         global_pos = location;
