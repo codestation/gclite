@@ -48,7 +48,6 @@ int context_action_arg[2];
 int PatchExecuteActionForContext(int *action, int *action_arg) {
     int location;
     int uncategorized;
-    category[0] = '\0';
 
     kprintf("called, action: %i, action_arg: %i\n", *action, *action_arg);
 
