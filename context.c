@@ -56,8 +56,6 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
         location = get_location(*action_arg);
         global_pos = location;
 
-        //restore action_arg
-        *action_arg = vsh_action_arg[location];
         context_gamecats = 1;
         original_item[location]->context = context_items[location];
         kprintf("calling OnXmbContextMenu\n");

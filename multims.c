@@ -80,8 +80,8 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
         sce_paf_private_memcpy(&vsh_items[location][i], item, sizeof(SceVshItem));
 
-        vsh_items[location][i].id = i + (location ? 1000 : 100);
-        vsh_items[location][i].action_arg = i + (location ? 1000 : 100);
+        vsh_items[location][i].id = i + (location ? PSPGO_MULTIMS_SENTINEL : PSPMS_MULTIMS_SENTINEL);
+        vsh_items[location][i].action_arg = i + (location ? PSPGO_MULTIMS_SENTINEL : PSPMS_MULTIMS_SENTINEL);
         if(p->location == MEMORY_STICK) {
             sce_paf_private_snprintf(vsh_items[location][i].text, 37, "gcv_%08X", (u32) p);
         } else {
@@ -94,13 +94,13 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
     if (!location && (config.uncategorized & ONLY_MS)) {
         sce_paf_private_strcpy(item->text, "gc4");
-        item->action_arg = 200;
+        item->action_arg = PSPMS_UNCAT_SENTINEL;
         kprintf("adding uncategorized for Memory Stick\n");
         AddVshItem(arg, topitem, item);
     }
     if (location && (config.uncategorized & ONLY_IE)) {
         sce_paf_private_strcpy(item->text, "gc5");
-        item->action_arg = 2000;
+        item->action_arg = PSPGO_UNCAT_SENTINEL;
         kprintf("adding uncategorized for Internal Storage\n");
         AddVshItem(arg, topitem, item);
     }
@@ -111,8 +111,8 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
 
 SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res UNUSED) {
     kprintf("text: %s, id: %i\n", item->text, item->id);
-    if(item->id >= 100) {
-        if(item->id >= 1000) {
+    if(item->id >= PSPMS_MULTIMS_SENTINEL) {
+        if(item->id >= PSPGO_MULTIMS_SENTINEL) {
             item->id = vsh_id[INTERNAL_STORAGE];
         } else {
             item->id = vsh_id[MEMORY_STICK];
