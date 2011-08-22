@@ -25,6 +25,8 @@
 #include "config.h"
 #include "logger.h"
 
+const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
+
 Category *first_category[2] = { NULL, NULL };
 
 Category *GetNextCategory(Category *prev, int location) {
@@ -143,12 +145,10 @@ Category *FindCategory(const char *category, int location) {
     return p;
 }
 
-const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP" };
-
 int is_category(const char *base, const char *path) {
     SceIoStat stat;
     char buffer[256];
-    for(u32 i = 0; i < (sizeof(eboot_types) / 4); i++) {
+    for(u32 i = 0; i < ITEMSOF(eboot_types); i++) {
         sce_paf_private_memset(&stat, 0 , sizeof(SceIoStat));
         sce_paf_private_snprintf(buffer, 256, "%s/%s/%s", base, path, eboot_types[i]);
         if(sceIoGetstat(buffer, &stat) >= 0) {

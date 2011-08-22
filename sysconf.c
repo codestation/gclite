@@ -59,7 +59,7 @@ int (*GetPageNodeByID)(void *resource, char *name, SceRcoEntry **child);
 
 void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     AddSysconfItem(option, item);
-    for(u32 i = 0; i < sizeof(sysconf_item) / 4; i++) {
+    for(u32 i = 0; i < ITEMSOF(sysconf_item); i++) {
         if(sysconf_plug || !sysconf_item[i]) {
             sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
         }
@@ -134,7 +134,7 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
     //kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
-    for(u32 i = 0; i < sizeof(sysconf_str) / 4; i++) {
+    for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
             context_mode = i + 1;
         }
@@ -150,7 +150,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
             lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
             LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
         }
-        for(u32 i = 0; i < sizeof(sysconf_str) / 4; i++) {
+        for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 context_mode = i + 1;
                 switch(i) {
@@ -177,7 +177,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     u32 *cfg;
     if (name) {
         //kprintf("name: %s\n", name);
-        for(u32 i = 0; i < sizeof(sysconf_str) / 4; i++) {
+        for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 switch(i) {
                 case 0:

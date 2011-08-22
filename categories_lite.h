@@ -39,6 +39,8 @@ int sceKernelGetCompiledSdkVersion();
 
 #define UNUSED __attribute__((unused))
 
+#define ITEMSOF(arr) (sizeof(arr) / sizeof(0[arr]))
+
 // uncomment this once the oldplugin of Pro is gone
 //#define DEVICE_MEMORY_STICK "ms0:"
 //#define DEVICE_INTERNAL_STORAGE "ef0:"

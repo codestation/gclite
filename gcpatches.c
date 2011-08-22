@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <pspmoduleinfo.h>
 #include "gcpatches.h"
+#include "categories_lite.h"
 
 extern SceModuleInfo module_info;
 
@@ -137,7 +138,7 @@ void ResolveNIDs(int fw_ver) {
         SceLibraryStubTable *stub = (SceLibraryStubTable *) stub_top;
         if (strcmp(stub->libname, "scePaf") == 0) {
             for (u32 i = 0; i < stub->stubcount; i++) {
-                for (u32 x = 0; x < sizeof(nids) / sizeof(nid); x++) {
+                for (u32 x = 0; x < ITEMSOF(nids); x++) {
                     if (stub->nidtable[i] == nids[x].nid630) {
                         if(fw_ver == FW_620) {
                             stub->nidtable[i] = nids[x].nid620;
