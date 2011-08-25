@@ -25,25 +25,28 @@ TODO:
 
 Known issues:
 Change of category in the PSPGo requires a VSH reset.
+ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
 
 Changelog
 [!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
+[+]Added Russian translation by Frostegater.
+[!]Fixed UMD icon malfunction bug introduced in 1.4-r2.
 v1.4:
 [+]6.60 firmware support
 [+]Allow the uncategorized folder to be sorted with your favorite app.
 [+]Multiple language support.
-[+]Added ja translation by popsdeco
-[+]Added de translation by KOlle and The Z
+[+]Added ja translation by popsdeco.
+[+]Added de translation by KOlle and The Z.
 v1.3:
 [+]Support for categories in contextual menu.
 [+]Support for plugin configuration in system settings.
 [+]Added runtime detection for ME, so category games are now shown.
 [!]Fixed issues with PSPGo (big thanks to raing3 to help me with the debugging).
 v1.2:
-[!]Fixed PSPGo categories, again (thx RUSTII for the tests)
-[!]Fixed the free space display when the psp returns from sleep
+[!]Fixed PSPGo categories, again (thx RUSTII for the tests).
+[!]Fixed the free space display when the psp returns from sleep.
 v1.1:
-[!]Fixed PSPGo categories (thx RUSTII for the tests)
+[!]Fixed PSPGo categories (thx RUSTII for the tests).
 v1.0:
-[+]First release
+[+]First release.
