@@ -42,8 +42,8 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
 
     if (*action == GAME_ACTION) {
         location = get_location(*action_arg);
-        if(location != INVALID && (*action_arg != 200 && *action_arg != 2000)) {
-            *action_arg -= (location == INTERNAL_STORAGE) ? 1000 : 100;
+        if(location != INVALID && (*action_arg != PSPMS_UNCAT_SENTINEL && *action_arg != PSPGO_UNCAT_SENTINEL)) {
+            *action_arg -= (location == INTERNAL_STORAGE) ? PSPGO_MULTIMS_SENTINEL : PSPMS_MULTIMS_SENTINEL;
             p = (Category *) sce_paf_private_strtoul(vsh_items[location][*action_arg].text + 4, NULL, 16);
             sce_paf_private_strncpy(category, &p->name, sizeof(category));
             kprintf("using %s as category\n", category);
