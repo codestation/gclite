@@ -51,8 +51,8 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
             if(location != INVALID) {
                 location = *action_arg == 200 ? MEMORY_STICK : INTERNAL_STORAGE;
             } else {
-                kprintf("must not happen!\n");
-                return global_pos;
+                kprintf("Another icon selected\n");
+                return -1;
             }
             kprintf("uncategorized content, location: %i\n", location);
             category[0] = '\0';
