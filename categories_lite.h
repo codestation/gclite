@@ -30,7 +30,6 @@ int sceKernelGetCompiledSdkVersion();
 #define MAKE_JUMP(a, f) _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), a); 
 #define MAKE_STUB(a, f) {u32 addr = a; _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), addr); _sw(0, addr+4); }
 #define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
-#define ClearCachesForUser sceKernelGetCompiledSdkVersion
 
 #define ISSET(v, m)  (((v) & (m)) == (m))
 
@@ -124,6 +123,27 @@ typedef struct
     u32 parent; //1c
     u32 unknown[2]; //20
 } SceRcoEntry;
+
+typedef struct
+{
+    void *unknown;
+    int option;
+    const char *text;
+} SceGameContext;
+
+typedef struct
+{
+//#if PSP_FIRMWARE_VERSION == 620
+    u8 unk0[0x174];
+//#elif PSP_FIRMWARE_VERSION == 631
+//  u8 unk0[0xEC];
+//#endif
+    char gamecode[10];
+    u8 unk1[0x5E];
+    char firmware[5];
+    u8 unk2[0x3];
+    char category[3];
+} SfoInfo;
 
 enum CategoryLocation {
     MEMORY_STICK,

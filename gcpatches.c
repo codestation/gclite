@@ -48,6 +48,7 @@ nid nids[] =
     { 0x58189108, 0x49A72E5D, 0xD7DCB972 }, // sce_paf_private_strlen
     { 0x0C962B6E, 0x5612DE15, 0xA4B8A4E3 }, // sce_paf_private_strtoul
     { 0xF200AF8E, 0xE1C930B5, 0x02119936 }, // scePafSetSelectedItem
+    //{ 0, 0, 0 }, // scePafSetSelection
 //    { 0xE8473E80, 0x4C386F3C, 0xA138A376 }, // sce_paf_private_sprintf
 
 //    { 0x03A0E8C2, 0xDE69A6CD, 0xAF067FA2 }, // sce_paf_private_wcslen
@@ -128,6 +129,30 @@ GCPatches patches =
     //{ 0x0DEAD, 0x0DEAD, 0x1643C }, // OnMenuListScrollIn
 
     //{0xDEAD, 0xDEAD, 0x66E48}, // scePafGetPageChildOffset
+
+    // folder categories patches (game_plugin_module)
+    {0, 0x2E61C, 0x2E94C }, // current_mode
+    {0, 0x1ABF4, 0x1AE10 }, // categorize_game
+    {0, 0x2A800, 0x2AC04 }, // play_sound
+    {0, 0x12300, 0x124E0 }, // play_sound_call
+    { (52/4), (56/4), (56/4) }, // array_index
+    { {0, 0}, { 0x11348, 0x11FD0 }, {0x114D8, 0x12178} }, //  add_game_context_call
+    {0, 0x28560, 0x28804 }, // add_game_context
+    { { 0, 0 }, { 0x8B8C, 0x8B90 }, {0x8C94, 0x8C90 } }, // setmode_call_arg_1
+    { { 0, 0 }, { 0, 0 }, { 0, 0 } }, // setmode_call_arg_2
+    { 0x02203821, 0x02003821, 0x02003821 }, // setmode_arg_opcode
+    {0, 0xCE44, 0xCFC8 }, // setmode
+    {0, 0x2DFB0, 0x2E2E4 }, // on_push_folder_options_call
+    {0, 0x120B4, 0x12294 }, // on_push_folder_options
+    {0, 0x2DF44, 0x2E278 }, // on_push_options_call
+    {0, 0x1142C, 0x115F4 }, // on_push_options
+    {0, 0x1C5D0, 0x1C84C }, // get_selection
+    {0, 0x2ED8C, 0x2EEAC }, // get_selection_arg
+    { {0, 0}, { 0x113B8, 0x12040 }, {0x11548, 0x121E8 } }, // set_selection_call
+    { 2, 3, 3 }, // OPTION_BY_CATEGORY
+    { 1, 2, 2 }, // MODE_BY_EXPIRE_DATE
+    {0, 0x2EF84, 0x2F2B4 }, // struct_addr
+    {1, 0, 0 }, // index
 };
 
 void ResolveNIDs(int fw_ver) {

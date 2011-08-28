@@ -82,6 +82,31 @@ typedef struct {
 	//u32 OnMenuListScrollIn[3];
 
 	//u32 scePafGetPageChildContext[3];
+
+	// folder categories patches
+	u32 current_mode[3];
+	u32 categorize_game[3];
+	u32 play_sound[3];
+	u32 play_sound_call[3];
+	u32 array_index[3];
+	u32 add_game_context_call[3][2];
+	u32 add_game_context[3];
+	u32 setmode_call_arg_1[3][2];
+	u32 setmode_call_arg_2[3][2];
+	u32 setmode_arg_opcode[3];
+	u32 setmode[3];
+	u32 on_push_folder_options_call[3];
+	u32 on_push_folder_options[3];
+	u32 on_push_options_call[3];
+	u32 on_push_options[3];
+	u32 get_selection[3];
+	u32 get_selection_arg[3];
+	u32 set_selection_call[3][2];
+	int OPTION_BY_CATEGORY[3];
+	u32 MODE_BY_EXPIRE_DATE[3];
+	u32 struct_addr[3];
+	u32 index[3];
+
 } GCPatches;
 
 

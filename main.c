@@ -42,6 +42,12 @@ int sysconf_plug = 0;
 int me_fw = 0;
 int model;
 
+//TODO: remove it from here
+u32 text_addr_game;
+u32 text_size_game;
+
+char currfw[5];
+
 int checkME() {
     // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
     if(!sctrlHENFindFunction("SystemControl", "VersionSpoofer", 0x5B18622C)) {
@@ -56,6 +62,9 @@ int OnModuleStart(SceModule2 *mod) {
 
 	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
 	    game_plug = 1;
+	    //TODO: remove it from here
+	    text_addr_game = mod->text_addr;
+	    text_size_game = mod->text_size;
 		PatchGamePluginForGCread(mod->text_addr);
 		ClearCaches();
 
@@ -126,6 +135,12 @@ int module_start(SceSize args UNUSED, void *argp UNUSED) {
     } else {
         return 1;
     }
+
+    currfw[0] = ((devkit >> 24) & 0xF) + '0';
+    currfw[1] = '.';
+    currfw[2] = ((devkit >> 16) & 0xF) + '0';
+    currfw[3] = ((devkit >> 8) & 0xF) + '0';
+    currfw[4] = 0;
 
     previous = sctrlHENSetStartModuleHandler(OnModuleStart);
     return 0;
