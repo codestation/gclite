@@ -32,6 +32,7 @@ Changelog
 [+]Added Traditional-Chinese translation by Raiyou.
 [+]Added Russian translation by Frostegater.
 [!]Fixed UMD icon malfunction bug introduced in 1.4-r2.
+[!]Added italian translation by stevealexanderames.
 v1.4:
 [+]6.60 firmware support
 [+]Allow the uncategorized folder to be sorted with your favorite app.

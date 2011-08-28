@@ -1,0 +1,12 @@
+﻿Modo visualizzazione
+Multi MS
+Menu contestuale
+Prefisso per le categorie
+Nessuno
+Usa il prefisso CAT
+Mostra elementi senza categoria
+No
+Solo Memory Stick™
+Solo Internal Storage
+Entrambe
+Senza Categoria
