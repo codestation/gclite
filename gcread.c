@@ -40,6 +40,10 @@ int multi_cat = 0;
 SceUID catdfd = -1;
 extern int me_fw;
 
+SceUID game_dfd = -1;
+SceUID opened_dfd = -1;
+int uncategorized;
+
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
     while(str[i-1] == ' ') {
@@ -128,7 +132,11 @@ SceUID sceIoDopenPatched(const char *path) {
     if(*category) {
         kprintf("category: %s\n", category);
     }
-    return sceIoDopen(path);
+    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
+        ClearCategories(global_pos);
+    }
+    game_dfd = sceIoDopen(path);
+    return game_dfd;
 }
 
 int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
@@ -241,6 +249,80 @@ char *ReturnBasePathPatched(char *base) {
     return base;
 }
 
+
+int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
+    if (fd == game_dfd) {
+        while (1) {
+            if (opened_dfd >= 0) {
+                int res = sceIoDread(opened_dfd, dir);
+                if (res > 0) {
+                    if (dir->d_name[0] != '.') {
+                        sce_paf_private_strcpy(dir->d_name + 128, dir->d_name);
+                        sce_paf_private_snprintf(dir->d_name, 128, "%s/%s", user_buffer + 14, dir->d_name + 128);
+                        if (dir->d_private) {
+                            sce_paf_private_strcpy((char *)dir->d_private + 13, dir->d_name);
+                        }
+                        return res;
+                    } else {
+                        continue;
+                    }
+                } else {
+                    sceIoDclose(opened_dfd);
+                    opened_dfd = -1;
+                }
+            }
+
+            int res = sceIoDread(fd, dir);
+
+            if (res > 0) {
+                if (dir->d_name[0] != '.') {
+                    if (FIO_S_ISDIR(dir->d_stat.st_mode)) {
+                        SceIoStat stat;
+                        sce_paf_private_memset(&stat, 0, sizeof(SceIoStat));
+                        sce_paf_private_snprintf(user_buffer + 13, 128,"/%s/EBOOT.PBP", dir->d_name);
+
+                        if (sceIoGetstat(user_buffer, &stat) < 0) {
+                            sce_paf_private_snprintf(user_buffer + 13, 128, "/%s/PARAM.PBP", dir->d_name);
+                            if (sceIoGetstat(user_buffer, &stat) < 0) {
+                                u64 mtime;
+                                sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
+                                AddCategory(dir->d_name, mtime, global_pos);
+                                sce_paf_private_snprintf(user_buffer + 13, 128, "/%s", dir->d_name);
+                                opened_dfd = sceIoDopen(user_buffer);
+                                continue;
+                            } else {
+                                if (!config.uncategorized) {
+                                    continue; // ignore this Dread
+                                }
+                                uncategorized = 1;
+                            }
+                        } else {
+                            if (!config.uncategorized) {
+                                continue; // ignore this Dread
+                            }
+                            uncategorized = 1;
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+    }
+
+    return sceIoDread(fd, dir);
+}
+
+
+int sceIoDclosePatched(SceUID fd) {
+    if(fd == game_dfd) {
+        if(uncategorized) {
+            AddCategory("Uncategorized", 1, global_pos);
+        }
+        game_dfd = -1;
+    }
+    return sceIoDclose(fd);
+}
+
 int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3, void *t0) {
     sce_paf_private_strcpy((char *)a1, (char *)t0);
     return sce_paf_private_snprintf(a0, 291, a2, a3, t0);
@@ -260,7 +342,10 @@ void PatchGamePluginForGCread(u32 text_addr) {
     if(me_fw) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     }
-    //MAKE_STUB(text_addr+patches.io_dclose_stub, sceIoDclosePatched);
+
+    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
+        MAKE_STUB(text_addr+patches.io_dclose_stub, sceIoDclosePatched);
+    }
     //MAKE_STUB(text_addr+patches.io_open_stub, sceIoOpenPatched);
 
     MAKE_JUMP(text_addr + patches.base_path[patch_index], ReturnBasePathPatched);

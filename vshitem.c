@@ -110,8 +110,10 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
             context_items[location] = NULL;
         }
 
-        ClearCategories(location);
-        IndexCategories("xxx:/PSP/GAME", location);
+        if(config.mode == MODE_MULTI_MS || config.mode == MODE_CONTEXT_MENU) {
+            ClearCategories(location);
+            IndexCategories("xxx:/PSP/GAME", location);
+        }
 
         // make a backup of the id and action_arg
         if(vsh_id[location] < 0 || vsh_action_arg[location] < 0) {
@@ -208,6 +210,9 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
+            return (wchar_t *) user_buffer;
+        } else if (sce_paf_private_strcmp(name, "msg_by_category") == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, "By Category");
             return (wchar_t *) user_buffer;
         }
     }

@@ -86,7 +86,7 @@ typedef struct {
 	// folder categories patches
 	u32 current_mode[3];
 	u32 categorize_game[3];
-	u32 play_sound[3];
+	//u32 play_sound[3];
 	u32 play_sound_call[3];
 	u32 array_index[3];
 	u32 add_game_context_call[3][2];

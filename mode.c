@@ -35,6 +35,8 @@ void *GetSelectionArg;
 void *class_buffer = NULL;
 extern char user_buffer[256];
 
+int (*scePafAddGameItems)(void *unk, int count);
+
 /* Functions */
 int CategorizeGamePatched(void *unk, int folder, int unk2) {
     int i;
@@ -195,7 +197,7 @@ typedef struct
 
 ToggleCategoryPatch ToggleCategoryPatches_620[] = {
 /* Force the branch to "msgvideoms_info_expired" */
-{ 0x0000EBF0, 0x100000C7 }, // beq $s2, $v0, loc_EF10 -> b loc_EF10
+        { 0x0000EBF0, 0x100000C7 }, // beq $s2, $v0, loc_EF10 -> b loc_EF10
         { 0x00011EA4, 0x10000065 }, // beq $v1, $v0, loc_1203C -> b loc_1203C
 
         /* Move a value we need later to a callee-saved register */
@@ -229,12 +231,11 @@ ToggleCategoryPatch ToggleCategoryPatches_620[] = {
         { 0x0000DC38, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
 
         /* Patch some checks regarding the number of folders */
-        { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8,
-                0x00000000 }, { 0x00019B94, 0x10000006 }, };
+        { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 }, };
 
 ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
 /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
-{ 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
+        { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
 
         /* Change a call for hardcoded organization to our own category-based one */
         { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1ABF4 -> jal CategorizeGamePatched
@@ -303,6 +304,9 @@ int ToggleCategoryMode(int mode) {
             backup[i] = _lw(addr);
 
             if ((opcode & 0xFF000000) == 0x08000000) {
+                if(opcode == (u32)scePafAddGameItemsPatched) {
+                    scePafAddGameItems = (void *)U_EXTRACT_CALL(addr);
+                }
                 MAKE_CALL(addr, opcode);
             }
 

@@ -48,7 +48,6 @@ nid nids[] =
     { 0x58189108, 0x49A72E5D, 0xD7DCB972 }, // sce_paf_private_strlen
     { 0x0C962B6E, 0x5612DE15, 0xA4B8A4E3 }, // sce_paf_private_strtoul
     { 0xF200AF8E, 0xE1C930B5, 0x02119936 }, // scePafSetSelectedItem
-    //{ 0, 0, 0 }, // scePafSetSelection
 //    { 0xE8473E80, 0x4C386F3C, 0xA138A376 }, // sce_paf_private_sprintf
 
 //    { 0x03A0E8C2, 0xDE69A6CD, 0xAF067FA2 }, // sce_paf_private_wcslen
@@ -133,7 +132,7 @@ GCPatches patches =
     // folder categories patches (game_plugin_module)
     {0, 0x2E61C, 0x2E94C }, // current_mode
     {0, 0x1ABF4, 0x1AE10 }, // categorize_game
-    {0, 0x2A800, 0x2AC04 }, // play_sound
+    //{0, 0x2A800, 0x2AC04 }, // play_sound
     {0, 0x12300, 0x124E0 }, // play_sound_call
     { (52/4), (56/4), (56/4) }, // array_index
     { {0, 0}, { 0x11348, 0x11FD0 }, {0x114D8, 0x12178} }, //  add_game_context_call

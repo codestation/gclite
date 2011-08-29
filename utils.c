@@ -104,7 +104,7 @@ void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
     sce_paf_private_memcpy(&fake[len], &real[x], (found * 2));
 }
 
-int gc_utf8_to_unicode(wchar_t *dest, char *src) {
+int gc_utf8_to_unicode(wchar_t *dest, const char *src) {
     int i, x;
     unsigned char *usrc = (unsigned char *) src;
 

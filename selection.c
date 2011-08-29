@@ -28,6 +28,7 @@ int already_in_foldermode = 1;
 extern int by_category_mode;
 extern u32 text_addr_game;
 void *GetSelectionArg;
+u32 sound_call_addr;
 
 int ToggleCategoryMode(int mode);
 
@@ -38,14 +39,17 @@ int (*SetMode)(void *arg0, void *arg1, void *arg2);
 int (*OnPushFolderOptionListCascade)(void *arg0, u32 *arg1);
 int (*OnPushOptionListCascade)(void *arg0, u32 *arg1);
 
+int (*scePafSetSelection)(void *arg0, int selection);
+
 /* Functions */
 void ToggleSound(int toggle) {
     if (toggle == 0) {
-        _sw(0, text_addr_game + patches.play_sound_call[patch_index]);
+        sound_call_addr = U_EXTRACT_CALL(text_addr_game + patches.play_sound_call[patch_index]);
+        _sw(NOP_OPCODE, text_addr_game + patches.play_sound_call[patch_index]);
     }
 
     else {
-        MAKE_CALL(text_addr_game+patches.play_sound_call[patch_index], text_addr_game+patches.play_sound[patch_index]);
+        MAKE_CALL(text_addr_game+patches.play_sound_call[patch_index], sound_call_addr);
     }
 
     ClearCaches();
@@ -90,8 +94,7 @@ int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
     if (info[patches.array_index[patch_index]] == MODE_ALL) {
         /* All */
         /* Next stop: By Expire Date */
-        info[patches.array_index[patch_index]] =
-                patches.MODE_BY_EXPIRE_DATE[patch_index];
+        info[patches.array_index[patch_index]] = patches.MODE_BY_EXPIRE_DATE[patch_index];
         already_in_foldermode = 1;
     } else if (info[patches.array_index[patch_index]] == patches.MODE_BY_EXPIRE_DATE[patch_index]) {
         if (!by_category_mode) {
@@ -282,6 +285,7 @@ void PatchSelection(u32 text_addr) {
 
     if (patches.set_selection_call[patch_index][0]) {
         /* Patch scePafSetSelection */
+        scePafSetSelection = (void *)U_EXTRACT_CALL(text_addr+patches.set_selection_call[patch_index][0]);
         MAKE_CALL(text_addr+patches.set_selection_call[patch_index][0], scePafSetSelectionPatched);
         MAKE_CALL(text_addr+patches.set_selection_call[patch_index][1], scePafSetSelectionPatched);
     }
