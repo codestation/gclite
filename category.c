@@ -27,9 +27,7 @@
 
 const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
 
-Category *first_category[2] = { NULL, NULL };
-
-Category *GetNextCategory(Category *prev, int location) {
+Category *GetNextCategory(Category *head[], Category *prev, int location) {
     u64 time = 0, last;
     Category *newest = NULL;
 
@@ -38,7 +36,7 @@ Category *GetNextCategory(Category *prev, int location) {
     } else {
         last = (u64) -1;
     }
-    Category *p = (Category *) first_category[location];
+    Category *p = (Category *) head[location];
 
     while (p) {
         if (p->mtime < last) {
@@ -54,9 +52,9 @@ Category *GetNextCategory(Category *prev, int location) {
     return newest;
 }
 
-void ClearCategories(int location) {
+void ClearCategories(Category *head[], int location) {
     Category *next;
-    Category *p = (void *) first_category[location];
+    Category *p = (void *) head[location];
 
     while (p) {
         next = p->next;
@@ -64,12 +62,12 @@ void ClearCategories(int location) {
         p = next;
     }
 
-    first_category[location] = NULL;
+    head[location] = NULL;
 }
 
-int CountCategories(int location) {
+int CountCategories(Category *head[], int location) {
     int i = 0;
-    Category *p = (void *) first_category[location];
+    Category *p = (void *) head[location];
 
     while (p) {
         i++;
@@ -79,12 +77,12 @@ int CountCategories(int location) {
     return i;
 }
 
-void AddCategory(const char *category, u64 mtime, int location) {
+void AddCategory(Category *head[], const char *category, u64 mtime, int location) {
     Category *p, *category_entry;
 
     while (1) {
         p = NULL;
-        while ((p = GetNextCategory(p, location))) {
+        while ((p = GetNextCategory(head, p, location))) {
             if (sce_paf_private_strcmp(category, &p->name) == 0) {
                 return;
             }
@@ -104,10 +102,10 @@ void AddCategory(const char *category, u64 mtime, int location) {
         category_entry->location = location;
         sce_paf_private_strcpy(&category_entry->name, category);
 
-        if (!first_category[location]) {
-            first_category[location] = category_entry;
+        if (!head[location]) {
+            head[location] = category_entry;
         } else {
-            p = (Category *) first_category[location];
+            p = (Category *) head[location];
             while (p->next) {
                 p = p->next;
             }
@@ -116,16 +114,16 @@ void AddCategory(const char *category, u64 mtime, int location) {
     }
 }
 
-void DelCategory(char *category, int location) {
+void DelCategory(Category *head[], char *category, int location) {
     Category *prev = NULL;
-    Category *p = (Category *) first_category[location];
+    Category *p = (Category *) head[location];
 
     while (p) {
         if (sce_paf_private_strcmp(&p->name, category) == 0) {
             if (prev) {
                 prev->next = p->next;
             } else {
-                first_category[location] = p->next;
+                head[location] = p->next;
             }
             break;
         }
@@ -134,8 +132,8 @@ void DelCategory(char *category, int location) {
     }
 }
 
-Category *FindCategory(const char *category, int location) {
-    Category *p = (Category *) first_category[location];
+Category *FindCategory(Category *head[], const char *category, int location) {
+    Category *p = (Category *) head[location];
     while(p) {
         if (sce_paf_private_strcmp(&p->name, category) == 0) {
             break;
@@ -158,7 +156,7 @@ int is_category(const char *base, const char *path) {
     return 1;
 }
 
-void IndexCategories(const char *path, int location) {
+void IndexCategories(Category *head[], const char *path, int location) {
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
@@ -194,7 +192,7 @@ void IndexCategories(const char *path, int location) {
                 match = 0;
                 sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
                 kprintf("Adding %s as category\n", dir.d_name);
-                AddCategory(dir.d_name, mtime, location);
+                AddCategory(head, dir.d_name, mtime, location);
             }
         }
     }

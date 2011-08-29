@@ -35,6 +35,8 @@ void *GetSelectionArg;
 void *class_buffer = NULL;
 extern char user_buffer[256];
 
+Category *folder_list[1] = { NULL };
+
 int (*scePafAddGameItems)(void *unk, int count);
 
 /* Functions */
@@ -43,7 +45,7 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
     u32 *array = (u32 *) *(u32 *) ((*(u32 *) (text_addr_game + patches.struct_addr[patch_index])) + ((u32) folder << 2));
     char *title = (char *) array[68 / 4];
 
-    Category *p = GetNextCategory(NULL, global_pos);
+    Category *p = GetNextCategory(folder_list, NULL, 0);
 
     for (i = patches.index[patch_index]; p; i++) {
         char *name = &p->name;
@@ -55,7 +57,7 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
             }
         }
 
-        p = GetNextCategory(p, global_pos);
+        p = GetNextCategory(folder_list, p, 0);
     }
 
     /* uncategorized */
@@ -63,7 +65,7 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
 }
 
 int scePafAddGameItemsPatched(void *unk, int count UNUSED) {
-    return scePafAddGameItems(unk, CountCategories(global_pos));
+    return scePafAddGameItems(unk, CountCategories(folder_list, 0));
 }
 
 wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
@@ -122,7 +124,7 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
 wchar_t *GetCategoryTitle(int number) {
     int i;
 
-    Category *p = GetNextCategory(NULL, global_pos);
+    Category *p = GetNextCategory(folder_list, NULL, 0);
 
     for (i = patches.index[patch_index]; p; i++) {
         if (i == number) {
@@ -133,7 +135,7 @@ wchar_t *GetCategoryTitle(int number) {
             return (wchar_t *) user_buffer;
         }
 
-        p = GetNextCategory(p, global_pos);
+        p = GetNextCategory(folder_list, p, 0);
     }
 
     return NULL;
@@ -296,7 +298,7 @@ int ToggleCategoryMode(int mode) {
 
     if (by_category_mode == 0 && mode == 1) {
         by_category_mode = 1;
-        count = CountCategories(global_pos);
+        count = CountCategories(folder_list, 0);
 
         for (i = 0; i < total; i++) {
             u32 addr = text_addr + ToggleCategoryPatches[i].addr;

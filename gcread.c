@@ -43,6 +43,7 @@ extern int me_fw;
 SceUID game_dfd = -1;
 SceUID opened_dfd = -1;
 int uncategorized;
+extern Category *folder_list[1];
 
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
@@ -83,7 +84,7 @@ int is_category_folder(SceIoDirent *dir, char *cat) {
     kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            if(!config.prefix && FindCategory(dir->d_name, global_pos)) {
+            if(!config.prefix && FindCategory(cat_list, dir->d_name, global_pos)) {
                 return 1;
             }
             if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
@@ -132,12 +133,23 @@ SceUID sceIoDopenPatched(const char *path) {
     if(*category) {
         kprintf("category: %s\n", category);
     }
-    game_dfd = sceIoDopen(path);
-    return game_dfd;
+    if(config.mode == MODE_FOLDER || config.subcats) {
+        ClearCategories(folder_list, 0);
+        game_dfd = sceIoDopen(path);
+        return game_dfd;
+    }
+    return sceIoDopen(path);
 }
+
+int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir);
 
 int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
     int res = -1;
+
+    if(fd == game_dfd) {
+        return sceIoDreadPatchedF(fd, dir);
+    }
+
     kprintf("start\n");
     while(1) {
         if(catdfd >= 0) {
@@ -186,6 +198,11 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
+
+    if(fd == game_dfd) {
+        return sceIoDreadPatchedF(fd, dir);
+    }
+
     kprintf("called\n");
     while(1) {
         res = sceIoDread(fd, dir);
@@ -248,62 +265,60 @@ char *ReturnBasePathPatched(char *base) {
 
 
 int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
-    if (fd == game_dfd) {
-        while (1) {
-            if (opened_dfd >= 0) {
-                int res = sceIoDread(opened_dfd, dir);
-                if (res > 0) {
-                    if (dir->d_name[0] != '.') {
-                        sce_paf_private_strcpy(dir->d_name + 128, dir->d_name);
-                        sce_paf_private_snprintf(dir->d_name, 128, "%s/%s", user_buffer + 14, dir->d_name + 128);
-                        if (dir->d_private) {
-                            sce_paf_private_strcpy((char *)dir->d_private + 13, dir->d_name);
-                        }
-                        return res;
-                    } else {
-                        continue;
-                    }
-                } else {
-                    sceIoDclose(opened_dfd);
-                    opened_dfd = -1;
-                }
-            }
-
-            int res = sceIoDread(fd, dir);
-
+    while (1) {
+        if (opened_dfd >= 0) {
+            int res = sceIoDread(opened_dfd, dir);
             if (res > 0) {
                 if (dir->d_name[0] != '.') {
-                    if (FIO_S_ISDIR(dir->d_stat.st_mode)) {
-                        SceIoStat stat;
-                        sce_paf_private_memset(&stat, 0, sizeof(SceIoStat));
-                        sce_paf_private_snprintf(user_buffer + 13, 128,"/%s/EBOOT.PBP", dir->d_name);
+                    sce_paf_private_strcpy(dir->d_name + 128, dir->d_name);
+                    sce_paf_private_snprintf(dir->d_name, 128, "%s/%s", user_buffer + 14, dir->d_name + 128);
+                    if (dir->d_private) {
+                        sce_paf_private_strcpy((char *)dir->d_private + 13, dir->d_name);
+                    }
+                    return res;
+                } else {
+                    continue;
+                }
+            } else {
+                sceIoDclose(opened_dfd);
+                opened_dfd = -1;
+            }
+        }
 
+        int res = sceIoDread(fd, dir);
+
+        if (res > 0) {
+            if (dir->d_name[0] != '.') {
+                if (FIO_S_ISDIR(dir->d_stat.st_mode)) {
+                    SceIoStat stat;
+                    sce_paf_private_memset(&stat, 0, sizeof(SceIoStat));
+                    sce_paf_private_snprintf(user_buffer + 13, 128,"/%s/EBOOT.PBP", dir->d_name);
+
+                    if (sceIoGetstat(user_buffer, &stat) < 0) {
+                        sce_paf_private_snprintf(user_buffer + 13, 128, "/%s/PARAM.PBP", dir->d_name);
                         if (sceIoGetstat(user_buffer, &stat) < 0) {
-                            sce_paf_private_snprintf(user_buffer + 13, 128, "/%s/PARAM.PBP", dir->d_name);
-                            if (sceIoGetstat(user_buffer, &stat) < 0) {
-                                u64 mtime;
-                                sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
-                                AddCategory(dir->d_name, mtime, global_pos);
-                                sce_paf_private_snprintf(user_buffer + 13, 128, "/%s", dir->d_name);
-                                opened_dfd = sceIoDopen(user_buffer);
-                                continue;
-                            } else {
-                                if (!config.uncategorized) {
-                                    continue; // ignore this Dread
-                                }
-                                uncategorized = 1;
-                            }
+                            u64 mtime;
+                            sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
+                            AddCategory(folder_list, dir->d_name, mtime, 0);
+                            sce_paf_private_snprintf(user_buffer + 13, 128, "/%s", dir->d_name);
+                            opened_dfd = sceIoDopen(user_buffer);
+                            continue;
                         } else {
                             if (!config.uncategorized) {
                                 continue; // ignore this Dread
                             }
                             uncategorized = 1;
                         }
+                    } else {
+                        if (!config.uncategorized) {
+                            continue; // ignore this Dread
+                        }
+                        uncategorized = 1;
                     }
                 }
             }
-            return res;
         }
+        return res;
     }
 
     return sceIoDread(fd, dir);
@@ -313,7 +328,7 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
 int sceIoDclosePatched(SceUID fd) {
     if(fd == game_dfd) {
         if(uncategorized) {
-            AddCategory("Uncategorized", 1, global_pos);
+            AddCategory(folder_list, "Uncategorized", 1, 0);
         }
         game_dfd = -1;
     }
@@ -340,9 +355,9 @@ void PatchGamePluginForGCread(u32 text_addr) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     }
 
-//    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
-//        MAKE_STUB(text_addr+patches.io_dclose_stub[patch_index], sceIoDclosePatched);
-//    }
+    if(config.mode == MODE_FOLDER || config.subcats) {
+        MAKE_STUB(text_addr+patches.io_dclose_stub[patch_index], sceIoDclosePatched);
+    }
     //MAKE_STUB(text_addr+patches.io_open_stub, sceIoOpenPatched);
 
     MAKE_JUMP(text_addr + patches.base_path[patch_index], ReturnBasePathPatched);

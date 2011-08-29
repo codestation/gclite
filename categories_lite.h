@@ -190,12 +190,12 @@ void PatchVshmainForContext(u32 text_addr);
 void PatchGamePluginForGCread(u32 text_addr);
 
 // Functions in: category.c
-int CountCategories(int location);
-void ClearCategories(int location);
-void AddCategory(const char *category, u64 mtime, int location);
-Category *GetNextCategory(Category *prev, int location);
-Category *FindCategory(const char *category, int location);
-void IndexCategories(const char *path, int location);
+int CountCategories(Category *head[], int location);
+void ClearCategories(Category *head[], int location);
+void AddCategory(Category *head[], const char *category, u64 mtime, int location);
+Category *GetNextCategory(Category *head[], Category *prev, int location);
+Category *FindCategory(Category *head[], const char *category, int location);
+void IndexCategories(Category *head[], const char *path, int location);
 
 // Functions in: gcpatches.c
 void ResolveNIDs();

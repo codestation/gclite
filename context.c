@@ -117,11 +117,11 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
 
     //TODO: mark location in original context
     item->play_sound = 0;
-    int malloc_size = (CountCategories(location) + uncategorized) * sizeof(SceContextItem) + 1;
+    int malloc_size = (CountCategories(cat_list, location) + uncategorized) * sizeof(SceContextItem) + 1;
     context_items[location] = sce_paf_private_malloc(malloc_size);
     sce_paf_private_memset(context_items[location], 0, malloc_size);
 
-    while ((p = GetNextCategory(p, location))) {
+    while ((p = GetNextCategory(cat_list, p, location))) {
 
         if(p->location == MEMORY_STICK) {
             sce_paf_private_snprintf(context_items[location][index].text, 48, "gcv_%08X", (u32)p);

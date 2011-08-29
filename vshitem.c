@@ -42,6 +42,8 @@ int unload = 0;
 int lang_id = 1;
 int global_pos = 0;
 
+Category *cat_list[2] = { NULL, NULL };
+
 const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc3", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
@@ -111,8 +113,8 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
         }
 
         if(config.mode != MODE_FOLDER) {
-            ClearCategories(location);
-            IndexCategories("xxx:/PSP/GAME", location);
+            ClearCategories(cat_list, location);
+            IndexCategories(cat_list, "xxx:/PSP/GAME", location);
         }
 
         // make a backup of the id and action_arg
