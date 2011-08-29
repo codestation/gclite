@@ -1,6 +1,7 @@
 Modo Categoría
 Múltiples MS
 Menú Contextual
+Carpetas
 Prefijo Categorías
 Ninguno
 Usar prefijo CAT
@@ -9,4 +10,8 @@ No
 Solo Memory Stick™
 Solo memoria interna
 Ambos
+Habilitar Sub-categorias
+No
+Si
 Sin categorizar
+Por Categorias

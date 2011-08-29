@@ -79,7 +79,7 @@ int CountCategories(int location) {
     return i;
 }
 
-void AddCategory(char *category, u64 mtime, int location) {
+void AddCategory(const char *category, u64 mtime, int location) {
     Category *p, *category_entry;
 
     while (1) {

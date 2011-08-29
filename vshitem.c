@@ -42,7 +42,7 @@ int unload = 0;
 int lang_id = 1;
 int global_pos = 0;
 
-const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
+const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc3", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -110,7 +110,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
             context_items[location] = NULL;
         }
 
-        if(config.mode == MODE_MULTI_MS || config.mode == MODE_CONTEXT_MENU) {
+        if(config.mode != MODE_FOLDER) {
             ClearCategories(location);
             IndexCategories("xxx:/PSP/GAME", location);
         }
@@ -191,28 +191,33 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
             return (wchar_t *) user_buffer;
+        // sysconf 4
+        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_subcat);
+            return (wchar_t *) user_buffer;
         // Memory Stick
-        } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         // Internal Storage
-        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[8], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[6]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
+        // By category (folder mode)
         } else if (sce_paf_private_strcmp(name, "msg_by_category") == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, "By Category");
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.by_category);
             return (wchar_t *) user_buffer;
         }
     }

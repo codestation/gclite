@@ -154,6 +154,7 @@ enum CategoryLocation {
 enum GameCategoriesModes {
     MODE_MULTI_MS,
     MODE_CONTEXT_MENU,
+    MODE_FOLDER,
 };
 
 typedef union _dpath {
@@ -191,7 +192,7 @@ void PatchGamePluginForGCread(u32 text_addr);
 // Functions in: category.c
 int CountCategories(int location);
 void ClearCategories(int location);
-void AddCategory(char *category, u64 mtime, int location);
+void AddCategory(const char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *prev, int location);
 Category *FindCategory(const char *category, int location);
 void IndexCategories(const char *path, int location);

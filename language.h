@@ -22,7 +22,7 @@
 
 typedef struct {
     char *msg_mode;
-    char *mode[2];
+    char *mode[3];
 
     char *msg_prefix;
     char *prefix[2];
@@ -30,7 +30,11 @@ typedef struct {
     char *msg_show;
     char *show[4];
 
+    char *msg_subcat;
+    char *subcat[2];
+
     char *msg_uncategorized;
+    char *by_category;
 
 } LanguageContainer;
 

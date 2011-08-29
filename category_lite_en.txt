@@ -1,6 +1,7 @@
 Category mode
 Multi MS
 Contextual menu
+Folders
 Category prefix
 None
 Use CAT prefix
@@ -9,4 +10,8 @@ No
 Only Memory Stick™
 Only Internal Storage
 Both
+Enable Sub-categories
+No
+Yes
 Uncategorized
+By Category

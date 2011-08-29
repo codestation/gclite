@@ -132,9 +132,6 @@ SceUID sceIoDopenPatched(const char *path) {
     if(*category) {
         kprintf("category: %s\n", category);
     }
-    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
-        ClearCategories(global_pos);
-    }
     game_dfd = sceIoDopen(path);
     return game_dfd;
 }
@@ -343,9 +340,9 @@ void PatchGamePluginForGCread(u32 text_addr) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     }
 
-    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
-        MAKE_STUB(text_addr+patches.io_dclose_stub, sceIoDclosePatched);
-    }
+//    if(config.mode != MODE_MULTI_MS && config.mode != MODE_CONTEXT_MENU) {
+//        MAKE_STUB(text_addr+patches.io_dclose_stub[patch_index], sceIoDclosePatched);
+//    }
     //MAKE_STUB(text_addr+patches.io_open_stub, sceIoOpenPatched);
 
     MAKE_JUMP(text_addr + patches.base_path[patch_index], ReturnBasePathPatched);

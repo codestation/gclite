@@ -23,7 +23,7 @@
 #include "logger.h"
 
 CategoryConfig config;
-CategoryConfig prev_conf = {-1, -1, -1, -1};
+CategoryConfig prev_conf = {-1, -1, -1, -1, -1};
 
 extern int model;
 
@@ -57,7 +57,10 @@ int save_config() {
     char device[12];
 
     if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
-        if(prev_conf.mode != config.mode || prev_conf.prefix != config.prefix || prev_conf.uncategorized != config.uncategorized) {
+        if(prev_conf.mode != config.mode ||
+           prev_conf.prefix != config.prefix ||
+           prev_conf.uncategorized != config.uncategorized ||
+           prev_conf.subcats != config.subcats) {
             reset = 1;
         } else {
             reset = 0;
