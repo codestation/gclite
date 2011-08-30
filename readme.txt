@@ -20,14 +20,13 @@ Languages supported: "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko",
 
 The source code is also available in https://github.com/codestation/gclite
 
-TODO:
-* Add folder categories like GC Light
-
 Known issues:
 Change of category in the PSPGo requires a VSH reset.
 ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
 
 Changelog
+v1.5:
+[+]Support for categories in folder mode (like Bubbletune's GCL)
 [!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
 [+]Added Russian translation by Frostegater.
