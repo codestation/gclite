@@ -113,9 +113,11 @@ int OnModuleStart(SceModule2 *mod) {
 }
 
 int module_start(SceSize args UNUSED, void *argp UNUSED) {
+    const char *src = "xx0:/category_lite.log";
+    char *dest = filebuf;
 
     model = kuKernelGetModel();
-    sce_paf_private_strcpy(filebuf, "xx0:/category_lite.log");
+    while((*dest++ = *src++));
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
     kwrite(filebuf, "GCLite 1.4 starting\n", 20);
