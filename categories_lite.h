@@ -132,18 +132,33 @@ typedef struct
     const char *text;
 } SceGameContext;
 
-typedef struct
-{
-//#if PSP_FIRMWARE_VERSION == 620
-    u8 unk0[0x174];
-//#elif PSP_FIRMWARE_VERSION == 631
-//  u8 unk0[0xEC];
-//#endif
-    char gamecode[10];
-    u8 unk1[0x5E];
-    char firmware[5];
-    u8 unk2[0x3];
-    char category[3];
+typedef struct {
+    u8 unk0[0xF0];
+    char gametitle[0x80];
+    u32 unk1;
+    char gamecode[0xA];
+    u8 unk2[0x5E];
+    char firmware[0x5];
+    u8 unk3[0x3];
+    char category[0x3];
+    u8 unk4;
+} SfoInfo620;
+
+typedef struct {
+    u8 unk0[0x68];
+    char gametitle[0x80];
+    u32 unk1;
+    char gamecode[0xA];
+    u8 unk2[0x5E];
+    char firmware[0x5];
+    u8 unk3[0x3];
+    char category[0x3];
+    u8 unk4;
+} SfoInfo630;
+
+typedef union _sfo {
+    SfoInfo620 sfo620;
+    SfoInfo630 sfo630;
 } SfoInfo;
 
 enum CategoryLocation {

@@ -80,40 +80,39 @@ int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
 }
 
 wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
-    int i;
     const char *game_type;
     char subtitle[128];
     char firmware[5];
+    char *sfofirm, *sfocat, *sfocode;
+
+    sfofirm = patch_index ? sfo->sfo630.firmware : sfo->sfo620.firmware;
+    sfocat = patch_index ? sfo->sfo630.category : sfo->sfo620.category;
+    sfocode = patch_index ? sfo->sfo630.gamecode: sfo->sfo620.gamecode;
 
     kprintf("called\n");
 
-    // fixme
-    if (patch_index) {
-        // unk0[0x174] -> unk0[0xEC] in 6.30+
-        sfo = (SfoInfo *) (u32) ((char *)sfo - (0x174 - 0xEC));
-    }
-    sce_paf_private_strcpy(firmware, sfo->firmware);
+    sce_paf_private_strcpy(firmware, sfofirm);
 
-    if (sce_paf_private_strcmp(sfo->category, "EG") == 0) {
+    if (sce_paf_private_strcmp(sfocat, "EG") == 0) {
         game_type = "PSN Game";
 
-        if (sfo->firmware[0] == 0) {
+        if (sfofirm[0] == 0) {
             sce_paf_private_strcpy(firmware, "5.00");
         }
-    } else if (sce_paf_private_strcmp(sfo->category, "ME") == 0) {
+    } else if (sce_paf_private_strcmp(sfocat, "ME") == 0) {
         game_type = "PS1 Game";
 
-        if (sfo->firmware[0] == 0) {
+        if (sfofirm[0] == 0) {
             sce_paf_private_strcpy(firmware, "3.03");
         }
     } else {
-        if (sfo->gamecode[0] == 0 || sce_paf_private_strcmp(sfo->gamecode, "UCJS10041") == 0) {
+        if (sfocode[0] == 0 || sce_paf_private_strcmp(sfocode, "UCJS10041") == 0) {
             game_type = "Homebrew Game";
             sce_paf_private_strcpy(firmware, "2.71");
         } else {
             game_type = "Game";
 
-            if (sfo->firmware[0] == 0) {
+            if (sfofirm[0] == 0) {
                 sce_paf_private_strcpy(firmware, "1.00");
             }
         }
@@ -126,7 +125,7 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     }
 
     kprintf("Returning %s\n", subtitle);
-    for (i = 0; i == 0 || subtitle[i - 1]; i++) {
+    for (int i = 0; i == 0 || subtitle[i - 1]; i++) {
         ((wchar_t *) user_buffer)[i] = subtitle[i];
     }
 
