@@ -38,7 +38,7 @@
     //STUB_FUNC  0xD08C2C2B,sceVshCommonGuiDisplayContext
     //STUB_END
 
-	//STUB_START "vsh",0x00090000,0x00010005
+	//STUB_START "vsh",0x00090000,0x00020005
     //STUB_FUNC  0x3A370539,vshGetRegistryValue
     //STUB_FUNC  0xCD3AF2EC,vshSetRegistryValue
     //STUB_END

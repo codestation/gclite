@@ -27,6 +27,7 @@
 #include "pspdefs.h"
 #include "vshitem.h"
 #include "config.h"
+#include "language.h"
 #include "logger.h"
 
 char user_buffer[256];
@@ -227,9 +228,6 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
                 continue;
             }
             kprintf("read %s\n", dir->d_name);
-            if(config.mode == MODE_FOLDER && is_category_folder(dir, NULL)) {
-                AddCategory(folder_list, dir->d_name, 1, global_pos);
-            }
             kprintf("end (normal)\n");
             break;
         }
@@ -262,7 +260,6 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
 
 int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     int res = -1;
-
     kprintf("called\n");
     while(1) {
         res = sceIoDread(fd, dir);
@@ -326,7 +323,7 @@ char *ReturnBasePathPatched(char *base) {
 int sceIoDclosePatched(SceUID fd) {
     if(fd == game_dfd) {
         if(uncategorized) {
-            AddCategory(folder_list, "Uncategorized", 1, 0);
+            AddCategory(folder_list, lang_container.msg_uncategorized, 1, 0);
         }
         game_dfd = -1;
     }

@@ -66,7 +66,9 @@ int OnModuleStart(SceModule2 *mod) {
 	    text_addr_game = mod->text_addr;
 	    text_size_game = mod->text_size;
 		PatchGamePluginForGCread(mod->text_addr);
-		PatchSelection(mod->text_addr);
+		if(config.mode == MODE_FOLDER) {
+		    PatchSelection(mod->text_addr);
+		}
 		ClearCaches();
 
 	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {

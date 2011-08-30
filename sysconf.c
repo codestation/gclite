@@ -40,7 +40,7 @@ extern int sysconf_plug;
 
 extern int model;
 
-const char *sysconf_str[] = {"gc0", "gc1" , "gc2" };
+const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
