@@ -144,6 +144,17 @@ SceUID sceIoDopenPatched(const char *path) {
     return sceIoDopen(path);
 }
 
+SceUID sceIoDopenPatchedPro(const char *path) {
+    if(config.mode == MODE_FOLDER) {
+        kprintf("Folder mode active\n");
+        sce_paf_private_strcpy(user_buffer, path);
+        ClearCategories(folder_list, global_pos);
+        game_dfd = sceIoDopen(path);
+        return game_dfd;
+    }
+    return sceIoDopen(path);
+}
+
 int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
     if (fd == game_dfd) {
         while (1) {
@@ -351,6 +362,10 @@ void PatchGamePluginForGCread(u32 text_addr) {
     MAKE_STUB(text_addr+patches.io_rmdir_stub[patch_index], sceIoRmdirPatched);
     if(me_fw) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
+    } else {
+        if(config.mode == MODE_FOLDER) {
+            MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatchedPro);
+        }
     }
 
     if(config.mode == MODE_FOLDER) {
