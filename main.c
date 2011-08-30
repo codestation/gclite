@@ -32,10 +32,9 @@ PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 4);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
-//GCPatches *PATCHES;
 int patch_index;
 
-STMOD_HANDLER previous;
+static STMOD_HANDLER previous;
 int game_plug = 0;
 int sysconf_plug = 0;
 

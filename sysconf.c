@@ -34,15 +34,15 @@
 #define OPTION_PAGE "page_psp_config_umd_cache"
 
 char user_buffer[256];
-u32 backup[4];
+static u32 backup[4];
 int context_mode = 0;
-SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
+static SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 
 extern int sysconf_plug;
 
 extern int model;
 
-const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
+static const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);

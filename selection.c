@@ -25,13 +25,13 @@
 #include "logger.h"
 
 /* Global variables */
-int already_in_foldermode = 1;
+static int already_in_foldermode = 1;
 extern int by_category_mode;
 extern u32 text_addr_game;
-void *GetSelectionArg;
-u32 sound_call_addr;
+static void *GetSelectionArg;
+static u32 sound_call_addr;
 
-int defaulted;
+static int defaulted;
 
 int ToggleCategoryMode(int mode);
 void HijackGameClass(int items);

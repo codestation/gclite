@@ -25,7 +25,7 @@
 #include "config.h"
 #include "logger.h"
 
-const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
+static const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
 
 Category *GetNextCategory(Category *head[], Category *prev, int location) {
     u64 time = 0, last;

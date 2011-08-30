@@ -31,19 +31,19 @@ typedef struct {
 } ToggleCategoryPatch;
 
 /* Function pointers */
-int (*CategorizeGame)(void *unk, int folder, int unk2);
+static int (*CategorizeGame)(void *unk, int folder, int unk2);
 
 /* Global variables */
 extern char currfw[5];
 int by_category_mode;
 extern u32 text_addr_game, text_size_game;
-void *GetSelectionArg;
-void *class_buffer = NULL;
+//static void *GetSelectionArg;
+static void *class_buffer = NULL;
 extern char user_buffer[256];
 
 Category *folder_list[2] = { NULL, NULL };
 
-int (*scePafAddGameItems)(void *unk, int count, void *unk2);
+static int (*scePafAddGameItems)(void *unk, int count, void *unk2);
 
 /* Functions */
 int CategorizeGamePatched(void *unk, int folder, int unk2) {

@@ -34,7 +34,7 @@ typedef struct {
     u32 nid660;
 } nid;
 
-nid nids[] =
+static nid nids[] =
 {
     { 0xE5A74996, 0x8F95CC01, 0x726DFBA9 }, // sce_paf_private_strcpy
     { 0x4F487FBC, 0xD38E62C6, 0x706ABBFF }, // sce_paf_private_strncpy

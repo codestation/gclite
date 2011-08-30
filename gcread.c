@@ -30,20 +30,20 @@
 #include "language.h"
 #include "logger.h"
 
-char user_buffer[256];
+static char user_buffer[256];
 char category[52];
 
 char mod_path[70];
 char orig_path[70];
 
 // ME variables
-int multi_cat = 0;
-SceUID catdfd = -1;
+static int multi_cat = 0;
+static SceUID catdfd = -1;
 extern int me_fw;
 
-SceUID game_dfd = -1;
-SceUID opened_dfd = -1;
-int uncategorized;
+static SceUID game_dfd = -1;
+static SceUID opened_dfd = -1;
+static int uncategorized;
 extern Category *folder_list[2];
 
 inline void trim(char *str) {

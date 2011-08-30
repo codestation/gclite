@@ -23,7 +23,7 @@
 #include "logger.h"
 
 CategoryConfig config;
-CategoryConfig prev_conf = {-1, -1, -1, -1};
+static CategoryConfig prev_conf = {-1, -1, -1, -1};
 
 extern int model;
 

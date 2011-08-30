@@ -44,7 +44,7 @@ int global_pos = 0;
 
 Category *cat_list[2] = { NULL, NULL };
 
-const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
+static const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };

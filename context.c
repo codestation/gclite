@@ -31,19 +31,19 @@
 
 extern int game_plug;
 
-int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
-int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
-int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
+static int (* OnXmbPush)(void *arg0, void *arg1) = NULL;
+static int (* OnXmbContextMenu)(void *arg0, void *arg1) = NULL;
+//static int (* OnMenuListScrollIn)(void *arg0, void *arg1) = NULL;
 
-SceVshItem *original_item[2] = { NULL, NULL };
-SceContextItem *original_context[2] = { NULL, NULL };
+static SceVshItem *original_item[2] = { NULL, NULL };
+static SceContextItem *original_context[2] = { NULL, NULL };
 SceContextItem *context_items[2] = { NULL, NULL };
 
 int context_gamecats = 0;
-int context_just_opened = 0;
-void *xmb_arg0, *xmb_arg1;
+static int context_just_opened = 0;
+static void *xmb_arg0, *xmb_arg1;
 
-int context_action_arg[2];
+static int context_action_arg[2];
 
 int PatchExecuteActionForContext(int *action, int *action_arg) {
     int location;
