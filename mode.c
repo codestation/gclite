@@ -25,6 +25,11 @@
 #include "vshitem.h"
 #include "logger.h"
 
+typedef struct {
+    u32 addr;
+    u32 opcode;
+} ToggleCategoryPatch;
+
 /* Function pointers */
 int (*CategorizeGame)(void *unk, int folder, int unk2);
 
@@ -196,14 +201,8 @@ void HijackGameClass(int items) {
     }
 }
 
-typedef struct
-{
-    u32 addr;
-    u32 opcode;
-} ToggleCategoryPatch;
-
 ToggleCategoryPatch ToggleCategoryPatches_620[] = {
-/* Force the branch to "msgvideoms_info_expired" */
+        /* Force the branch to "msgvideoms_info_expired" */
         { 0x0000EBF0, 0x100000C7 }, // beq $s2, $v0, loc_EF10 -> b loc_EF10
         { 0x00011EA4, 0x10000065 }, // beq $v1, $v0, loc_1203C -> b loc_1203C
 
@@ -241,7 +240,7 @@ ToggleCategoryPatch ToggleCategoryPatches_620[] = {
         { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 }, };
 
 ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
-/* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
+        /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
         { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
 
         /* Change a call for hardcoded organization to our own category-based one */

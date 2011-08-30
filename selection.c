@@ -306,4 +306,6 @@ void PatchSelection(u32 text_addr) {
     by_category_mode = 0;
     vsh_function = (void *)U_EXTRACT_CALL(text_addr+0x12E0);
     MAKE_CALL(text_addr+0x12E0, vsh_function_patched);
+
+    HijackGameClass(32);
 }
