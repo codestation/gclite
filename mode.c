@@ -43,7 +43,7 @@ extern char user_buffer[256];
 
 Category *folder_list[2] = { NULL, NULL };
 
-int (*scePafAddGameItems)(void *unk, int count);
+int (*scePafAddGameItems)(void *unk, int count, void *unk2);
 
 /* Functions */
 int CategorizeGamePatched(void *unk, int folder, int unk2) {
@@ -71,9 +71,12 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
     return CategorizeGame(unk, i - 1, unk2);
 }
 
-int scePafAddGameItemsPatched(void *unk, int count UNUSED) {
-    kprintf("called\n");
-    return scePafAddGameItems(unk, CountCategories(folder_list, 0));
+int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
+    kprintf("called, count: %i\n", count);
+    if(count == 3) {
+        count = CountCategories(folder_list, global_pos);
+    }
+    return scePafAddGameItems(unk, count, unk2);
 }
 
 wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
@@ -314,13 +317,13 @@ ToggleCategoryPatch ToggleCategoryPatches_66x[] = {
         { 0x0000A5A8, 0x02602821 }, // addiu $a1, $a1, -13876 -> move $a1, $s3
 };
 
-u32 backup[sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch)];
+static u32 backup[sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch)];
 
 int ToggleCategoryMode(int mode) {
-    int i, count;
-    kprintf("called, mode: %i\n", mode);
     int total;
     ToggleCategoryPatch *ToggleCategoryPatches;
+
+    kprintf("called, mode: %i\n", mode);
 
     if (patch_index == 0) {
         ToggleCategoryPatches = ToggleCategoryPatches_620;
@@ -336,12 +339,11 @@ int ToggleCategoryMode(int mode) {
         return -1;
     }
 
-    u32 text_addr = text_addr_game;
+    kprintf("text_addr: %08X\n", text_addr_game);
     if (by_category_mode == 0 && mode == 1) {
         by_category_mode = 1;
-        count = CountCategories(folder_list, global_pos);
-        for (i = 0; i < total; i++) {
-            u32 addr = text_addr + ToggleCategoryPatches[i].addr;
+        for (int i = 0; i < total; i++) {
+            u32 addr = text_addr_game + ToggleCategoryPatches[i].addr;
             u32 opcode = ToggleCategoryPatches[i].opcode;
             backup[i] = _lw(addr);
             if ((opcode & 0xFF000000) == 0x08000000) {
@@ -351,9 +353,7 @@ int ToggleCategoryMode(int mode) {
                     CategorizeGame = (void *)U_EXTRACT_CALL(addr);
                 }
                 MAKE_CALL(addr, opcode);
-            }
-
-            else {
+            } else {
                 _sw(opcode, addr);
             }
         }
@@ -364,10 +364,10 @@ int ToggleCategoryMode(int mode) {
     else if (by_category_mode == 1 && mode == 0) {
         by_category_mode = 0;
 
-        for (i = 0; i < total; i++) {
-            _sw(backup[i], text_addr + ToggleCategoryPatches[i].addr);
+        for (int i = 0; i < total; i++) {
+            kprintf("restoring backup[%i] == %08X, to addr %08X\n", i, backup[i], text_addr_game + ToggleCategoryPatches[i].addr);
+            _sw(backup[i], text_addr_game + ToggleCategoryPatches[i].addr);
         }
-
         ClearCachesForUser();
 
         return 0;
