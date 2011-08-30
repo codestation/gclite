@@ -122,10 +122,10 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     if (firmware[0] >= currfw[0] && firmware[2] >= currfw[2] && firmware[3] >= currfw[3]) {
         sce_paf_private_snprintf(subtitle, 128, "%s (requires %s)", game_type, firmware);
     } else {
-        sce_paf_private_snprintf(subtitle, 128, "%s (for %s - %s)", game_type,
-                firmware, currfw);
+        sce_paf_private_snprintf(subtitle, 128, "%s (for %s - %s)", game_type, firmware, currfw);
     }
 
+    kprintf("Returning %s\n", subtitle);
     for (i = 0; i == 0 || subtitle[i - 1]; i++) {
         ((wchar_t *) user_buffer)[i] = subtitle[i];
     }
@@ -313,7 +313,7 @@ ToggleCategoryPatch ToggleCategoryPatches_66x[] = {
         { 0x0000A230, 0x100000D8 }, // beqz $v0, loc_A594 -> b loc_A594
 
         /* Patch the call of scePafGetText to GetGameSubtitle */
-        { 0x0000A420, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
+        { 0x0000A5A4, (u32) GetGameSubtitle }, // jal scePaf_3874A5F8 -> jal GetGameSubtitle
         { 0x0000A5A8, 0x02602821 }, // addiu $a1, $a1, -13876 -> move $a1, $s3
 };
 
