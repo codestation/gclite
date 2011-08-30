@@ -237,7 +237,8 @@ ToggleCategoryPatch ToggleCategoryPatches_620[] = {
         { 0x0000DC38, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
 
         /* Patch some checks regarding the number of folders */
-        { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 }, };
+        { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 },
+};
 
 ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
         /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
@@ -274,7 +275,44 @@ ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
         /* Patch the call of scePafGetText to GetGameSubtitle */
         { 0x0000A420, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
         { 0x0000A424, 0x02602821 }, // addiu $a1, $a1, -21952 -> move $a1, $s3
-        };
+};
+
+ToggleCategoryPatch ToggleCategoryPatches_66x[] = {
+        /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
+        { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
+
+        /* Change a call for hardcoded organization to our own category-based one */
+        { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1AE10 -> jal CategorizeGamePatched
+        { 0x000014CC, 0x8E050004 }, // li $a1, -1 -> lw $a1, 4($s0)
+
+        /* Patch the call of scePafAddGameItems to change the number */
+        { 0x0000EB10, (u32) scePafAddGameItemsPatched }, // jal scePaf_E219FD72 -> jal scePafAddGameItemsPatched
+
+        /* Force the branch to "msgvideoms_info_expired" */
+        { 0x0000FF68, 0x10000019 }, // beq $s3, $v0, loc_FE4C -> b loc_FFD0
+        { 0x00012A6C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_12ADC
+
+        /* Move a value we need later to a callee-saved register */
+        { 0x00012AE0, 0x00808821 }, // lw $a0, 4($v0) -> move $s1, $a0
+
+        /* Patch the call of scePafGetText to GetCategoryTitle */
+        { 0x00012AE8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
+        { 0x00012AEC, 0x26240000 }, // addiu $a1, $a1, -12268 -> addiu $a0, $s1, 0
+        { 0x0000FFD8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
+        { 0x0000FFDC, 0x26640000 }, // addiu $a1, $a1, -13828 -> addiu $a0, $s3, 0
+
+        /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
+        /* Where it gets subtitle from? ;-) */
+        { 0x00012B00, 0x26250000 }, // li $a1, 1 -> addiu $a1, $s1, 0
+        { 0x0000FFF0, 0x26650000 }, // li $a1, 1 -> addiu $a1, $s3, 0
+
+        /* Force a branch to be taken regardless of the timelimit situation */
+        { 0x0000A230, 0x100000D8 }, // beqz $v0, loc_A594 -> b loc_A594
+
+        /* Patch the call of scePafGetText to GetGameSubtitle */
+        { 0x0000A420, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
+        { 0x0000A5A8, 0x02602821 }, // addiu $a1, $a1, -13876 -> move $a1, $s3
+};
 
 u32 backup[sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch)];
 
@@ -287,35 +325,29 @@ int ToggleCategoryMode(int mode) {
     if (patch_index == 0) {
         ToggleCategoryPatches = ToggleCategoryPatches_620;
         total = sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch);
-    }
-
-    else if (patch_index == 1) {
+    } else if (patch_index == 1) {
         ToggleCategoryPatches = ToggleCategoryPatches_63x;
         total = sizeof(ToggleCategoryPatches_63x) / sizeof(ToggleCategoryPatch);
-    }
+    } else if (patch_index == 2) {
+        ToggleCategoryPatches = ToggleCategoryPatches_66x;
+        total = sizeof(ToggleCategoryPatches_66x) / sizeof(ToggleCategoryPatch);
 
-    else {
+    } else {
         return -1;
     }
 
     u32 text_addr = text_addr_game;
-    kprintf("preparing to patch\n");
     if (by_category_mode == 0 && mode == 1) {
-        kprintf("by_category_mode == 0 && mode == 1\n");
         by_category_mode = 1;
         count = CountCategories(folder_list, global_pos);
-        kprintf("categories count: %i\n", count);
         for (i = 0; i < total; i++) {
             u32 addr = text_addr + ToggleCategoryPatches[i].addr;
             u32 opcode = ToggleCategoryPatches[i].opcode;
             backup[i] = _lw(addr);
-            kprintf("checking patch #%i\n", i);
             if ((opcode & 0xFF000000) == 0x08000000) {
                 if(opcode == (u32)scePafAddGameItemsPatched) {
-                    kprintf("saving scePafAddGameItems jal addr\n");
                     scePafAddGameItems = (void *)U_EXTRACT_CALL(addr);
                 } else if(opcode == (u32)CategorizeGamePatched) {
-                    kprintf("saving CategorizeGamePatched jal addr\n");
                     CategorizeGame = (void *)U_EXTRACT_CALL(addr);
                 }
                 MAKE_CALL(addr, opcode);
@@ -324,16 +356,12 @@ int ToggleCategoryMode(int mode) {
             else {
                 _sw(opcode, addr);
             }
-            kprintf("patch done\n");
         }
-        kprintf("clearing caches #1\n");
         ClearCachesForUser();
-        kprintf("exit #1\n");
         return 0;
     }
 
     else if (by_category_mode == 1 && mode == 0) {
-        kprintf("by_category_mode == 1 && mode == 0\n");
         by_category_mode = 0;
 
         for (i = 0; i < total; i++) {
@@ -344,6 +372,5 @@ int ToggleCategoryMode(int mode) {
 
         return 0;
     }
-    kprintf("exit -1\n");
     return -1;
 }

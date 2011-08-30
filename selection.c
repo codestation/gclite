@@ -34,6 +34,7 @@ u32 sound_call_addr;
 int defaulted;
 
 int ToggleCategoryMode(int mode);
+void HijackGameClass(int items);
 
 /* Function pointers */
 int (*AddGameContext)(void *unk, SceGameContext **item);
@@ -268,9 +269,6 @@ void PatchSelection(u32 text_addr) {
     MAKE_CALL(text_addr+patches.add_game_context_call[patch_index][1], AddGameContextPatched);
     AddGameContext = (void *) (text_addr + patches.add_game_context[patch_index]);
 
-    /* Patch scePafGetText */
-//	MAKE_CALL(text_addr+patches.sce_paf_get_text_call[patch_index][0], scePafGetTextPatched);
-//	MAKE_CALL(text_addr+patches.sce_paf_get_text_call[patch_index][1], scePafGetTextPatched);
     /* Patch calls to SetMode */
     MAKE_CALL(text_addr+patches.setmode_call_arg_1[patch_index][0], SetModePatched);
     _sw(patches.setmode_arg_opcode[patch_index], text_addr + patches.setmode_call_arg_1[patch_index][1]);
