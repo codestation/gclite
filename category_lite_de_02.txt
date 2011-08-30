@@ -1,6 +1,7 @@
 Ansichtsart
 Mehrere MS
 Auswahl-Menü
+Ordner
 Sortierart
 Normal
 CAT_
@@ -10,3 +11,4 @@ Nur ms0:/
 Nur ef0:/
 Anzeigen
 Unsortierte
+Nach Kategorie

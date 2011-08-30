@@ -1,6 +1,7 @@
 Kategorie-Modus
 Multi MS
 Auswahl-Menu
+Ordner
 Kategorie-PreFix
 Kein
 CAT-PreFix
@@ -10,3 +11,4 @@ Nur Memory Stick™
 Nur Interner Speicher
 Beides
 Unsortierte
+Nach Kategorie

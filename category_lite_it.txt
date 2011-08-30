@@ -1,6 +1,7 @@
 ﻿Modo visualizzazione
 Multi MS
 Menu contestuale
+Cartelle
 Prefisso per le categorie
 Nessuno
 Usa il prefisso CAT
@@ -10,3 +11,4 @@ Solo Memory Stick™
 Solo Internal Storage
 Entrambe
 Senza Categoria
+Per categoria
