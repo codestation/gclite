@@ -10,8 +10,5 @@ No
 Only Memory Stick™
 Only Internal Storage
 Both
-Enable Sub-categories
-No
-Yes
 Uncategorized
-By Category
+By category

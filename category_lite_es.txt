@@ -10,8 +10,5 @@ No
 Solo Memory Stick™
 Solo memoria interna
 Ambos
-Habilitar Sub-categorias
-No
-Si
 Sin categorizar
-Por Categorias
+Por categorias

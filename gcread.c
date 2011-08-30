@@ -134,7 +134,7 @@ SceUID sceIoDopenPatched(const char *path) {
     if(*category) {
         kprintf("category: %s\n", category);
     }
-    if(config.mode == MODE_FOLDER || config.subcats) {
+    if(config.mode == MODE_FOLDER) {
         kprintf("Folder mode active\n");
         ClearCategories(folder_list, global_pos);
         //IndexCategories(folder_list, path, global_pos);
@@ -340,7 +340,7 @@ int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3,
 
 
 void PatchGamePluginForGCread(u32 text_addr) {
-    if(config.mode == MODE_FOLDER || config.subcats) {
+    if(config.mode == MODE_FOLDER) {
         MAKE_STUB(text_addr+patches.io_dread_stub[patch_index], sceIoDreadPatchedF);
     } else {
         if(me_fw) {
@@ -357,7 +357,7 @@ void PatchGamePluginForGCread(u32 text_addr) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     }
 
-    if(config.mode == MODE_FOLDER || config.subcats) {
+    if(config.mode == MODE_FOLDER) {
         MAKE_STUB(text_addr+patches.io_dclose_stub[patch_index], sceIoDclosePatched);
     }
     //MAKE_STUB(text_addr+patches.io_open_stub, sceIoOpenPatched);

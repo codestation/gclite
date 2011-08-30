@@ -44,7 +44,7 @@ int global_pos = 0;
 
 Category *cat_list[2] = { NULL, NULL };
 
-const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc3", "gc4", "gc5", "gcv_", "gcw_" };
+const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -193,27 +193,23 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
             return (wchar_t *) user_buffer;
-        // sysconf 4
-        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_subcat);
-            return (wchar_t *) user_buffer;
         // Memory Stick
-        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         // Internal Storage
-        } else if (sce_paf_private_strncmp(name, cat_str[8], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[6]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;

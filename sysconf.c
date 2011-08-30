@@ -34,13 +34,13 @@
 char user_buffer[256];
 u32 backup[4];
 int context_mode = 0;
-SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL, NULL };
+SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
 
 extern int sysconf_plug;
 
 extern int model;
 
-const char *sysconf_str[] = {"gc0", "gc1" , "gc2", "gc3"};
+const char *sysconf_str[] = {"gc0", "gc1" , "gc2" };
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -157,9 +157,6 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 case 2:
                     *value = config.uncategorized;
                     return 0;
-                case 3:
-                    *value = config.subcats;
-                    return 0;
                 default:
                     *value = 0;
                     return 0;
@@ -185,9 +182,6 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
                     break;
                 case 2:
                     cfg = &config.uncategorized;
-                    break;
-                case 3:
-                    cfg = &config.subcats;
                     break;
                 default:
                     cfg = NULL;
@@ -231,9 +225,6 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
                 break;
             case 3:
                 HijackContext(*child, lang_container.show, sizeof(lang_container.show) / sizeof(char *));
-                break;
-            case 4:
-                HijackContext(*child, lang_container.subcat, sizeof(lang_container.subcat) / sizeof(char *));
                 break;
             }
         }

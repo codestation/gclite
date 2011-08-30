@@ -30,9 +30,6 @@ typedef struct {
     char *msg_show;
     char *show[4];
 
-    char *msg_subcat;
-    char *subcat[2];
-
     char *msg_uncategorized;
     char *by_category;
 
