@@ -138,7 +138,6 @@ SceUID sceIoDopenPatched(const char *path) {
     if(config.mode == MODE_FOLDER) {
         kprintf("Folder mode active\n");
         ClearCategories(folder_list, global_pos);
-        //IndexCategories(folder_list, path, global_pos);
         game_dfd = sceIoDopen(path);
         return game_dfd;
     }

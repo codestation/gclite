@@ -103,10 +103,7 @@ int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
             already_in_foldermode = 0;
         }
     }
-    kprintf("calling setmode\n");
-    int ret = SetMode(arg0, arg1, arg2);
-    kprintf("called setmode, ret: %i\n", ret);
-    return ret;
+    return SetMode(arg0, arg1, arg2);
 }
 
 void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
@@ -274,6 +271,7 @@ void PatchSelection(u32 text_addr) {
     _sw(patches.setmode_arg_opcode[patch_index], text_addr + patches.setmode_call_arg_1[patch_index][1]);
 
     if (patches.setmode_call_arg_2[patch_index][0]) {
+        kprintf("patching SetMode\n");
         MAKE_CALL(text_addr+patches.setmode_call_arg_2[patch_index][0], SetModePatched);
         _sw(patches.setmode_arg_opcode[patch_index], text_addr + patches.setmode_call_arg_2[patch_index][1]);
     }

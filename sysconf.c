@@ -31,6 +31,8 @@
 #include "language.h"
 #include "logger.h"
 
+#define OPTION_PAGE "page_psp_config_umd_cache"
+
 char user_buffer[256];
 u32 backup[4];
 int context_mode = 0;
@@ -61,7 +63,7 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
         sysconf_item[i]->id = 6;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
-        sysconf_item[i]->page = "page_psp_config_umd_cache";
+        sysconf_item[i]->page = OPTION_PAGE;
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);
     }
@@ -126,7 +128,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
 
 SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
-    //kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
+    kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
     for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
@@ -139,7 +141,7 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
 int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
     if (name) {
         context_mode = 0;
-        //kprintf("name: %s\n", name);
+        kprintf("name: %s\n", name);
         if (strcmp(name, "/CONFIG/SYSTEM/XMB/language") == 0) {
             lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
             LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
@@ -170,7 +172,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
 int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     u32 *cfg;
     if (name) {
-        //kprintf("name: %s\n", name);
+        kprintf("name: %s\n", name);
         for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 switch(i) {
@@ -200,7 +202,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
     if (data[0] == 0xDEAD) {
-        //kprintf("data: %s\n", (char *)data[1]);
+        kprintf("data: %s\n", (char *)data[1]);
         gc_utf8_to_unicode((wchar_t *)user_buffer, (char *) data[1]);
         *(wchar_t **) string = (wchar_t *) user_buffer;
         return 0;
@@ -211,8 +213,8 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
 int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
-        //kprintf("name: %s, mode: %i\n", name, context_mode);
-        if (sce_paf_private_strcmp(name, "page_psp_config_umd_cache") == 0) {
+        kprintf("name: %s, mode: %i\n", name, context_mode);
+        if (sce_paf_private_strcmp(name, OPTION_PAGE) == 0) {
             switch(context_mode) {
             case 0:
                 HijackContext(*child, NULL, 0);
