@@ -217,11 +217,11 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        // By category (folder mode)
-        } else if (sce_paf_private_strcmp(name, "msg_by_category") == 0) {
-            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.by_category);
-            return (wchar_t *) user_buffer;
         }
+    // By category (folder mode)
+    } else if (name && sce_paf_private_strcmp(name, "msg_by_category") == 0) {
+        gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.by_category);
+        return (wchar_t *) user_buffer;
     }
     return scePafGetText(arg, name);
 }

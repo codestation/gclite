@@ -23,6 +23,7 @@
 #include <string.h>
 #include "categories_lite.h"
 #include "vshitem.h"
+#include "logger.h"
 
 /* Function pointers */
 int (*CategorizeGame)(void *unk, int folder, int unk2);
@@ -35,7 +36,7 @@ void *GetSelectionArg;
 void *class_buffer = NULL;
 extern char user_buffer[256];
 
-Category *folder_list[1] = { NULL };
+Category *folder_list[2] = { NULL, NULL };
 
 int (*scePafAddGameItems)(void *unk, int count);
 
@@ -44,11 +45,12 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
     int i;
     u32 *array = (u32 *) *(u32 *) ((*(u32 *) (text_addr_game + patches.struct_addr[patch_index])) + ((u32) folder << 2));
     char *title = (char *) array[68 / 4];
-
-    Category *p = GetNextCategory(folder_list, NULL, 0);
+    kprintf("called\n");
+    Category *p = GetNextCategory(folder_list, NULL, global_pos);
 
     for (i = patches.index[patch_index]; p; i++) {
         char *name = &p->name;
+        kprintf("name: %s\n", name);
         int len = sce_paf_private_strlen(name);
 
         if (sce_paf_private_strncmp(name, title, len) == 0) {
@@ -65,6 +67,7 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
 }
 
 int scePafAddGameItemsPatched(void *unk, int count UNUSED) {
+    kprintf("called\n");
     return scePafAddGameItems(unk, CountCategories(folder_list, 0));
 }
 
@@ -74,12 +77,13 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     char subtitle[128];
     char firmware[5];
 
+    kprintf("called\n");
+
     // fixme
     if (patch_index) {
         // unk0[0x174] -> unk0[0xEC] in 6.30+
         sfo = (SfoInfo *) (u32) sfo - (u32) (0x174 - 0xEC);
     }
-
     sce_paf_private_strcpy(firmware, sfo->firmware);
 
     if (sce_paf_private_strcmp(sfo->category, "EG") == 0) {
@@ -124,7 +128,8 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
 wchar_t *GetCategoryTitle(int number) {
     int i;
 
-    Category *p = GetNextCategory(folder_list, NULL, 0);
+    kprintf("called, number: %i\n", number);
+    Category *p = GetNextCategory(folder_list, NULL, global_pos);
 
     for (i = patches.index[patch_index]; p; i++) {
         if (i == number) {
@@ -135,7 +140,7 @@ wchar_t *GetCategoryTitle(int number) {
             return (wchar_t *) user_buffer;
         }
 
-        p = GetNextCategory(folder_list, p, 0);
+        p = GetNextCategory(folder_list, p, global_pos);
     }
 
     return NULL;
@@ -276,7 +281,7 @@ u32 backup[sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch)];
 
 int ToggleCategoryMode(int mode) {
     int i, count;
-
+    kprintf("called, mode: %i\n", mode);
     int total;
     ToggleCategoryPatch *ToggleCategoryPatches;
 
@@ -295,19 +300,24 @@ int ToggleCategoryMode(int mode) {
     }
 
     u32 text_addr = text_addr_game;
-
+    kprintf("preparing to patch\n");
     if (by_category_mode == 0 && mode == 1) {
+        kprintf("by_category_mode == 0 && mode == 1\n");
         by_category_mode = 1;
-        count = CountCategories(folder_list, 0);
-
+        count = CountCategories(folder_list, global_pos);
+        kprintf("categories count: %i\n", count);
         for (i = 0; i < total; i++) {
             u32 addr = text_addr + ToggleCategoryPatches[i].addr;
             u32 opcode = ToggleCategoryPatches[i].opcode;
             backup[i] = _lw(addr);
-
+            kprintf("checking patch #%i\n", i);
             if ((opcode & 0xFF000000) == 0x08000000) {
                 if(opcode == (u32)scePafAddGameItemsPatched) {
+                    kprintf("saving scePafAddGameItems jal addr\n");
                     scePafAddGameItems = (void *)U_EXTRACT_CALL(addr);
+                } else if(opcode == (u32)CategorizeGamePatched) {
+                    kprintf("saving CategorizeGamePatched jal addr\n");
+                    CategorizeGame = (void *)U_EXTRACT_CALL(addr);
                 }
                 MAKE_CALL(addr, opcode);
             }
@@ -315,24 +325,26 @@ int ToggleCategoryMode(int mode) {
             else {
                 _sw(opcode, addr);
             }
+            kprintf("patch done\n");
         }
-
-        ClearCaches();
-
+        kprintf("clearing caches #1\n");
+        ClearCachesForUser();
+        kprintf("exit #1\n");
         return 0;
     }
 
     else if (by_category_mode == 1 && mode == 0) {
+        kprintf("by_category_mode == 1 && mode == 0\n");
         by_category_mode = 0;
 
         for (i = 0; i < total; i++) {
             _sw(backup[i], text_addr + ToggleCategoryPatches[i].addr);
         }
 
-        ClearCaches();
+        ClearCachesForUser();
 
         return 0;
     }
-
+    kprintf("exit -1\n");
     return -1;
 }

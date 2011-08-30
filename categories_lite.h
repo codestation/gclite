@@ -33,6 +33,8 @@ int sceKernelGetCompiledSdkVersion();
 #define NOP_OPCODE 0
 #define ISSET(v, m)  (((v) & (m)) == (m))
 
+#define ClearCachesForUser sceKernelGetCompiledSdkVersion
+
 // useful to know who is the caller
 #define GET_RA(x) __asm__("move %0,$ra" : "=r"((x)))
 
@@ -186,8 +188,11 @@ void PatchExecuteActionForSysconf(int action, int action_arg);
 // Functions in: context.c
 void PatchVshmainForContext(u32 text_addr);
 
-// Functions in: io.c
+// Functions in: gcread.c
 void PatchGamePluginForGCread(u32 text_addr);
+
+// Functions in: selection.c
+void PatchSelection(u32 text_addr);
 
 // Functions in: category.c
 int CountCategories(Category *head[], int location);

@@ -95,6 +95,7 @@ void AddCategory(Category *head[], const char *category, u64 mtime, int location
             break;
         }
     }
+    kprintf("Adding %s as category\n", category);
     category_entry = (Category *) sce_paf_private_malloc(sizeof(Category) + sce_paf_private_strlen(category) + 1);
     if (category_entry) {
         category_entry->next = NULL;

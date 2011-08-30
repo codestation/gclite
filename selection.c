@@ -22,6 +22,7 @@
 #include "psppaf.h"
 #include <string.h>
 #include "categories_lite.h"
+#include "logger.h"
 
 /* Global variables */
 int already_in_foldermode = 1;
@@ -29,6 +30,8 @@ extern int by_category_mode;
 extern u32 text_addr_game;
 void *GetSelectionArg;
 u32 sound_call_addr;
+
+int defaulted = 0;
 
 int ToggleCategoryMode(int mode);
 
@@ -40,9 +43,11 @@ int (*OnPushFolderOptionListCascade)(void *arg0, u32 *arg1);
 int (*OnPushOptionListCascade)(void *arg0, u32 *arg1);
 
 int (*scePafSetSelection)(void *arg0, int selection);
+int (*vsh_function)(void *arg);
 
 /* Functions */
 void ToggleSound(int toggle) {
+    kprintf("called, toggle: %i\n", toggle);
     if (toggle == 0) {
         sound_call_addr = U_EXTRACT_CALL(text_addr_game + patches.play_sound_call[patch_index]);
         _sw(NOP_OPCODE, text_addr_game + patches.play_sound_call[patch_index]);
@@ -52,14 +57,14 @@ void ToggleSound(int toggle) {
         MAKE_CALL(text_addr_game+patches.play_sound_call[patch_index], sound_call_addr);
     }
 
-    ClearCaches();
+    ClearCachesForUser();
 }
 
 int AddGameContextPatched(void *unk, SceGameContext **item) {
     /* Allocate buffer for "By Category" */
     SceGameContext *newitem = sce_paf_private_malloc(sizeof(SceGameContext));
-    memcpy(newitem, *item, sizeof(SceGameContext));
-
+    sce_paf_private_memcpy(newitem, *item, sizeof(SceGameContext));
+    kprintf("called\n");
     /* Modify buffer for "By Category */
     newitem->text = "msg_by_category";
     newitem->option = patches.OPTION_BY_CATEGORY[patch_index];
@@ -89,7 +94,7 @@ int AddGameContextPatched(void *unk, SceGameContext **item) {
 
 int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
     /** Square-button cycling **/
-
+    kprintf("called\n");
     /* What's the current mode? */
     if (info[patches.array_index[patch_index]] == MODE_ALL) {
         /* All */
@@ -110,11 +115,14 @@ int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
             already_in_foldermode = 0;
         }
     }
-
-    return SetMode(arg0, arg1, arg2);
+    kprintf("calling setmode\n");
+    int ret = SetMode(arg0, arg1, arg2);
+    kprintf("called setmode, ret: %i\n", ret);
+    return ret;
 }
 
 void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
+    kprintf("called\n");
     u32 backup = selection->option;
 
     /* Switch to "All" */
@@ -134,6 +142,7 @@ void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
 }
 
 int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
+    kprintf("called\n");
     SceGameContext *selection = GetSelection(GetSelectionArg, arg1[3]);
 
     /* We're in one of the folder modes in case this function is being used... */
@@ -205,6 +214,7 @@ int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
 }
 
 int OnPushOptionListCascadePatched(void *arg0, u32 *arg1) {
+    kprintf("called\n");
     SceGameContext *selection = GetSelection(GetSelectionArg, arg1[3]);
 
     /* We're in the "All" mode in case this function is being used... */
@@ -224,9 +234,10 @@ int OnPushOptionListCascadePatched(void *arg0, u32 *arg1) {
         /* Switch to "By Expire Date" */
         selection->option = OPTION_BY_EXPIRE_DATE;
 
+        kprintf("Calling OnPushOptionListCascade\n");
         /* Call the function */
         int res = OnPushOptionListCascade(arg0, arg1);
-
+        kprintf("Called OnPushOptionListCascade, res: %i\n", res);
         /* Restore the original */
         selection->option = patches.OPTION_BY_CATEGORY[patch_index];
 
@@ -239,6 +250,7 @@ int OnPushOptionListCascadePatched(void *arg0, u32 *arg1) {
 }
 
 int scePafSetSelectionPatched(void *arg0, int selection) {
+    kprintf("called\n");
     /* "By Expire Date" */
     if (selection == 1) {
         /* Should it be "By Category"? */
@@ -248,6 +260,19 @@ int scePafSetSelectionPatched(void *arg0, int selection) {
     }
 
     return scePafSetSelection(arg0, selection);
+}
+
+int vsh_function_patched(void *arg) {
+    if (!defaulted) {
+        ToggleCategoryMode(1);
+
+        _sw(patches.MODE_BY_EXPIRE_DATE[patch_index], text_addr_game + patches.current_mode[patch_index] + 56);
+        ClearCachesForUser();
+
+        defaulted = 1;
+    }
+
+    return vsh_function(arg);
 }
 
 void PatchSelection(u32 text_addr) {
@@ -289,4 +314,7 @@ void PatchSelection(u32 text_addr) {
         MAKE_CALL(text_addr+patches.set_selection_call[patch_index][0], scePafSetSelectionPatched);
         MAKE_CALL(text_addr+patches.set_selection_call[patch_index][1], scePafSetSelectionPatched);
     }
+
+    vsh_function = (void *)U_EXTRACT_CALL(text_addr+0x12E0);
+    MAKE_CALL(text_addr+0x12E0, vsh_function_patched);
 }
