@@ -31,7 +31,7 @@ extern u32 text_addr_game;
 void *GetSelectionArg;
 u32 sound_call_addr;
 
-int defaulted = 0;
+int defaulted;
 
 int ToggleCategoryMode(int mode);
 
@@ -75,19 +75,6 @@ int AddGameContextPatched(void *unk, SceGameContext **item) {
     /* Add the original */
     return AddGameContext(unk, item);
 }
-
-//wchar_t* scePafGetTextPatched(void *arg, char *name)
-//{
-//	if (name)
-//	{
-//		if (sce_paf_private_strcmp(name, "msg_by_category") == 0)
-//		{
-//			return L"By Category";
-//		}
-//	}
-//
-//	return scePafGetText(arg, name);
-//}
 
 #define MODE_ALL 0
 #define OPTION_BY_EXPIRE_DATE 0
@@ -315,6 +302,8 @@ void PatchSelection(u32 text_addr) {
         MAKE_CALL(text_addr+patches.set_selection_call[patch_index][1], scePafSetSelectionPatched);
     }
 
+    defaulted = 0;
+    by_category_mode = 0;
     vsh_function = (void *)U_EXTRACT_CALL(text_addr+0x12E0);
     MAKE_CALL(text_addr+0x12E0, vsh_function_patched);
 }
