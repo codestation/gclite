@@ -87,7 +87,7 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     // fixme
     if (patch_index) {
         // unk0[0x174] -> unk0[0xEC] in 6.30+
-        sfo = (SfoInfo *) (u32) sfo - (u32) (0x174 - 0xEC);
+        sfo = (SfoInfo *) (u32) ((char *)sfo - (0x174 - 0xEC));
     }
     sce_paf_private_strcpy(firmware, sfo->firmware);
 
