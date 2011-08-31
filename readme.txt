@@ -26,7 +26,7 @@ ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
 
 Changelog
 v1.5:
-[+]Support for categories in folder mode (like Bubbletune's GCL)
+[+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Added subtitles to the config options.
 [!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
