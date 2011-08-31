@@ -79,16 +79,15 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
     u32 *mlist_param = (u32 *)((u32)mlist + mlist->param);
 
     /* Backup */
-    if(backup[0] == 0 && backup[1] == 0 && backup[2] == 0 && backup[3] == 0)
-    {
+    if(backup[0] == 0 && backup[1] == 0 && backup[2] == 0 && backup[3] == 0) {
+        kprintf("Making context backup\n");
         backup[0] = mlist->first_child;
         backup[1] = mlist->child_count;
         backup[2] = mlist_param[16];
         backup[3] = mlist_param[18];
     }
 
-    if(context_mode)
-    {
+    if(context_mode) {
         SceRcoEntry *base = (SceRcoEntry *)((u32)mlist + mlist->first_child);
 
         SceRcoEntry *item = (SceRcoEntry *)sce_paf_private_malloc(base->next_entry * n);
@@ -99,9 +98,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
         mlist_param[16] = 13;
         mlist_param[18] = 6;
 
-        int i;
-        for(i = 0; i < n; i++)
-        {
+        for(int i = 0; i < n; i++) {
             sce_paf_private_memcpy(item, base, base->next_entry);
 
             item_param[0] = 0xDEAD;
@@ -113,9 +110,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
             item = (SceRcoEntry *)((u32)item + base->next_entry);
             item_param = (u32 *)((u32)item + base->param);
         }
-    }
-    else
-    {
+    } else {
         /* Restore */
         mlist->first_child = backup[0];
         mlist->child_count = backup[1];
@@ -220,13 +215,13 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
                 HijackContext(*child, NULL, 0);
                 break;
             case 1:
-                HijackContext(*child, lang_container.mode, sizeof(lang_container.mode) / sizeof(char *));
+                HijackContext(*child, lang_container.mode, ITEMSOF(lang_container.mode));
                 break;
             case 2:
-                HijackContext(*child, lang_container.prefix, sizeof(lang_container.prefix) / sizeof(char *));
+                HijackContext(*child, lang_container.prefix, ITEMSOF(lang_container.prefix));
                 break;
             case 3:
-                HijackContext(*child, lang_container.show, sizeof(lang_container.show) / sizeof(char *));
+                HijackContext(*child, lang_container.show, ITEMSOF(lang_container.show));
                 break;
             }
         }
