@@ -1,0 +1,17 @@
+Режим на категориите
+Selects the the display mode for the Games/Homebrew.
+Множество карти
+Контекстово меню
+Папки
+Префикс на категориите
+Use the "CAT_" prefix to recognize the categories.
+Без префикс
+Използвай CAT
+Показвай некатегоризирани
+Allows hiding the uncategorized content.
+Никога
+Само на Memory Stick™
+Само на вътрешната памет
+И на двете
+Некатегоризирани
+По категория

@@ -31,11 +31,12 @@ Changelog
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Added subtitles to the config options.
+[+]Added bulgarian translation by Xian Nox.
 [!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
 [+]Added Russian translation by Frostegater.
 [!]Fixed UMD icon malfunction bug introduced in 1.4-r2.
-[!]Added italian translation by stevealexanderames.
+[+]Added italian translation by stevealexanderames.
 v1.4:
 [+]6.60 firmware support
 [+]Allow the uncategorized folder to be sorted with your favorite app.
