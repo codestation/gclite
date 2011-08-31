@@ -1,11 +1,14 @@
 カテゴリーモード
+Selects the the display mode for the Games/Homebrew.
 複数MS
 コンテキストメニュー
 フォルダ
 カテゴリー接頭辞
+Use the "CAT_" prefix to recognize the categories.
 なし
 CAT_を使用する
 未分類を表示する
+Allows hiding the uncategorized content.
 いいえ
 メモリースティックのみ
 内部ストレージのみ

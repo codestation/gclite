@@ -1,11 +1,14 @@
 ﻿Modo visualizzazione
+Selects the the display mode for the Games/Homebrew.
 Multi MS
 Menu contestuale
 Cartelle
 Prefisso per le categorie
+Use the "CAT_" prefix to recognize the categories.
 Nessuno
 Usa il prefisso CAT
 Mostra elementi senza categoria
+Allows hiding the uncategorized content.
 No
 Solo Memory Stick™
 Solo Internal Storage

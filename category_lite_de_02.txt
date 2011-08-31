@@ -1,11 +1,14 @@
 Ansichtsart
+Selects the the display mode for the Games/Homebrew.
 Mehrere MS
 Auswahl-Menü
 Ordner
 Sortierart
+Use the "CAT_" prefix to recognize the categories.
 Normal
 CAT_
 Unsortierte
+Allows hiding the uncategorized content.
 Ausblenden
 Nur ms0:/
 Nur ef0:/

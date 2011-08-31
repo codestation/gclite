@@ -1,11 +1,14 @@
 分類模式
+Selects the the display mode for the Games/Homebrew.
 記憶卡圖示
 文字選單
 文件夾
 CAT字頭分類
+Use the "CAT_" prefix to recognize the categories.
 不使用
 使用
 未分類顯示
+Allows hiding the uncategorized content.
 不顯示
 顯示記憶卡
 顯示主機硬碟

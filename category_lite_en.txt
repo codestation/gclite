@@ -8,7 +8,7 @@ Use the "CAT_" prefix to recognize the categories.
 None
 Use CAT prefix
 Show uncategorized
-Allows hiding the uncategorized content. 
+Allows hiding the uncategorized content.
 No
 Only Memory Stick™
 Only Internal Storage

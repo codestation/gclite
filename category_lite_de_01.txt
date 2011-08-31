@@ -1,11 +1,14 @@
 Kategorie-Modus
+Selects the the display mode for the Games/Homebrew.
 Multi MS
 Auswahl-Menu
 Ordner
 Kategorie-PreFix
+Use the "CAT_" prefix to recognize the categories.
 Kein
 CAT-PreFix
 Zeige Unsortierte
+Allows hiding the uncategorized content.
 Nein
 Nur Memory Stick™
 Nur Interner Speicher

@@ -1,11 +1,14 @@
 Режим отображения
+Selects the the display mode for the Games/Homebrew.
 Карты Памяти
 Контекстное Меню
 Папки
 Префикс для категорий
+Use the "CAT_" prefix to recognize the categories.
 Нет
 Использовать
 Показать без категории
+Allows hiding the uncategorized content.
 Нет
 Только Memory Stick™
 Только Память Системы
