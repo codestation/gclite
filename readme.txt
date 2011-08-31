@@ -5,8 +5,8 @@ and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible wit
 6.20, 6.3x and 6.60 CFW.
 
 I changed the name of the project (doing a fork in the process) to avoid confusion
-with GCL (this plugin doesn't use the folder categories present in firmwares 6.xx)
-and GCR (the plugin is based heavily in GCL since it doesn't use a kernel/user approach).
+with GCL and GCR (the plugin is based heavily in GCL since it doesn't use a
+kernel/user approach).
 
 You can configure the folder prefix (use CAT_ for folders or not), showing uncategorized
 content and change the category mode in system settings.
@@ -27,6 +27,7 @@ ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
 Changelog
 v1.5:
 [+]Support for categories in folder mode (like Bubbletune's GCL)
+[+]Added subtitles to the config options.
 [!]Force the uncategorized content to be the last item by default.
 [+]Added Traditional-Chinese translation by Raiyou.
 [+]Added Russian translation by Frostegater.
