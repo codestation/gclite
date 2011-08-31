@@ -146,7 +146,7 @@ GCPatches patches =
     { 0x2C218, 0x2DF44, 0x2E278 }, // on_push_options_call
     { 0x1070C, 0x1142C, 0x115F4 }, // on_push_options
     { 0x1B0F0, 0x1C5D0, 0x1C84C }, // get_selection
-    { 0x2CFCC, 0x2ED8C, 0x2EEAC }, // get_selection_arg
+    { 0x2CFCC, 0x2ED8C, 0x2F0BC }, // get_selection_arg
     { {0, 0}, { 0x113B8, 0x12040 }, {0x11548, 0x121E8 } }, // set_selection_call
     { 2, 3, 3 }, // OPTION_BY_CATEGORY
     { 1, 2, 2 }, // MODE_BY_EXPIRE_DATE
