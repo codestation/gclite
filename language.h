@@ -22,12 +22,15 @@
 
 typedef struct {
     char *msg_mode;
+    char *msg_mode_sub;
     char *mode[3];
 
     char *msg_prefix;
+    char *msg_prefix_sub;
     char *prefix[2];
 
     char *msg_show;
+    char *msg_show_sub;
     char *show[4];
 
     char *msg_uncategorized;

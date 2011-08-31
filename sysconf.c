@@ -43,6 +43,7 @@ extern int sysconf_plug;
 extern int model;
 
 static const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
+static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2"};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -63,6 +64,7 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
         sysconf_item[i]->id = 6;
         sysconf_item[i]->text = sysconf_str[i];
         sysconf_item[i]->regkey = sysconf_str[i];
+        sysconf_item[i]->subtitle = sysconf_sub[i];
         sysconf_item[i]->page = OPTION_PAGE;
         option[2] = 1;
         AddSysconfItem(option, &sysconf_item[i]);

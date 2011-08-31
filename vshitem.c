@@ -45,6 +45,7 @@ int global_pos = 0;
 Category *cat_list[2] = { NULL, NULL };
 
 static const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
+static const char *cat_sub[] = {"gcs0", "gcs1" , "gcs2"};
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -192,6 +193,18 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         // sysconf 3
         } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
+            return (wchar_t *) user_buffer;
+        // sysconf subtitle 1
+        }else if (sce_paf_private_strcmp(name, cat_sub[0]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_mode_sub);
+            return (wchar_t *) user_buffer;
+        // sysconf subtitle 2
+        } else if (sce_paf_private_strcmp(name, cat_sub[1]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_prefix_sub);
+            return (wchar_t *) user_buffer;
+        // sysconf subtitle 3
+        } else if (sce_paf_private_strcmp(name, cat_sub[2]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show_sub);
             return (wchar_t *) user_buffer;
         // Memory Stick
         } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
