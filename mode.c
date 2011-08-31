@@ -138,10 +138,7 @@ wchar_t *GetCategoryTitle(int number) {
 
     for (i = patches.index[patch_index]; p; i++) {
         if (i == number) {
-            for (i = 0; i == 0 || ((char *) &p->name)[i - 1]; i++) {
-                ((wchar_t *) user_buffer)[i] = ((char *) &p->name)[i];
-            }
-
+            gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) &p->name);
             return (wchar_t *) user_buffer;
         }
 
