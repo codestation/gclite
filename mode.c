@@ -23,6 +23,7 @@
 #include <string.h>
 #include "categories_lite.h"
 #include "vshitem.h"
+#include "utils.h"
 #include "logger.h"
 
 typedef struct {
@@ -125,11 +126,8 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     }
 
     kprintf("Returning %s\n", subtitle);
-    for (int i = 0; i == 0 || subtitle[i - 1]; i++) {
-        ((wchar_t *) user_buffer)[i] = subtitle[i];
-    }
-
-    return (wchar_t *) user_buffer;
+    gc_utf8_to_unicode((wchar_t*)user_buffer, subtitle);
+    return (wchar_t*)user_buffer;
 }
 
 wchar_t *GetCategoryTitle(int number) {
