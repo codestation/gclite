@@ -129,17 +129,20 @@ void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
 int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
     kprintf("called\n");
     SceGameContext *selection = GetSelection(GetSelectionArg, arg1[3]);
-
+    kprintf("GetSelection returned, selection: %08X\n", selection);
     /* We're in one of the folder modes in case this function is being used... */
     /* Where do we want to go? */
     if (selection->option == OPTION_BY_EXPIRE_DATE) {
+        kprintf("OPTION_BY_EXPIRE_DATE\n");
         /* Check if we're already in there */
         if (by_category_mode) {
+            kprintf("toggle category to 0\n");
             /* Toggle "By Category" off */
             ToggleCategoryMode(0);
 
             /* We're not... */
             if (already_in_foldermode) {
+                kprintf("calling QuickSwitchToAll #1\n");
                 /* Switch to "All" for a brief second */
                 QuickSwitchToAll(selection, arg0, arg1);
             } else {
@@ -151,25 +154,26 @@ int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
 
     else if (selection->option == patches.OPTION_BY_CATEGORY[patch_index]) {
         int res;
-
+        kprintf("OPTION_BY_CATEGORY\n");
         /* Check if we're already in there */
         if (!by_category_mode) {
             /* We're not... */
             if (already_in_foldermode) {
+                kprintf("calling QuickSwitchToAll #2\n");
                 /* Switch to "All" for a brief second */
                 QuickSwitchToAll(selection, arg0, arg1);
             } else {
                 /* We are now! */
                 already_in_foldermode = 1;
             }
-
+            kprintf("toggle category to 1\n");
             /* Toggle "By Category" on */
             ToggleCategoryMode(1);
 
             /** HINT: This mode doesn't *really* exist, so we need to simulate "By Expire Date" */
             /* Switch to "By Expire Date" */
             selection->option = OPTION_BY_EXPIRE_DATE;
-
+            kprintf("calling OnPushOptionListCascade\n");
             /* Call the function */
             res = OnPushOptionListCascade(arg0, arg1);
 
@@ -179,10 +183,10 @@ int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
             /* We are... */
             /* But darn, you user! You opened a lame context menu! ): */
             /* Now we need to fake another item just to make it dissappear */
-
+            kprintf("faking item\n");
             /* Switch to "By Expire Date" */
             selection->option = OPTION_BY_EXPIRE_DATE;
-
+            kprintf("calling OnPushFolderOptionListCascade\n");
             /* Call the function */
             res = OnPushFolderOptionListCascade(arg0, arg1);
 
@@ -194,7 +198,7 @@ int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
     } else { // OPTION_ALL && OPTION_BY_FORMAT
         already_in_foldermode = 0;
     }
-
+    kprintf("going out\n");
     return OnPushFolderOptionListCascade(arg0, arg1);
 }
 
