@@ -33,8 +33,8 @@
 static char user_buffer[256];
 char category[52];
 
-char mod_path[70];
-char orig_path[70];
+static char mod_path[128];
+static char orig_path[128];
 
 // ME variables
 static int multi_cat = 0;
@@ -75,7 +75,7 @@ int is_iso_cat(const char *cat) {
     return sceIoGetstat(user_buffer, &st) >= 0 && FIO_S_ISDIR(st.st_mode) ? 1 : 0;
 }
 
-inline void fix_path(char **path) {
+void fix_path(char **path) {
     if(*category && sce_paf_private_strcmp(*path, mod_path) == 0 && is_iso_cat(category)) {
         *path = orig_path;
     }
