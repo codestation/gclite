@@ -20,9 +20,12 @@ Languages supported: "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko",
 
 The source code is also available in https://github.com/codestation/gclite
 
+Notes: make sure that this is the 1st plugin listed in vsh.txt
+
 Known issues:
 Change of category in the PSPGo requires a VSH reset.
 ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
+Sometimes homebrew can't be read inside categories in Folder mode if the names are non-ascii.
 
 Changelog
 v1.5:
