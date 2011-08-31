@@ -1,4 +1,4 @@
-Game Categories Lite v1.4 - Codestation
+Game Categories Lite v1.5 - Codestation
 
 This plugin is based and uses source code from Game Categories Revised v12 (GCR)
 and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible with

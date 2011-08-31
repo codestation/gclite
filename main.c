@@ -28,7 +28,7 @@
 #include "config.h"
 #include "logger.h"
 
-PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 4);
+PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 5);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
@@ -121,7 +121,7 @@ int module_start(SceSize args UNUSED, void *argp UNUSED) {
     while((*dest++ = *src++));
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
-    kwrite(filebuf, "GCLite 1.4 starting\n", 20);
+    kwrite(filebuf, "GCLite 1.5 starting\n", 20);
     // check if the plugin was loaded from ME
     if(checkME()) {
         kwrite(filebuf, "ME compatibility enabled\n", 25);
