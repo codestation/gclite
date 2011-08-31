@@ -77,7 +77,7 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
     SceRcoEntry *plane = (SceRcoEntry *)((u32)src + src->first_child);
     SceRcoEntry *mlist = (SceRcoEntry *)((u32)plane + plane->first_child);
     u32 *mlist_param = (u32 *)((u32)mlist + mlist->param);
-
+    kprintf("Called, n: %i, context_mode: %i\n", n, context_mode);
     /* Backup */
     if(backup[0] == 0 && backup[1] == 0 && backup[2] == 0 && backup[3] == 0) {
         kprintf("Making context backup\n");
@@ -125,10 +125,12 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
     kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
+    kprintf("cleaning backup\n");
     sce_paf_private_memset(backup, 0, sizeof(backup));
     for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
             context_mode = i + 1;
+            kprintf("match for %s, using context_mode: %i\n", sysconf_str[i], context_mode);
         }
     }
     return item;
@@ -145,6 +147,7 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
         for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
             if(sce_paf_private_strcmp(name, sysconf_str[i]) == 0) {
                 context_mode = i + 1;
+                kprintf("match for %s, using context_mode: %i\n", sysconf_str[i], context_mode);
                 switch(i) {
                 case 0:
                     *value = config.mode;
@@ -197,6 +200,7 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
 }
 
 int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
+    kprintf("Processing\n");
     if (data[0] == 0xDEAD) {
         kprintf("data: %s\n", (char *)data[1]);
         gc_utf8_to_unicode((wchar_t *)user_buffer, (char *) data[1]);
