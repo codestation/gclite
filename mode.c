@@ -74,9 +74,7 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
 
 int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
     kprintf("called, count: %i\n", count);
-    if(count == 3) {
-        count = CountCategories(folder_list, global_pos);
-    }
+    count = CountCategories(folder_list, global_pos);
     return scePafAddGameItems(unk, count, unk2);
 }
 
@@ -139,6 +137,7 @@ wchar_t *GetCategoryTitle(int number) {
     for (int i = patches.index[patch_index]; p; i++) {
         if (i == number) {
             name = &p->name;
+            kprintf("Found category: %s\n", name);
             if(sce_paf_private_strncmp(&p->name, "CAT_", 4) == 0) {
                 name += 4;
             }
@@ -148,7 +147,7 @@ wchar_t *GetCategoryTitle(int number) {
 
         p = GetNextCategory(folder_list, p, global_pos);
     }
-
+    kprintf("Cannot find title\n");
     return NULL;
 }
 
