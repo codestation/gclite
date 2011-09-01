@@ -1,14 +1,14 @@
 カテゴリーモード
-Selects the the display mode for the Games/Homebrew.
+カテゴリの表示方法を選択します。
 複数MS
 コンテキストメニュー
 フォルダ
 カテゴリー接頭辞
-Use the "CAT_" prefix to recognize the categories.
+「CAT_」接頭辞を使ってカテゴリフォルダを他のフォルダから見分けます。
 なし
 CAT_を使用する
 未分類を表示する
-Allows hiding the uncategorized content.
+「未分類」のカテゴリをXMBで表示します。
 いいえ
 メモリースティックのみ
 内部ストレージのみ

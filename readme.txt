@@ -23,8 +23,14 @@ The source code is also available in https://github.com/codestation/gclite
 Notes: make sure that this is the 1st plugin listed in vsh.txt
 
 Known issues:
-Change of category in the PSPGo requires a VSH reset.
-ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
+* Change of category in the PSPGo requires a VSH reset.
+* ME doesn't merge the categories with the same name between /ISO and /PSP/GAME
+* The Folder mode has a limitation of 30 characters for the combination of 
+  folder name + homebrew folder name, e.g.: My homebrews/AwesomeBigHomebrew is valid
+  but My homebrews/AwesomeBigHomebrews isn't (i am not counting the "/").
+  Note: the japanese and other non-ascii characters are 2 bytes wide, e.g.: カラフル counts
+  as 8 chars.
+
 Sometimes homebrew can't be read inside categories in Folder mode if the names are non-ascii.
 
 Changelog
