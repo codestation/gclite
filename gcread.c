@@ -85,8 +85,15 @@ int is_category_folder(SceIoDirent *dir, const char *cat) {
     kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!cat) {
-            if(!config.prefix && FindCategory(cat_list, dir->d_name, global_pos)) {
-                return 1;
+            if(config.mode == MODE_FOLDER) {
+                kprintf("base: %s\n", orig_path);
+                if(!config.prefix && is_category(orig_path, dir->d_name)) {
+                    return 1;
+                }
+            } else {
+                if(!config.prefix && FindCategory(cat_list, dir->d_name, global_pos)) {
+                    return 1;
+                }
             }
             if(config.prefix && sce_paf_private_strncmp(dir->d_name, "CAT_", 4) == 0) {
                 return 1;
@@ -137,7 +144,9 @@ SceUID sceIoDopenPatched(const char *path) {
     }
     if(config.mode == MODE_FOLDER) {
         kprintf("Folder mode active\n");
+        sce_paf_private_strcpy(orig_path, path);
         ClearCategories(folder_list, global_pos);
+        uncategorized = 0;
         game_dfd = sceIoDopen(path);
         return game_dfd;
     }
@@ -147,8 +156,10 @@ SceUID sceIoDopenPatched(const char *path) {
 SceUID sceIoDopenPatchedPro(const char *path) {
     if(config.mode == MODE_FOLDER) {
         kprintf("Folder mode active\n");
+        sce_paf_private_strcpy(orig_path, path);
         sce_paf_private_strcpy(user_buffer, path);
         ClearCategories(folder_list, global_pos);
+        uncategorized = 0;
         game_dfd = sceIoDopen(path);
         return game_dfd;
     }
@@ -182,33 +193,20 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
             if (res > 0) {
                 kprintf("checking %s\n", dir->d_name);
                 if (dir->d_name[0] != '.') {
-                    if (FIO_S_ISDIR(dir->d_stat.st_mode)) {
-                        SceIoStat stat;
-                        sce_paf_private_memset(&stat, 0, sizeof(SceIoStat));
-                        sce_paf_private_snprintf(user_buffer + 13, 128,"/%s/EBOOT.PBP", dir->d_name);
-
-                        if (sceIoGetstat(user_buffer, &stat) < 0) {
-                            sce_paf_private_snprintf(user_buffer + 13, 128, "/%s/PARAM.PBP", dir->d_name);
-                            if (sceIoGetstat(user_buffer, &stat) < 0) {
-                                u64 mtime;
-                                sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
-                                kprintf("Adding %s\n", dir->d_name);
-                                AddCategory(folder_list, dir->d_name, mtime, global_pos);
-                                sce_paf_private_snprintf(user_buffer + 13, 128, "/%s", dir->d_name);
-                                opened_dfd = sceIoDopen(user_buffer);
-                                continue;
-                            } else {
-                                if (!config.uncategorized) {
-                                    continue; // ignore this Dread
-                                }
-                                uncategorized = 1;
-                            }
-                        } else {
-                            if (!config.uncategorized) {
-                                continue; // ignore this Dread
-                            }
-                            uncategorized = 1;
+                    if(is_category_folder(dir, NULL)) {
+                        u64 mtime;
+                        kprintf("category match: %s\n", dir->d_name);
+                        sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
+                        kprintf("Adding %s\n", dir->d_name);
+                        AddCategory(folder_list, dir->d_name, mtime, global_pos);
+                        sce_paf_private_snprintf(user_buffer + 13, 128, "/%s", dir->d_name);
+                        opened_dfd = sceIoDopen(user_buffer);
+                        continue;
+                    } else {
+                        if (!config.uncategorized) {
+                            continue; // ignore this Dread
                         }
+                        uncategorized = 1;
                     }
                 }
             }

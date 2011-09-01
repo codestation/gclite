@@ -215,6 +215,7 @@ void AddCategory(Category *head[], const char *category, u64 mtime, int location
 Category *GetNextCategory(Category *head[], Category *prev, int location);
 Category *FindCategory(Category *head[], const char *category, int location);
 void IndexCategories(Category *head[], const char *path, int location);
+int is_category(const char *base, const char *path);
 
 // Functions in: gcpatches.c
 void ResolveNIDs();

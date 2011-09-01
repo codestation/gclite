@@ -131,14 +131,18 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
 }
 
 wchar_t *GetCategoryTitle(int number) {
-    int i;
+    char *name;
 
     kprintf("called, number: %i\n", number);
     Category *p = GetNextCategory(folder_list, NULL, global_pos);
 
-    for (i = patches.index[patch_index]; p; i++) {
+    for (int i = patches.index[patch_index]; p; i++) {
         if (i == number) {
-            gc_utf8_to_unicode((wchar_t *) user_buffer, (char *) &p->name);
+            name = &p->name;
+            if(sce_paf_private_strncmp(&p->name, "CAT_", 4) == 0) {
+                name += 4;
+            }
+            gc_utf8_to_unicode((wchar_t *) user_buffer, name);
             return (wchar_t *) user_buffer;
         }
 
