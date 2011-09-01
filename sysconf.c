@@ -127,8 +127,6 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
     kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
-    kprintf("cleaning backup\n");
-    sce_paf_private_memset(backup, 0, sizeof(backup));
     for(u32 i = 0; i < ITEMSOF(sysconf_str); i++) {
         if(sce_paf_private_strcmp(item->text, sysconf_str[i]) == 0) {
             context_mode = i + 1;
