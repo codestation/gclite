@@ -30,6 +30,8 @@
 #include "language.h"
 #include "logger.h"
 
+#define GAME_FOLDER "/PSP/GAME"
+
 static char user_buffer[256];
 char category[52];
 
@@ -87,7 +89,7 @@ int is_category_folder(SceIoDirent *dir, const char *cat) {
         if(!cat) {
             if(config.mode == MODE_FOLDER) {
                 kprintf("base: %s\n", orig_path);
-                if(!config.prefix && is_category(orig_path, dir->d_name)) {
+                if(!config.prefix && is_category(orig_path, dir->d_name) && !FindCategory(folder_list, dir->d_name, global_pos)) {
                     return 1;
                 }
             } else {
@@ -132,29 +134,32 @@ SceUID open_iso_cat(SceUID fd, SceIoDirent *dir) {
 }
 
 SceUID sceIoDopenPatched(const char *path) {
-    if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(category)) {
-        multi_cat = 1;
-        path = orig_path;
-        kprintf("changed path to: %s\n", path);
-    }
-    sce_paf_private_strcpy(user_buffer, path);
-    kprintf("path: %s\n", path);
-    if(*category) {
-        kprintf("category: %s\n", category);
-    }
-    if(config.mode == MODE_FOLDER) {
-        kprintf("Folder mode active\n");
-        sce_paf_private_strcpy(orig_path, path);
-        ClearCategories(folder_list, global_pos);
-        uncategorized = 0;
-        game_dfd = sceIoDopen(path);
-        return game_dfd;
+    if(config.mode != MODE_FOLDER) {
+        if(*category && sce_paf_private_strcmp(path, mod_path) == 0 && is_iso_cat(category)) {
+            multi_cat = 1;
+            path = orig_path;
+            kprintf("changed path to: %s\n", path);
+        }
+        sce_paf_private_strcpy(user_buffer, path);
+        kprintf("path: %s\n", path);
+        if(*category) {
+            kprintf("category: %s\n", category);
+        }
+    } else {
+        if(sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
+            kprintf("Folder mode active\n");
+            sce_paf_private_strcpy(orig_path, path);
+            ClearCategories(folder_list, global_pos);
+            uncategorized = 0;
+            game_dfd = sceIoDopen(path);
+            return game_dfd;
+        }
     }
     return sceIoDopen(path);
 }
 
 SceUID sceIoDopenPatchedPro(const char *path) {
-    if(config.mode == MODE_FOLDER) {
+    if(config.mode == MODE_FOLDER && sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
         kprintf("Folder mode active\n");
         sce_paf_private_strcpy(orig_path, path);
         sce_paf_private_strcpy(user_buffer, path);
@@ -309,7 +314,7 @@ int sceIoRmdirPatched(char *path) {
 
 char *ReturnBasePathPatched(char *base) {
     //kprintf("name: %s\n", base);
-    if(*category && base && sce_paf_private_strcmp(base + 4, "/PSP/GAME") == 0) {
+    if(*category && base && sce_paf_private_strcmp(base + 4, GAME_FOLDER) == 0) {
         sce_paf_private_strcpy(orig_path, base);
         sce_paf_private_strcpy(mod_path, base);
         if(config.prefix) {
