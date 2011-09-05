@@ -29,12 +29,13 @@ Known issues:
 >> Unrelated to gclite:
 * ME doesn't merge the categories with the same name between /ISO and /PSP/GAME.
 
->> OFW limitation:
-* The Folder mode has a limitation of 30 characters for the combination of 
-  folder name + homebrew folder name, e.g.: My homebrews/AwesomeBigHomebrew is valid
-  but My homebrews/AwesomeBigHomebrews isn't (i am not counting the "/").
+>> Folder mode limitations/bugs:
+* Max categories: 8 (included uncategorized).
+* Folder name + homebrew folder name: 30 character, e.g.: My homebrews/AwesomeBigHomebrew
+  is valid but My homebrews/AwesomeBigHomebrews isn't (i am not counting the "/").
   Note: the japanese and other non-ascii characters are 2 bytes wide, e.g.: カラフル counts
   as 8 chars.
+
 >> Pending to fix:
 * Seeing the information on the categories on Folder mode crashes the PSP.
 
