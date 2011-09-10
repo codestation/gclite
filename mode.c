@@ -74,7 +74,9 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
 
 int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
     kprintf("called, count: %i\n", count);
-    count = CountCategories(folder_list, global_pos);
+    if(count == 3) {
+        count = CountCategories(folder_list, global_pos);
+    }
     return scePafAddGameItems(unk, count, unk2);
 }
 
@@ -256,18 +258,18 @@ ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
         { 0x0001288C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_128FC
 
         /* Move a value we need later to a callee-saved register */
-        { 0x00012900, 0x00808821 }, // lw $a0, 4($v0) -> move $s1, $a0
+        { 0x00012900, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
 
         /* Patch the call of scePafGetText to GetCategoryTitle */
         { 0x00012908, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
-        { 0x0001290C, 0x26240000 }, // addiu $a1, $a1, -13004 -> addiu $a0, $s1, 0
+        { 0x0001290C, 0x02602021 }, // addiu $a1, $a1, -13004 -> move $a0, $s3
         { 0x0000FE54, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
-        { 0x0000FE58, 0x26640000 }, // addiu $a1, $a1, -13716 -> addiu $a0, $s3, 0
+        { 0x0000FE58, 0x02602021 }, // addiu $a1, $a1, -13716 -> move $a0, $s3
 
         /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
         /* Where it gets subtitle from? ;-) */
-        { 0x00012920, 0x26250000 }, // li $a1, 1 -> addiu $a1, $s1, 0
-        { 0x0000FE6C, 0x26650000 }, // li $a1, 1 -> addiu $a1, $s3, 0
+        { 0x00012920, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+        { 0x0000FE6C, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
 
         /* Force a branch to be taken regardless of the timelimit situation */
         { 0x0000A0AC, 0x100000D8 }, // beqz $v0, loc_A410 -> b loc_A410
@@ -293,18 +295,18 @@ ToggleCategoryPatch ToggleCategoryPatches_66x[] = {
         { 0x00012A6C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_12ADC
 
         /* Move a value we need later to a callee-saved register */
-        { 0x00012AE0, 0x00808821 }, // lw $a0, 4($v0) -> move $s1, $a0
+        { 0x00012AE0, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
 
         /* Patch the call of scePafGetText to GetCategoryTitle */
         { 0x00012AE8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
-        { 0x00012AEC, 0x26240000 }, // addiu $a1, $a1, -12268 -> addiu $a0, $s1, 0
+        { 0x00012AEC, 0x02602021 }, // addiu $a1, $a1, -12268 ->  move $a0, $s3
         { 0x0000FFD8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
-        { 0x0000FFDC, 0x26640000 }, // addiu $a1, $a1, -13828 -> addiu $a0, $s3, 0
+        { 0x0000FFDC, 0x02602021 }, // addiu $a1, $a1, -13828 ->  move $a0, $s3
 
         /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
         /* Where it gets subtitle from? ;-) */
-        { 0x00012B00, 0x26250000 }, // li $a1, 1 -> addiu $a1, $s1, 0
-        { 0x0000FFF0, 0x26650000 }, // li $a1, 1 -> addiu $a1, $s3, 0
+        { 0x00012B00, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+        { 0x0000FFF0, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
 
         /* Force a branch to be taken regardless of the timelimit situation */
         { 0x0000A230, 0x100000D8 }, // beqz $v0, loc_A594 -> b loc_A594
