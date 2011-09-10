@@ -36,19 +36,17 @@ Known issues:
   Note: the japanese and other non-ascii characters are 2 bytes wide, e.g.: カラフル counts
   as 8 chars.
 
->> Pending to fix:
-* Seeing the information on the categories on Folder mode crashes the PSP.
-
 Changelog
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Added subtitles to the config options.
 [+]Added bulgarian translation by Xian Nox.
-[!]Force the uncategorized content to be the last item by default.
+[+]Added simple chinese translation by phoe-nix.
 [+]Added Traditional-Chinese translation by Raiyou.
 [+]Added Russian translation by Frostegater.
-[!]Fixed UMD icon malfunction bug introduced in 1.4-r2.
 [+]Added italian translation by stevealexanderames.
+[!]Force the uncategorized content to be the last item by default.
+[!]Fixed UMD icon malfunction bug introduced in 1.4-r2.
 v1.4:
 [+]6.60 firmware support
 [+]Allow the uncategorized folder to be sorted with your favorite app.
