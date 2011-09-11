@@ -1,14 +1,14 @@
 ﻿Modo visualizzazione
-Selects the the display mode for the Games/Homebrew.
+Permette di visualizzare le sottocartelle presenti nella cartella PSP/GAME in diversi modi.
 Multi MS
 Menu contestuale
 Cartelle
 Prefisso per le categorie
-Use the "CAT_" prefix to recognize the categories.
+Sceglie se usare oppure no il prefisso CAT_ prima del nome delle categorie.
 Nessuno
 Usa il prefisso CAT
 Mostra elementi senza categoria
-Allows hiding the uncategorized content.
+Sceglie se visualizzare la cartella PSP/GAME o se mostrare soltanto le cartelle contenute in essa.
 No
 Solo Memory Stick™
 Solo Internal Storage
