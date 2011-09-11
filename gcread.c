@@ -149,6 +149,7 @@ SceUID sceIoDopenPatched(const char *path) {
         if(sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
             kprintf("Folder mode active\n");
             sce_paf_private_strcpy(orig_path, path);
+            sce_paf_private_strcpy(user_buffer, path);
             ClearCategories(folder_list, global_pos);
             uncategorized = 0;
             game_dfd = sceIoDopen(path);
