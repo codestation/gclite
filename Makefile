@@ -14,7 +14,7 @@ CONFIG_LANG = en
 endif
 
 all: category_lang
-#	-psp-packer category_lite.prx category_lite.prx
+#	-psp-packer category_lite.prx
 
 category_lang:
 	bin2c category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang

@@ -209,10 +209,13 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
                         opened_dfd = sceIoDopen(user_buffer);
                         continue;
                     } else {
-                        if (!config.uncategorized) {
+                        if (!global_pos && (config.uncategorized & ONLY_MS)) {
+                            uncategorized = 1;
+                        } else if (global_pos && (config.uncategorized & ONLY_IE)) {
+                            uncategorized = 1;
+                        } else {
                             continue; // ignore this Dread
                         }
-                        uncategorized = 1;
                     }
                 }
             }
