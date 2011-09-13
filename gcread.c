@@ -89,7 +89,7 @@ int is_category_folder(SceIoDirent *dir, const char *cat) {
         if(!cat) {
             if(config.mode == MODE_FOLDER) {
                 kprintf("base: %s\n", orig_path);
-                if(!config.prefix && is_category(orig_path, dir->d_name) && !FindCategory(folder_list, dir->d_name, global_pos)) {
+                if(!config.prefix && !is_game_folder(orig_path, dir->d_name) && !FindCategory(folder_list, dir->d_name, global_pos)) {
                     return 1;
                 }
             } else {
@@ -139,6 +139,8 @@ SceUID sceIoDopenPatched(const char *path) {
             multi_cat = 1;
             path = orig_path;
             kprintf("changed path to: %s\n", path);
+        } else {
+            sce_paf_private_strcpy(orig_path, path);
         }
         sce_paf_private_strcpy(user_buffer, path);
         kprintf("path: %s\n", path);
@@ -168,6 +170,8 @@ SceUID sceIoDopenPatchedPro(const char *path) {
         uncategorized = 0;
         game_dfd = sceIoDopen(path);
         return game_dfd;
+    } else {
+        sce_paf_private_strcpy(orig_path, path);
     }
     return sceIoDopen(path);
 }
@@ -216,6 +220,9 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
                         } else {
                             continue; // ignore this Dread
                         }
+                        if(!is_game_folder(orig_path, dir->d_name)) { // ignore non game folders
+                            continue;
+                        }
                     }
                 }
             }
@@ -262,7 +269,8 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
         if(category[0] == '\0' && res > 0) {
             kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
-                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) { // skip the VIDEO folder too
+                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 || // skip the VIDEO folder too
+                    !is_game_folder(orig_path, dir->d_name)) {
                 kprintf("skipping %s\n", dir->d_name);
                 continue;
             }
@@ -285,7 +293,9 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
             kprintf("read %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                 // skip the VIDEO folder
-                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0) {
+                sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 ||
+                // skip non game folders
+                !is_game_folder(orig_path, dir->d_name)) {
                 continue;
             }
         }
@@ -370,9 +380,7 @@ void PatchGamePluginForGCread(u32 text_addr) {
     if(me_fw) {
         MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatched);
     } else {
-        if(config.mode == MODE_FOLDER) {
-            MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatchedPro);
-        }
+        MAKE_STUB(text_addr+patches.io_dopen_stub[patch_index], sceIoDopenPatchedPro);
     }
 
     if(config.mode == MODE_FOLDER) {

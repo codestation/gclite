@@ -144,17 +144,17 @@ Category *FindCategory(Category *head[], const char *category, int location) {
     return p;
 }
 
-int is_category(const char *base, const char *path) {
+int is_game_folder(const char *base, const char *path) {
     SceIoStat stat;
     char buffer[256];
     for(u32 i = 0; i < ITEMSOF(eboot_types); i++) {
         sce_paf_private_memset(&stat, 0 , sizeof(SceIoStat));
         sce_paf_private_snprintf(buffer, 256, "%s/%s/%s", base, path, eboot_types[i]);
         if(sceIoGetstat(buffer, &stat) >= 0) {
-            return 0;
+            return 1;
         }
     }
-    return 1;
+    return 0;
 }
 
 int has_directories(const char *base, const char *path) {
@@ -208,7 +208,7 @@ void IndexCategories(Category *head[], const char *path, int location) {
         }
         kprintf("checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.') {
-            if(!config.prefix && is_category(full_path, dir.d_name)) {
+            if(!config.prefix && !is_game_folder(full_path, dir.d_name)) {
                 if(has_directories(full_path, dir.d_name) > 0) {
                     match = 1;
                 }
