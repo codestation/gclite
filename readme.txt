@@ -41,6 +41,7 @@ v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Added subtitles to the config options.
 [+]Empty categories are hidden by default.
+[+]Non game folders are hidden by default on uncategorized content.
 [+]Added bulgarian translation by Xian Nox.
 [+]Added simple chinese translation by phoe-nix.
 [+]Added Traditional-Chinese translation by Raiyou.
