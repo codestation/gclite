@@ -89,7 +89,7 @@ int is_category_folder(SceIoDirent *dir, const char *cat) {
         if(!cat) {
             if(config.mode == MODE_FOLDER) {
                 kprintf("base: %s\n", orig_path);
-                if(!config.prefix && !is_game_folder(orig_path, dir->d_name) && !FindCategory(folder_list, dir->d_name, global_pos)) {
+                if(!config.prefix && (orig_path[0] && !is_game_folder(orig_path, dir->d_name)) && !FindCategory(folder_list, dir->d_name, global_pos)) {
                     return 1;
                 }
             } else {
@@ -140,7 +140,11 @@ SceUID sceIoDopenPatched(const char *path) {
             path = orig_path;
             kprintf("changed path to: %s\n", path);
         } else {
-            sce_paf_private_strcpy(orig_path, path);
+            if (sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
+                sce_paf_private_strcpy(orig_path, path);
+            } else {
+                orig_path[0] = '\0';
+            }
         }
         sce_paf_private_strcpy(user_buffer, path);
         kprintf("path: %s\n", path);
@@ -171,7 +175,11 @@ SceUID sceIoDopenPatchedPro(const char *path) {
         game_dfd = sceIoDopen(path);
         return game_dfd;
     } else {
-        sce_paf_private_strcpy(orig_path, path);
+        if (sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
+            sce_paf_private_strcpy(orig_path, path);
+        } else {
+            orig_path[0] = '\0';
+        }
     }
     return sceIoDopen(path);
 }
@@ -220,7 +228,7 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
                         } else {
                             continue; // ignore this Dread
                         }
-                        if(!is_game_folder(orig_path, dir->d_name)) { // ignore non game folders
+                        if(orig_path[0] && !is_game_folder(orig_path, dir->d_name)) { // ignore non game folders
                             continue;
                         }
                     }
@@ -270,7 +278,7 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
             kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                     sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 || // skip the VIDEO folder too
-                    !is_game_folder(orig_path, dir->d_name)) {
+                    (orig_path[0] && !is_game_folder(orig_path, dir->d_name))) {
                 kprintf("skipping %s\n", dir->d_name);
                 continue;
             }
@@ -295,7 +303,7 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
                 // skip the VIDEO folder
                 sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 ||
                 // skip non game folders
-                !is_game_folder(orig_path, dir->d_name)) {
+                (orig_path[0] && !is_game_folder(orig_path, dir->d_name))) {
                 continue;
             }
         }
