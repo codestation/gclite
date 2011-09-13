@@ -199,7 +199,7 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
             if (res > 0) {
                 kprintf("checking %s\n", dir->d_name);
                 if (dir->d_name[0] != '.') {
-                    if(is_category_folder(dir, NULL)) {
+                    if(is_category_folder(dir, NULL) && has_directories(orig_path, dir->d_name)) {
                         u64 mtime;
                         kprintf("category match: %s\n", dir->d_name);
                         sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);

@@ -40,6 +40,7 @@ Changelog
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Added subtitles to the config options.
+[+]Empty categories are hidden by default.
 [+]Added bulgarian translation by Xian Nox.
 [+]Added simple chinese translation by phoe-nix.
 [+]Added Traditional-Chinese translation by Raiyou.
