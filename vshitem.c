@@ -26,6 +26,7 @@
 #include "context.h"
 #include "gcread.h"
 #include "config.h"
+#include "filter.h"
 #include "logger.h"
 #include "language.h"
 #include "utils.h"
@@ -99,6 +100,7 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
         load_config();
+        load_filter();
         lang_id = get_registry_value("/CONFIG/SYSTEM/XMB", "language");
         LoadLanguage(lang_id, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
         kprintf("got %s, location: %i, id: %i\n", item->text, location, item->id);

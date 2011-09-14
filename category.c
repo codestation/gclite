@@ -147,6 +147,7 @@ Category *FindCategory(Category *head[], const char *category, int location) {
 int is_game_folder(const char *base, const char *path) {
     SceIoStat stat;
     char buffer[256];
+
     for(u32 i = 0; i < ITEMSOF(eboot_types); i++) {
         sce_paf_private_memset(&stat, 0 , sizeof(SceIoStat));
         sce_paf_private_snprintf(buffer, 256, "%s/%s/%s", base, path, eboot_types[i]);

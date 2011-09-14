@@ -25,6 +25,7 @@
 #include "language.h"
 #include "categories_lite.h"
 #include "category_lite_lang.h"
+#include "utils.h"
 #include "psppaf.h"
 
 static const char *lang[] = { "ja", "en", "fr", "es", "de", "it", "nl", "pt", "ru", "ko", "ch1", "ch2" };
@@ -32,55 +33,6 @@ static const char *lang[] = { "ja", "en", "fr", "es", "de", "it", "nl", "pt", "r
 int lang_width[] = {1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
 
 LanguageContainer lang_container;
-
-// trim and GetLine are taken from this thread:
-// http://forums.mformature.net/showpost.php?p=57856&postcount=24
-// information about language codes reversed from recovery.prx
-// 'char' -> 'unsigned char' to avoid issues with utf-8
-
-void trim(char *str) {
-    int len = sce_paf_private_strlen(str);
-    int i;
-
-    for (i = len - 1; i >= 0; i--) {
-        if (str[i] == 0x20 || str[i] == '\t') {
-            str[i] = 0;
-        } else {
-            break;
-        }
-    }
-}
-
-int GetLine(char *buf, int size, char *str) {
-    unsigned char ch = 0;
-    int n = 0;
-    int i = 0;
-    unsigned char *s = (unsigned char *) str;
-
-    while (1) {
-        if (i >= size) {
-            break;
-        }
-
-        ch = ((unsigned char *) buf)[i];
-
-        if (ch < 0x20 && ch != '\t') {
-            if (n != 0) {
-                i++;
-                break;
-            }
-        } else {
-            *str++ = ch;
-            n++;
-        }
-
-        i++;
-    }
-
-    trim((char *) s);
-
-    return i;
-}
 
 int LoadLanguageContainer(void *data, int size) {
     int res, j;

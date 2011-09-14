@@ -164,3 +164,53 @@ int get_registry_value(const char *dir, const char *name) {
     }
     return res;
 }
+
+// trim and GetLine are taken from this thread:
+// http://forums.mformature.net/showpost.php?p=57856&postcount=24
+// information about language codes reversed from recovery.prx
+// 'char' -> 'unsigned char' to avoid issues with utf-8
+
+void trim(char *str) {
+    int len = sce_paf_private_strlen(str);
+    int i;
+
+    for (i = len - 1; i >= 0; i--) {
+        if (str[i] == 0x20 || str[i] == '\t') {
+            str[i] = 0;
+        } else {
+            break;
+        }
+    }
+}
+
+int GetLine(char *buf, int size, char *str) {
+    unsigned char ch = 0;
+    int n = 0;
+    int i = 0;
+    unsigned char *s = (unsigned char *) str;
+
+    while (1) {
+        if (i >= size) {
+            break;
+        }
+
+        ch = ((unsigned char *) buf)[i];
+
+        if (ch < 0x20 && ch != '\t') {
+            if (n != 0) {
+                i++;
+                break;
+            }
+        } else {
+            *str++ = ch;
+            n++;
+        }
+
+        i++;
+    }
+
+    trim((char *) s);
+
+    return i;
+}
+

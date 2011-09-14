@@ -1,7 +1,7 @@
 TARGET = category_lite
 STUBS = imports.o scePaf.o func_stubs.o
 CATEGORY_MODES = multims.o context.o vshitem.o mode.o selection.o
-HELPER = clearcache.o  logger.o utils.o config.o
+HELPER = clearcache.o  logger.o utils.o config.o filter.o
 OBJS = main.o category.o gcread.o gcpatches.o sysconf.o language.o
 OBJS += $(CATEGORY_MODES) $(HELPER) $(STUBS) 
 LIBS =  -lpsprtc -lpspreg

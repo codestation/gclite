@@ -27,6 +27,7 @@
 #include "pspdefs.h"
 #include "vshitem.h"
 #include "config.h"
+#include "filter.h"
 #include "language.h"
 #include "logger.h"
 
@@ -228,7 +229,7 @@ int sceIoDreadPatchedF(SceUID fd, SceIoDirent *dir) {
                         } else {
                             continue; // ignore this Dread
                         }
-                        if(orig_path[0] && !is_game_folder(orig_path, dir->d_name)) { // ignore non game folders
+                        if(check_filter(dir->d_name) || (orig_path[0] && !is_game_folder(orig_path, dir->d_name))) { // ignore non game folders
                             continue;
                         }
                     }
@@ -277,7 +278,11 @@ int sceIoDreadPatchedME(SceUID fd, SceIoDirent *dir) {
         if(category[0] == '\0' && res > 0) {
             kprintf("checking: %s\n", dir->d_name);
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
-                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 || // skip the VIDEO folder too
+                    // skip the VIDEO folder too
+                    sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 ||
+                    // skip if is in filter
+                    check_filter(dir->d_name) ||
+                    // skip non game folders
                     (orig_path[0] && !is_game_folder(orig_path, dir->d_name))) {
                 kprintf("skipping %s\n", dir->d_name);
                 continue;
@@ -302,6 +307,8 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
             if(dir->d_name[0] == '.' || is_category_folder(dir, NULL) ||
                 // skip the VIDEO folder
                 sce_paf_private_strcmp(dir->d_name, "VIDEO") == 0 ||
+                // skip if is in filter
+                check_filter(dir->d_name) ||
                 // skip non game folders
                 (orig_path[0] && !is_game_folder(orig_path, dir->d_name))) {
                 continue;
