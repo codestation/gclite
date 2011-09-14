@@ -213,8 +213,8 @@ void IndexCategories(Category *head[], const char *path, int location) {
                     match = 1;
                 }
             }else if(config.prefix && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
-                sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
                 if(has_directories(full_path, dir.d_name) > 0) {
+                    sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
                     match = 1;
                 }
             }
