@@ -245,7 +245,13 @@ int sceIoGetstatPatched(char *file, SceIoStat *stat) {
         // lets verify if it was trying to open a ISO category
         sce_paf_private_strcpy(user_buffer, GAME_FOLDER);
         user_buffer[9] = '/';
-        sce_paf_private_strcpy(user_buffer + 10, category);
+        if(config.prefix) {
+            sce_paf_private_strcpy(user_buffer + 10, "CAT_");
+            sce_paf_private_strcpy(user_buffer + 14, category);
+        } else {
+            sce_paf_private_strcpy(user_buffer + 10, category);
+        }
+        kprintf("comparing to [%s]\n", user_buffer);
         if(sce_paf_private_strcmp(user_buffer, file + 4) == 0) {
             kprintf("tried to open a iso category, retry\n");
             // check if the category exists in /ISO
