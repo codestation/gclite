@@ -13,6 +13,7 @@ ifeq (x$(CONFIG_LANG), x)
 CONFIG_LANG = en
 endif
 
+# use a psp-filer with VSH support or the plugin won't load on PRO firmware
 all: category_lang
 	-psp-packer category_lite.prx
 
