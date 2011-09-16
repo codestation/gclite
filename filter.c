@@ -34,7 +34,7 @@ int check_filter(const char *str) {
     char *buf = filter_data;
 
     if(filter_data == NULL) {
-        return -1;
+        return 0;
     }
     kprintf("checking <<%s>> in filter\n", str);
     while(c) {
