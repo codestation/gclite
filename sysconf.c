@@ -213,8 +213,9 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
 int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
-        kprintf("name: %s, mode: %i\n", name, context_mode);
+        //kprintf("name: %s, mode: %i\n", name, context_mode);
         if (sce_paf_private_strcmp(name, OPTION_PAGE) == 0) {
+            kprintf("name: %s, mode: %i\n", name, context_mode);
             switch(context_mode) {
             case 0:
                 HijackContext(*child, NULL, 0);

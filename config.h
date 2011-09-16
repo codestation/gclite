@@ -36,6 +36,8 @@ enum uncat {
     BOTH,
 };
 
+#define UNCATEGORIZED(p,u) ()!(p) && ((u) & ONLY_MS)) || (p) && ((u) & ONLY_IE))
+
 extern CategoryConfig config;
 extern char filebuf[32];
 

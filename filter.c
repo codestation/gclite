@@ -43,6 +43,7 @@ int check_filter(const char *str) {
         }
         kprintf("veryfing %s\n", buf);
         if(sce_paf_private_strcmp(buf, str) == 0) {
+            kprintf("match for [%s]\n", str);
             return 1;
         }
         buf += sce_paf_private_strlen(buf);

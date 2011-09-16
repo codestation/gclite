@@ -95,7 +95,7 @@ void AddCategory(Category *head[], const char *category, u64 mtime, int location
             break;
         }
     }
-    kprintf("Adding %s as category\n", category);
+    kprintf("Adding [%s]\n", category);
     category_entry = (Category *) sce_paf_private_malloc(sizeof(Category) + sce_paf_private_strlen(category) + 1);
     if (category_entry) {
         category_entry->next = NULL;
@@ -207,7 +207,7 @@ void IndexCategories(Category *head[], const char *path, int location) {
             sceIoDclose(fd);
             break;
         }
-        kprintf("checking %s, length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
+        kprintf("checking [%s], length: %i\n", dir.d_name, sce_paf_private_strlen(dir.d_name));
         if (FIO_S_ISDIR(dir.d_stat.st_mode) && dir.d_name[0] != '.') {
             if(!config.prefix && !is_game_folder(full_path, dir.d_name)) {
                 if(has_directories(full_path, dir.d_name) > 0) {
@@ -222,7 +222,7 @@ void IndexCategories(Category *head[], const char *path, int location) {
             if(match) {
                 match = 0;
                 sceRtcGetTick((pspTime *) &dir.d_stat.st_mtime, &mtime);
-                kprintf("Adding %s as category\n", dir.d_name);
+                kprintf("Adding category: [%s]\n", dir.d_name);
                 AddCategory(head, dir.d_name, mtime, location);
             }
         }
