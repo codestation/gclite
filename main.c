@@ -28,24 +28,24 @@
 #include "config.h"
 #include "logger.h"
 
-PSP_MODULE_INFO("Game_Categories_Light", 0x0007, 1, 5);
+// change the module name back to GCLite once PRO stops doing weird things with plugins
+PSP_MODULE_INFO("Game_Categories_Light", 0x0807, 1, 5);
 PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
 int patch_index;
-
-static STMOD_HANDLER previous;
+int me_fw = 0;
+int model;
 int game_plug = 0;
 int sysconf_plug = 0;
 
-int me_fw = 0;
-int model;
+char currfw[5];
 
 //TODO: remove it from here
 u32 text_addr_game;
 u32 text_size_game;
 
-char currfw[5];
+static STMOD_HANDLER previous;
 
 int checkME() {
     // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
@@ -61,9 +61,11 @@ int OnModuleStart(SceModule2 *mod) {
 
 	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
 	    game_plug = 1;
+
 	    //TODO: remove it from here
 	    text_addr_game = mod->text_addr;
 	    text_size_game = mod->text_size;
+
 		PatchGamePluginForGCread(mod->text_addr);
 		if(config.mode == MODE_FOLDER) {
 		    PatchSelection(mod->text_addr);
@@ -107,7 +109,6 @@ int OnModuleStart(SceModule2 *mod) {
         kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchVshCommonGui(mod->text_addr);
         ClearCaches();
-
     }
 
 	return previous ? previous(mod) : 0;
