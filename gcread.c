@@ -49,6 +49,11 @@ static char user_buffer[256];
 static char mod_base[128];
 static char opened_path[128];
 
+#ifdef BENCHMARK
+u64 start_mtime;
+int display_flag;
+#endif
+
 inline void trim(char *str) {
     int i = sce_paf_private_strlen(str);
     while(str[i-1] == ' ') {
@@ -99,6 +104,10 @@ SceUID sceIoDopenPatched(const char *path) {
     }
 
     if(config.mode == MODE_FOLDER && sce_paf_private_strcmp(path + 4, GAME_FOLDER) == 0) {
+#ifdef BENCHMARK
+        display_flag = 0;
+        sceRtcGetCurrentTick(&start_mtime);
+#endif
         sce_paf_private_strcpy(opened_path, path);
         ClearCategories(folder_list, global_pos);
         uncategorized = 0;

@@ -27,6 +27,10 @@ ifeq ($(DEBUG), 1)
 CFLAGS+=-DDEBUG
 endif
 
+ifeq ($(BENCHMARK), 1)
+CFLAGS+=-DBENCHMARK
+endif
+
 ASFLAGS = $(CFLAGS)
 LDFLAGS = -mno-crt0 -nostartfiles
 

@@ -47,6 +47,7 @@ v1.5:
 [+]Added subtitles to the config options.
 [+]Empty categories are hidden by default.
 [+]Non game folders are hidden by default on uncategorized content.
+[+]Added folder mode benchmark (compile with BENCHMARK=1)
 [+]Added bulgarian translation by Xian Nox.
 [+]Added simple chinese translation by phoe-nix.
 [+]Added Traditional-Chinese translation by Raiyou.

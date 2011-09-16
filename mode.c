@@ -44,6 +44,13 @@ extern char user_buffer[256];
 
 Category *folder_list[2] = { NULL, NULL };
 
+#ifdef BENCHMARK
+extern u64 start_mtime;
+u64 now_mtime;
+double benchmark_result;
+extern int display_flag;
+#endif
+
 static int (*scePafAddGameItems)(void *unk, int count, void *unk2);
 
 /* Functions */
@@ -125,6 +132,10 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
         sce_paf_private_snprintf(subtitle, 128, "%s (for %s - %s)", game_type, firmware, currfw);
     }
 
+#ifdef BENCHMARK
+    sce_paf_private_snprintf(subtitle, 128, "Benchmark result: %.4f seconds", benchmark_result);
+#endif
+
     kprintf("Returning %s\n", subtitle);
     gc_utf8_to_unicode((wchar_t*)user_buffer, subtitle);
     return (wchar_t*)user_buffer;
@@ -132,6 +143,14 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
 
 wchar_t *GetCategoryTitle(int number) {
     char *name;
+
+#ifdef BENCHMARK
+    if(!display_flag) {
+        sceRtcGetCurrentTick(&now_mtime);
+        benchmark_result = (double)(now_mtime - start_mtime) / sceRtcGetTickResolution();
+        display_flag = 1;
+    }
+#endif
 
     kprintf("called, number: %i\n", number);
     Category *p = GetNextCategory(folder_list, NULL, global_pos);
