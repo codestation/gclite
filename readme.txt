@@ -11,6 +11,10 @@ kernel/user approach).
 You can configure the folder prefix (use CAT_ for folders or not), showing uncategorized
 content and change the category mode in system settings.
 
+If you want to hide certain homebrew/game/dlc from the category listing just create a file
+named gclite_filter.txt and add the folders name, one per line (make sure that a newline is
+added at the end of the file). Next, put the file in your seplugins folder.
+
 If you want a translation of the visible options then edit the file category_lite_en.txt
 and save it using the language code that first you (e.g. "es" for spanish).
 
@@ -39,6 +43,7 @@ Known issues:
 Changelog
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
+[+]Support to hide certain homebrews/games/dlc from the categories.
 [+]Added subtitles to the config options.
 [+]Empty categories are hidden by default.
 [+]Non game folders are hidden by default on uncategorized content.
