@@ -34,7 +34,6 @@ PSP_NO_CREATE_MAIN_THREAD();
 
 /* Global variables */
 int patch_index;
-int me_fw = 0;
 int model;
 int game_plug = 0;
 int sysconf_plug = 0;
@@ -46,14 +45,6 @@ u32 text_addr_game;
 u32 text_size_game;
 
 static STMOD_HANDLER previous;
-
-int checkME() {
-    // lets hope that PRO doesn't change/remove this nid and ME doesn't implement it
-    if(!sctrlHENFindFunction("SystemControl", "VersionSpoofer", 0x5B18622C)) {
-        me_fw = 1;
-    }
-    return me_fw;
-}
 
 int OnModuleStart(SceModule2 *mod) {
     //kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
@@ -123,10 +114,6 @@ int module_start(SceSize args UNUSED, void *argp UNUSED) {
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
     kwrite(filebuf, "GCLite 1.5 starting\n", 20);
-    // check if the plugin was loaded from ME
-    if(checkME()) {
-        kwrite(filebuf, "ME compatibility enabled\n", 25);
-    }
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {
