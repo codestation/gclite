@@ -19,7 +19,7 @@ all: category_lang
 #	-psp-packer category_lite.prx
 
 category_lang:
-	bin2c category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang
+	bin2c lang/category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang
 
 EXTRA_WARNS= -Wextra -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wwrite-strings -Wunreachable-code
 CFLAGS =-O2 -Wall -G0 -std=c99 -fshort-wchar $(EXTRA_WARNS)
