@@ -14,8 +14,9 @@ CONFIG_LANG = en
 endif
 
 # use a psp-filer with VSH support or the plugin won't load on PRO firmware
+# edit: 6.20 Pro won't work with this. Bugs, bugs everywhere....
 all: category_lang
-	-psp-packer category_lite.prx
+#	-psp-packer category_lite.prx
 
 category_lang:
 	bin2c category_lite_$(CONFIG_LANG).txt category_lite_lang.h category_lite_lang
