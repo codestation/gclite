@@ -41,6 +41,7 @@ Known issues:
   as 8 chars.
 
 Changelog
+[!]Fix duplicated entries on iso category in folder mode (PRO).
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).
 [+]Support to hide certain homebrews/games/dlc from the categories.
