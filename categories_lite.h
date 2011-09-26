@@ -211,7 +211,7 @@ void PatchSelection(u32 text_addr);
 // Functions in: category.c
 int CountCategories(Category *head[], int location);
 void ClearCategories(Category *head[], int location);
-void AddCategory(Category *head[], const char *category, u64 mtime, int location);
+int AddCategory(Category *head[], const char *category, u64 mtime, int location);
 Category *GetNextCategory(Category *head[], Category *prev, int location);
 Category *FindCategory(Category *head[], const char *category, int location);
 void IndexCategories(Category *head[], const char *path, int location);

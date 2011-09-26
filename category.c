@@ -77,14 +77,14 @@ int CountCategories(Category *head[], int location) {
     return i;
 }
 
-void AddCategory(Category *head[], const char *category, u64 mtime, int location) {
+int AddCategory(Category *head[], const char *category, u64 mtime, int location) {
     Category *p, *category_entry;
 
     while (1) {
         p = NULL;
         while ((p = GetNextCategory(head, p, location))) {
             if (sce_paf_private_strcmp(category, &p->name) == 0) {
-                return;
+                return 0;
             }
             if (p->mtime == mtime) {
                 mtime++;
@@ -112,7 +112,9 @@ void AddCategory(Category *head[], const char *category, u64 mtime, int location
             }
             p->next = category_entry;
         }
+        return 1;
     }
+    return 0;
 }
 
 void DelCategory(Category *head[], char *category, int location) {

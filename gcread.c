@@ -165,9 +165,10 @@ int sceIoDreadPatchedFolder(SceUID fd, SceIoDirent *dir) {
                         kprintf("category match: %s\n", dir->d_name);
                         sceRtcGetTick((pspTime *) &dir->d_stat.st_mtime, &mtime);
                         kprintf("Adding %s\n", dir->d_name);
-                        AddCategory(folder_list, dir->d_name, mtime, global_pos);
-                        sce_paf_private_snprintf(user_buffer, 128, "%s/%s", opened_path, dir->d_name);
-                        openfd = sceIoDopen(user_buffer);
+                        if(AddCategory(folder_list, dir->d_name, mtime, global_pos)) {
+                            sce_paf_private_snprintf(user_buffer, 128, "%s/%s", opened_path, dir->d_name);
+                            openfd = sceIoDopen(user_buffer);
+                        }
                         continue;
                     } else {
                         if (!global_pos && (config.uncategorized & ONLY_MS)) {
