@@ -56,18 +56,20 @@ int (*GetPageNodeByID)(void *resource, char *name, SceRcoEntry **child);
 
 void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     AddSysconfItem(option, item);
-    for(u32 i = 0; i < ITEMSOF(sysconf_item); i++) {
-        if(sysconf_plug || !sysconf_item[i]) {
-            sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
+    if(sysconf_plug) {
+        for(u32 i = 0; i < ITEMSOF(sysconf_item); i++) {
+            if(sysconf_plug || !sysconf_item[i]) {
+                sysconf_item[i] = (SceSysconfItem *)sce_paf_private_malloc(sizeof(SceSysconfItem));
+            }
+            sce_paf_private_memcpy(sysconf_item[i], *item, sizeof(SceSysconfItem));
+            sysconf_item[i]->id = 6;
+            sysconf_item[i]->text = sysconf_str[i];
+            sysconf_item[i]->regkey = sysconf_str[i];
+            sysconf_item[i]->subtitle = sysconf_sub[i];
+            sysconf_item[i]->page = OPTION_PAGE;
+            option[2] = 1;
+            AddSysconfItem(option, &sysconf_item[i]);
         }
-        sce_paf_private_memcpy(sysconf_item[i], *item, sizeof(SceSysconfItem));
-        sysconf_item[i]->id = 6;
-        sysconf_item[i]->text = sysconf_str[i];
-        sysconf_item[i]->regkey = sysconf_str[i];
-        sysconf_item[i]->subtitle = sysconf_sub[i];
-        sysconf_item[i]->page = OPTION_PAGE;
-        option[2] = 1;
-        AddSysconfItem(option, &sysconf_item[i]);
     }
     sysconf_plug = 0;
     context_mode = 0;
