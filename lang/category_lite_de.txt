@@ -1,0 +1,17 @@
+GameCategories Lite
+Legt den Anzeigemodus für die Inhalte des PSP™ [Spiel] Ordners fest.
+Mehrere MS™
+Auswahlmenü
+Ordner
+Kategorie-Präfix
+Legt die Markierung für Kategorie-Ordner fest. Bei [Kein Präfix] werden alle Ordner als Kategorien angezeigt.
+Kein Präfix
+Präfix "CAT_"
+Inhalte ohne Kategorie anzeigen
+Legt die Sichtbarkeit unkategorisierter Inhalte fest. Bei [Nein] werden keine Inhalte ohne Kategorie angezeigt.
+Nein
+Nur MS™
+Nur interner Speicher
+Alle Medien
+Unsortierte
+Nach Kategorie
