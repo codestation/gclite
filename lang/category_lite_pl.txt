@@ -1,0 +1,17 @@
+Wyswietlanie kategorii
+Wybierz sposob wyswietlania kategorii dla Gier/Homebrew.
+Wiele kart pamieci
+Menu kontekstowe
+Foldery
+Przedrostek kategorii
+Uzyj przedrostka "CAT_" do rozpoznawania kategorii.
+Brak przedrostka
+Przedrostek CAT
+Pokaz nieskategoryzowane
+Pozwala ukryc zawartosc bez kategorii.
+Nie pokazuj
+Karta pamieci
+Pamiec wewnetrzna
+Karta i pamiec
+Nieskategoryzowane
+Wedlug kategorii
