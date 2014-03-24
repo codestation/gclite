@@ -46,26 +46,27 @@ u32 text_size_game;
 
 static STMOD_HANDLER previous;
 
-int OnModuleStart(SceModule2 *mod) {
+int OnModuleStart(SceModule2 *mod)
+{
     //kprintf(">> %s: loading %s, text_addr: %08X\n", __func__, mod->modname, mod->text_addr);
-	if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
+    if (sce_paf_private_strcmp(mod->modname, "game_plugin_module") == 0) {
 
-	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
-	    game_plug = 1;
+        kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
+        game_plug = 1;
 
-	    //TODO: remove it from here
-	    text_addr_game = mod->text_addr;
-	    text_size_game = mod->text_size;
+        //TODO: remove it from here
+        text_addr_game = mod->text_addr;
+        text_size_game = mod->text_size;
 
-		PatchGamePluginForGCread(mod->text_addr);
-		if(config.mode == MODE_FOLDER) {
-		    PatchSelection(mod->text_addr);
-		}
-		ClearCaches();
+        PatchGamePluginForGCread(mod->text_addr);
+        if(config.mode == MODE_FOLDER) {
+            PatchSelection(mod->text_addr);
+        }
+        ClearCaches();
 
-	} else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
+    } else if (sce_paf_private_strcmp(mod->modname, "vsh_module") == 0) {
 
-	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
+        kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchVshmain(mod->text_addr);
         PatchVshmainForSysconf(mod->text_addr);
         PatchVshmainForContext(mod->text_addr);
@@ -81,16 +82,16 @@ int OnModuleStart(SceModule2 *mod) {
         MAKE_JUMP(patches.get_compiled_sdk_version[patch_index], ClearCaches);
         ClearCaches();
 
-	} else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
+    } else if (sce_paf_private_strcmp(mod->modname, "sysconf_plugin_module") == 0) {
 
-	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
-	    sysconf_plug = 1;
-	    PatchSysconf(mod->text_addr);
-	    ClearCaches();
+        kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
+        sysconf_plug = 1;
+        PatchSysconf(mod->text_addr);
+        ClearCaches();
 
-	} else if (sce_paf_private_strcmp(mod->modname, "scePaf_Module") == 0) {
+    } else if (sce_paf_private_strcmp(mod->modname, "scePaf_Module") == 0) {
 
-	    kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
+        kprintf("loading %s, text_addr: %08X\n", mod->modname, mod->text_addr);
         PatchPaf(mod->text_addr);
         PatchPafForSysconf(mod->text_addr);
         ClearCaches();
@@ -102,10 +103,11 @@ int OnModuleStart(SceModule2 *mod) {
         ClearCaches();
     }
 
-	return previous ? previous(mod) : 0;
+    return previous ? previous(mod) : 0;
 }
 
-int module_start(SceSize args UNUSED, void *argp UNUSED) {
+int module_start(SceSize args UNUSED, void *argp UNUSED)
+{
     const char *src = "xx0:/category_lite.log";
     char *dest = filebuf;
 

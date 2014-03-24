@@ -47,7 +47,8 @@ int (*scePafSetSelection)(void *arg0, int selection);
 int (*vsh_function)(void *arg);
 
 /* Functions */
-void ToggleSound(int toggle) {
+void ToggleSound(int toggle)
+{
     kprintf("called, toggle: %i\n", toggle);
     if (toggle == 0) {
         sound_call_addr = U_EXTRACT_CALL(text_addr_game + patches.play_sound_call[patch_index]);
@@ -61,7 +62,8 @@ void ToggleSound(int toggle) {
     ClearCachesForUser();
 }
 
-int AddGameContextPatched(void *unk, SceGameContext **item) {
+int AddGameContextPatched(void *unk, SceGameContext **item)
+{
     /* Allocate buffer for "By Category" */
     SceGameContext *newitem = sce_paf_private_malloc(sizeof(SceGameContext));
     sce_paf_private_memcpy(newitem, *item, sizeof(SceGameContext));
@@ -80,7 +82,8 @@ int AddGameContextPatched(void *unk, SceGameContext **item) {
 #define MODE_ALL 0
 #define OPTION_BY_EXPIRE_DATE 0
 
-int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
+int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info)
+{
     /** Square-button cycling **/
     kprintf("called\n");
     /* What's the current mode? */
@@ -106,7 +109,8 @@ int SetModePatched(void *arg0, void *arg1, void *arg2, u32 *info) {
     return SetMode(arg0, arg1, arg2);
 }
 
-void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
+void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1)
+{
     kprintf("called\n");
     u32 backup = selection->option;
 
@@ -126,7 +130,8 @@ void QuickSwitchToAll(SceGameContext *selection, void *arg0, u32 *arg1) {
     selection->option = backup;
 }
 
-int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
+int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1)
+{
     kprintf("called\n");
     SceGameContext *selection = GetSelection(GetSelectionArg, arg1[3]);
     kprintf("GetSelection returned, selection: %08X\n", selection);
@@ -202,7 +207,8 @@ int OnPushFolderOptionListCascadePatched(void *arg0, u32 *arg1) {
     return OnPushFolderOptionListCascade(arg0, arg1);
 }
 
-int OnPushOptionListCascadePatched(void *arg0, u32 *arg1) {
+int OnPushOptionListCascadePatched(void *arg0, u32 *arg1)
+{
     kprintf("called\n");
     SceGameContext *selection = GetSelection(GetSelectionArg, arg1[3]);
 
@@ -238,7 +244,8 @@ int OnPushOptionListCascadePatched(void *arg0, u32 *arg1) {
     return OnPushOptionListCascade(arg0, arg1);
 }
 
-int scePafSetSelectionPatched(void *arg0, int selection) {
+int scePafSetSelectionPatched(void *arg0, int selection)
+{
     kprintf("called\n");
     /* "By Expire Date" */
     if (selection == 1) {
@@ -251,7 +258,8 @@ int scePafSetSelectionPatched(void *arg0, int selection) {
     return scePafSetSelection(arg0, selection);
 }
 
-int vsh_function_patched(void *arg) {
+int vsh_function_patched(void *arg)
+{
     if (!defaulted) {
         ToggleCategoryMode(1);
 
@@ -264,7 +272,8 @@ int vsh_function_patched(void *arg) {
     return vsh_function(arg);
 }
 
-void PatchSelection(u32 text_addr) {
+void PatchSelection(u32 text_addr)
+{
     /* Patch AddGameContext */
     MAKE_CALL(text_addr+patches.add_game_context_call[patch_index][0], AddGameContextPatched);
     MAKE_CALL(text_addr+patches.add_game_context_call[patch_index][1], AddGameContextPatched);

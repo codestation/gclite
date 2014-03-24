@@ -36,7 +36,8 @@ extern int game_plug;
 
 extern char category[52];
 
-int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
+int PatchExecuteActionForMultiMs(int *action, int *action_arg)
+{
     Category *p;
     int location;
 
@@ -71,7 +72,8 @@ int PatchExecuteActionForMultiMs(int *action, int *action_arg) {
     return -1;
 }
 
-int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location) {
+int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int location)
+{
     int i = 0;
     Category *p = NULL;
 
@@ -110,7 +112,8 @@ int PatchAddVshItemForMultiMs(void *arg, int topitem, SceVshItem *item, int loca
     return 0;
 }
 
-SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res UNUSED) {
+SceVshItem *PatchGetBackupVshItemForMultiMs(SceVshItem *item, SceVshItem *res UNUSED)
+{
     kprintf("text: %s, id: %i\n", item->text, item->id);
     if(item->id >= PSPMS_MULTIMS_SENTINEL) {
         if(item->id >= PSPGO_MULTIMS_SENTINEL) {

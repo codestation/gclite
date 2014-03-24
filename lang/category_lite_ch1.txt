@@ -13,5 +13,9 @@ CAT字頭分類
 顯示記憶卡
 顯示主機硬碟
 顯示全部
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 未分類
 依原有分類排列

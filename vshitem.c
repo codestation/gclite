@@ -45,8 +45,8 @@ int global_pos = 0;
 
 Category *cat_list[2] = { NULL, NULL };
 
-static const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc4", "gc5", "gcv_", "gcw_" };
-static const char *cat_sub[] = {"gcs0", "gcs1" , "gcs2"};
+static const char *cat_str[] = { "gc", "gc0", "gc1", "gc2", "gc3", "gc4", "gc5", "gcv_", "gcw_" };
+static const char *cat_sub[] = {"gcs0", "gcs1" , "gcs2", "gcs3"};
 
 int vsh_id[2] = { -1, -1 };
 int vsh_action_arg[2] = { -1, -1 };
@@ -59,7 +59,8 @@ wchar_t* (*scePafGetText)(void *arg, const char *name) = NULL;
 SceVshItem *(*GetBackupVshItem)(int topitem, u32 unk, SceVshItem *item) = NULL;
 int (*sceVshCommonGuiDisplayContext_func)(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) = NULL;
 
-int get_item_location(int topitem, SceVshItem *item) {
+int get_item_location(int topitem, SceVshItem *item)
+{
     /*
      * 0: sysconf
      * 1: extra (digital comics)
@@ -75,14 +76,15 @@ int get_item_location(int topitem, SceVshItem *item) {
                 sce_paf_private_strcmp(item->text, "gc4") == 0) {
             return MEMORY_STICK;
         } else if(sce_paf_private_strcmp(item->text, "msg_em") == 0 ||
-                sce_paf_private_strcmp(item->text, "gc5") == 0) {
+                  sce_paf_private_strcmp(item->text, "gc5") == 0) {
             return INTERNAL_STORAGE;
         }
     }
     return -1;
 }
 
-SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
+SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item)
+{
     SceVshItem *ret;
     kprintf("item: %s, topitem: %i, id: %i\n", item->text, topitem, item->id);
     SceVshItem *res = GetBackupVshItem(unk, topitem, item);
@@ -90,13 +92,14 @@ SceVshItem *GetBackupVshItemPatched(u32 unk, int topitem, SceVshItem *item) {
         if ((ret = PatchGetBackupVshItemForMultiMs(item, res))) {
             return ret;
         }
-    } else if(config.mode == MODE_CONTEXT_MENU){
+    } else if(config.mode == MODE_CONTEXT_MENU) {
         PatchGetBackupVshItemForContext(item, res);
     }
     return res;
 }
 
-int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
+int AddVshItemPatched(void *arg, int topitem, SceVshItem *item)
+{
     int location;
     if((location = get_item_location(topitem, item)) >= 0) {
         load_config();
@@ -146,7 +149,8 @@ int AddVshItemPatched(void *arg, int topitem, SceVshItem *item) {
     return AddVshItem(arg, topitem, item);
 }
 
-int ExecuteActionPatched(int action, int action_arg) {
+int ExecuteActionPatched(int action, int action_arg)
+{
     int location;
     kprintf("action: %i, action_arg: %i\n", action, action_arg);
     if(config.mode == MODE_MULTI_MS) {
@@ -171,7 +175,8 @@ int ExecuteActionPatched(int action, int action_arg) {
     return ExecuteAction(action, action_arg);
 }
 
-int UnloadModulePatched(int skip) {
+int UnloadModulePatched(int skip)
+{
     if (unload) {
         skip = -1;
         game_plug = 0;
@@ -180,7 +185,8 @@ int UnloadModulePatched(int skip) {
     return UnloadModule(skip);
 }
 
-wchar_t* scePafGetTextPatched(void *arg, char *name) {
+wchar_t* scePafGetTextPatched(void *arg, char *name)
+{
     if (name && sce_paf_private_strncmp(name, cat_str[0], 2) == 0) {
         kprintf("match name: %s\n", name);
         //TODO: optimize this code
@@ -188,40 +194,56 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
         if (sce_paf_private_strcmp(name, cat_str[1]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_mode);
             return (wchar_t *) user_buffer;
-        // sysconf 2
+            // sysconf 2
         } else if (sce_paf_private_strcmp(name, cat_str[2]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_prefix);
             return (wchar_t *) user_buffer;
-        // sysconf 3
+            // sysconf 3
         } else if (sce_paf_private_strcmp(name, cat_str[3]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show);
             return (wchar_t *) user_buffer;
-        // sysconf subtitle 1
-        }else if (sce_paf_private_strcmp(name, cat_sub[0]) == 0) {
+            // sysconf 4
+        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_sort);
+            return (wchar_t *) user_buffer;
+            // sysconf subtitle 1
+        } else if (sce_paf_private_strcmp(name, cat_sub[0]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_mode_sub);
             return (wchar_t *) user_buffer;
-        // sysconf subtitle 2
+            // sysconf subtitle 2
         } else if (sce_paf_private_strcmp(name, cat_sub[1]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_prefix_sub);
             return (wchar_t *) user_buffer;
-        // sysconf subtitle 3
+            // sysconf subtitle 3
         } else if (sce_paf_private_strcmp(name, cat_sub[2]) == 0) {
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_show_sub);
             return (wchar_t *) user_buffer;
-        // Memory Stick
+            // sysconf subtitle 4
+        } else if (sce_paf_private_strcmp(name, cat_sub[3]) == 0) {
+            gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_sort_sub);
+            return (wchar_t *) user_buffer;
+            // Memory Stick
         } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
-            gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
+            if(config.catsort) {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name+2);
+            } else {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
+            }
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        // Internal Storage
+            // Internal Storage
         } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
-            gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
+            if(config.catsort) {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name+2);
+            } else {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name);
+            }
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
@@ -229,7 +251,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
         }
-    // By category (folder mode)
+        // By category (folder mode)
     } else if (name && sce_paf_private_strcmp(name, "msg_by_category") == 0) {
         gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.by_category);
         return (wchar_t *) user_buffer;
@@ -238,7 +260,8 @@ wchar_t* scePafGetTextPatched(void *arg, char *name) {
 }
 
 
-int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2) {
+int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int width, char *mlist, void *temp1, void *temp2)
+{
     if (context_gamecats || (context_mode > 0 && lang_width[lang_id])) {
         width = 1;
         context_gamecats = 0;
@@ -246,18 +269,21 @@ int sceVshCommonGuiDisplayContextPatched(void *arg, char *page, char *plane, int
     return sceVshCommonGuiDisplayContext_func(arg, page, plane, width, mlist, temp1, temp2);
 }
 
-void PatchVshmain(u32 text_addr) {
+void PatchVshmain(u32 text_addr)
+{
     AddVshItem = redir2stub(text_addr+patches.AddVshItemOffset[patch_index], add_vsh_item_stub, AddVshItemPatched);
     GetBackupVshItem = redir_call(text_addr+patches.GetBackupVshItem[patch_index], GetBackupVshItemPatched);
     ExecuteAction = redir2stub(text_addr+patches.ExecuteActionOffset[patch_index], execute_action_stub, ExecuteActionPatched);
     UnloadModule = redir2stub(text_addr+patches.UnloadModuleOffset[patch_index], unload_module_stub, UnloadModulePatched);
 }
 
-void PatchPaf(u32 text_addr) {
+void PatchPaf(u32 text_addr)
+{
     //sysconf called scePafGetText from offset: 0x052AC
     scePafGetText = redir2stub(text_addr+patches.scePafGetTextOffset[patch_index], paf_get_text_stub, scePafGetTextPatched);
 }
 
-void PatchVshCommonGui(u32 text_addr) {
+void PatchVshCommonGui(u32 text_addr)
+{
     sceVshCommonGuiDisplayContext_func = redir2stub(text_addr+patches.CommonGuiDisplayContextOffset[patch_index], display_context_stub, sceVshCommonGuiDisplayContextPatched);
 }

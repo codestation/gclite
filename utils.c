@@ -33,7 +33,8 @@
 #define MASK2BYTES 0xC0
 #define MASK3BYTES 0xE0
 
-void *redir2stub(u32 address, void *stub, void *redir) {
+void *redir2stub(u32 address, void *stub, void *redir)
+{
     _sw(_lw(address), (u32)stub);
     _sw(_lw(address + 4), (u32)stub + 4);
     MAKE_JUMP((u32)stub + 8, address + 8);
@@ -41,13 +42,15 @@ void *redir2stub(u32 address, void *stub, void *redir) {
     return stub;
 }
 
-void *redir_call(u32 address, void *func) {
+void *redir_call(u32 address, void *func)
+{
     void *f = (void *)U_EXTRACT_CALL(address);
     MAKE_CALL(address, func);
     return f;
 }
 
-int get_location(int action_arg) {
+int get_location(int action_arg)
+{
     if(action_arg == PSPGO_CONTEXT_SENTINEL || action_arg == PSPGO_CONTEXT_SENTINEL+1) {
         return INTERNAL_STORAGE;
     } else if(action_arg == PSPMS_CONTEXT_SENTINEL || action_arg == PSPMS_CONTEXT_SENTINEL+1) {
@@ -63,7 +66,8 @@ int get_location(int action_arg) {
     return INVALID;
 }
 
-void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last) {
+void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
+{
     int i, x, len, found;
 
     for (len = 0; fake[len]; len++)
@@ -104,7 +108,8 @@ void fix_text_padding(wchar_t *fake, wchar_t *real, wchar_t first, wchar_t last)
     sce_paf_private_memcpy(&fake[len], &real[x], (found * 2));
 }
 
-int gc_utf8_to_unicode(wchar_t *dest, const char *src) {
+int gc_utf8_to_unicode(wchar_t *dest, const char *src)
+{
     int i, x;
     unsigned char *usrc = (unsigned char *) src;
 
@@ -132,7 +137,8 @@ int gc_utf8_to_unicode(wchar_t *dest, const char *src) {
     return x;
 }
 
-int get_registry_value(const char *dir, const char *name) {
+int get_registry_value(const char *dir, const char *name)
+{
     int res = -1;
     struct RegParam reg;
     REGHANDLE h;
@@ -170,7 +176,8 @@ int get_registry_value(const char *dir, const char *name) {
 // information about language codes reversed from recovery.prx
 // 'char' -> 'unsigned char' to avoid issues with utf-8
 
-void trim(char *str) {
+void trim(char *str)
+{
     int len = sce_paf_private_strlen(str);
     int i;
 
@@ -183,7 +190,8 @@ void trim(char *str) {
     }
 }
 
-int GetLine(char *buf, int size, char *str) {
+int GetLine(char *buf, int size, char *str)
+{
     unsigned char ch = 0;
     int n = 0;
     int i = 0;

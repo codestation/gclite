@@ -33,6 +33,10 @@ typedef struct {
     char *msg_show_sub;
     char *show[4];
 
+    char *msg_sort;
+    char *msg_sort_sub;
+    char *sort[2];
+
     char *msg_uncategorized;
     char *by_category;
 

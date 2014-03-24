@@ -34,8 +34,7 @@ typedef struct {
     u32 nid660;
 } nid;
 
-static nid nids[] =
-{
+static nid nids[] = {
     { 0xE5A74996, 0x8F95CC01, 0x726DFBA9 }, // sce_paf_private_strcpy
     { 0x4F487FBC, 0xD38E62C6, 0x706ABBFF }, // sce_paf_private_strncpy
     { 0x5E7610DF, 0x726776D7, 0x7B7133D5 }, // sce_paf_private_snprintf
@@ -67,34 +66,33 @@ static nid nids[] =
 //    { 0x2375A440, 0xCD3AF2EC, 0x858291A3 }, // vshSetRegistryValue
 };
 
-GCPatches patches =
-{
-	/** main.c (sceSystemMemoryManager) */
+GCPatches patches = {
+    /** main.c (sceSystemMemoryManager) */
     { 0x88009B28, 0x88009A08, 0x880098CC }, // get_compiled_sdk_version
-	
-	/** gcread.c (game_plugin_module) */
-	{ 0x28930, 0x2A5F0, 0x2A894 }, // io_dopen_stub
-	{ 0x28940, 0x2A600, 0x2A8A4 }, // io_dread_stub
-	{ 0x28948, 0x2A608, 0x2A8AC }, // io_dclose_stub
 
-	{ 0x28958, 0x2A618, 0x2A8BC }, // io_open_stub
-	{ 0x28928, 0x2A5E8, 0x2A88C }, // io_getstat_stub
-	{ 0x28938, 0x2A5F8, 0x2A89C }, // io_chstat_stub
-	{ 0x28950, 0x2A610, 0x2A8B4 }, // io_remove_stub
-	{ 0x28960, 0x2A620, 0x2A8C4 }, // io_rmdir_stub
-	
-	{ 0x1FB4C, 0x21310, 0x215B4 }, // base_path
-	{ 0x1FB50, 0x21314, 0x215B8 }, // base_path_arg
+    /** gcread.c (game_plugin_module) */
+    { 0x28930, 0x2A5F0, 0x2A894 }, // io_dopen_stub
+    { 0x28940, 0x2A600, 0x2A8A4 }, // io_dread_stub
+    { 0x28948, 0x2A608, 0x2A8AC }, // io_dclose_stub
 
-	{ { 0x1CD24, 0x1CD18 }, { 0x1E42C, 0x1E420 }, {0x1E6A8, 0x1E69C} }, // snprintf_call_arg_1
-	{ { 0x1F8F0, 0x1F8B4 }, { 0x2109C, 0x21060 }, {0x21340, 0x21304} }, // snprintf_call_arg_2
+    { 0x28958, 0x2A618, 0x2A8BC }, // io_open_stub
+    { 0x28928, 0x2A5E8, 0x2A88C }, // io_getstat_stub
+    { 0x28938, 0x2A5F8, 0x2A89C }, // io_chstat_stub
+    { 0x28950, 0x2A610, 0x2A8B4 }, // io_remove_stub
+    { 0x28960, 0x2A620, 0x2A8C4 }, // io_rmdir_stub
 
-	//{ { 0x10EFC, 0x11C68 }, { 0x1176C, 0x123A4 } }, // sce_paf_get_text_call
-	
+    { 0x1FB4C, 0x21310, 0x215B4 }, // base_path
+    { 0x1FB50, 0x21314, 0x215B8 }, // base_path_arg
+
+    { { 0x1CD24, 0x1CD18 }, { 0x1E42C, 0x1E420 }, {0x1E6A8, 0x1E69C} }, // snprintf_call_arg_1
+    { { 0x1F8F0, 0x1F8B4 }, { 0x2109C, 0x21060 }, {0x21340, 0x21304} }, // snprintf_call_arg_2
+
+    //{ { 0x10EFC, 0x11C68 }, { 0x1176C, 0x123A4 } }, // sce_paf_get_text_call
+
     /** vshitem.c (vshmain) */
 
-	// { 0x1F3BC, 0x1FB70 }, // RegisterCallbacks
-	{ 0x2348C, 0x23C7C, 0x23CE8 }, // AddVshItem
+    // { 0x1F3BC, 0x1FB70 }, // RegisterCallbacks
+    { 0x2348C, 0x23C7C, 0x23CE8 }, // AddVshItem
     { 0x21D68, 0x22558, 0x22598 }, // GetBackupVshItem
     //{ { 0x1631C, 0x2FF8C }, { 0x16984, 0x30828 } }, // ExecuteAction
     //{ 0x16514, 0x16B7C// UnloadModule
@@ -154,7 +152,8 @@ GCPatches patches =
     {1, 0, 0 }, // index
 };
 
-void ResolveNIDs(int fw_ver) {
+void ResolveNIDs(int fw_ver)
+{
     u32 stub_top = (u32) module_info.stub_top;
     u32 stub_end = (u32) module_info.stub_end;
 

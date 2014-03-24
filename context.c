@@ -45,7 +45,8 @@ static void *xmb_arg0, *xmb_arg1;
 
 static int context_action_arg[2];
 
-int PatchExecuteActionForContext(int *action, int *action_arg) {
+int PatchExecuteActionForContext(int *action, int *action_arg)
+{
     int location;
     int uncategorized;
 
@@ -97,7 +98,8 @@ int PatchExecuteActionForContext(int *action, int *action_arg) {
     return -1;
 }
 
-int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location) {
+int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int location)
+{
     u32 index = 0;
     int uncategorized;
 
@@ -160,14 +162,16 @@ int PatchAddVshItemForContext(void *arg, int topitem, SceVshItem *item, int loca
 //    return OnMenuListScrollIn(arg0, arg1);
 //}
 
-int OnXmbPushPatched(void *arg0, void *arg1) {
+int OnXmbPushPatched(void *arg0, void *arg1)
+{
     kprintf("called\n");
     xmb_arg0 = arg0;
     xmb_arg1 = arg1;
     return OnXmbPush(arg0, arg1);
 }
 
-int OnXmbContextMenuPatched(void *arg0, void *arg1) {
+int OnXmbContextMenuPatched(void *arg0, void *arg1)
+{
     kprintf("called, global_pos: %i\n", global_pos);
     context_gamecats = 0;
     if (original_item[global_pos]) {
@@ -177,7 +181,8 @@ int OnXmbContextMenuPatched(void *arg0, void *arg1) {
     return OnXmbContextMenu(arg0, arg1);
 }
 
-void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
+void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res)
+{
     kprintf("id: %i, action_arg: %i\n", item->id, item->action_arg);
     int location = get_location(item->action_arg);
     if(location != INVALID && item->id == vsh_id[location]) {
@@ -189,7 +194,8 @@ void PatchGetBackupVshItemForContext(SceVshItem *item, SceVshItem *res) {
     }
 }
 
-void PatchVshmainForContext(u32 text_addr) {
+void PatchVshmainForContext(u32 text_addr)
+{
     OnXmbPush = redir2stub(text_addr+patches.OnXmbPush[patch_index], xmb_push_stub, OnXmbPushPatched);
     OnXmbContextMenu = redir2stub(text_addr+patches.OnXmbContextMenu[patch_index], xmb_context_stub, OnXmbContextMenuPatched);
     //OnMenuListScrollIn = redir2stub(text_addr+patches.OnMenuListScrollIn[patch_index], menu_scroll_stub, OnMenuListScrollInPatched);

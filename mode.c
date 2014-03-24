@@ -25,6 +25,7 @@
 #include "vshitem.h"
 #include "utils.h"
 #include "logger.h"
+#include "config.h"
 
 typedef struct {
     u32 addr;
@@ -54,7 +55,8 @@ extern int display_flag;
 static int (*scePafAddGameItems)(void *unk, int count, void *unk2);
 
 /* Functions */
-int CategorizeGamePatched(void *unk, int folder, int unk2) {
+int CategorizeGamePatched(void *unk, int folder, int unk2)
+{
     int i;
     u32 *array = (u32 *) *(u32 *) ((*(u32 *) (text_addr_game + patches.struct_addr[patch_index])) + ((u32) folder << 2));
     char *title = (char *) array[68 / 4];
@@ -79,7 +81,8 @@ int CategorizeGamePatched(void *unk, int folder, int unk2) {
     return CategorizeGame(unk, i - 1, unk2);
 }
 
-int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
+int scePafAddGameItemsPatched(void *unk, int count, void *unk2)
+{
     kprintf("called, count: %i\n", count);
     if(count == 3) {
         count = CountCategories(folder_list, global_pos);
@@ -87,7 +90,8 @@ int scePafAddGameItemsPatched(void *unk, int count, void *unk2) {
     return scePafAddGameItems(unk, count, unk2);
 }
 
-wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
+wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo)
+{
     const char *game_type;
     char subtitle[128];
     char firmware[5];
@@ -141,7 +145,8 @@ wchar_t* GetGameSubtitle(void *arg0 UNUSED, SfoInfo *sfo) {
     return (wchar_t*)user_buffer;
 }
 
-wchar_t *GetCategoryTitle(int number) {
+wchar_t *GetCategoryTitle(int number)
+{
     char *name;
 
 #ifdef BENCHMARK
@@ -162,7 +167,11 @@ wchar_t *GetCategoryTitle(int number) {
             if(sce_paf_private_strncmp(&p->name, "CAT_", 4) == 0) {
                 name += 4;
             }
-            gc_utf8_to_unicode((wchar_t *) user_buffer, name);
+            if(config.catsort && p->mtime != 1) {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, name+2);
+            } else {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, name);
+            }
             return (wchar_t *) user_buffer;
         }
 
@@ -172,7 +181,8 @@ wchar_t *GetCategoryTitle(int number) {
     return NULL;
 }
 
-void HijackGameClass(int items) {
+void HijackGameClass(int items)
+{
     if (patch_index) {
         // SCE made it a little more dynamic in 6.30+, so this hack is no longer needed :)
         return;
@@ -223,121 +233,122 @@ void HijackGameClass(int items) {
 }
 
 ToggleCategoryPatch ToggleCategoryPatches_620[] = {
-        /* Force the branch to "msgvideoms_info_expired" */
-        { 0x0000EBF0, 0x100000C7 }, // beq $s2, $v0, loc_EF10 -> b loc_EF10
-        { 0x00011EA4, 0x10000065 }, // beq $v1, $v0, loc_1203C -> b loc_1203C
+    /* Force the branch to "msgvideoms_info_expired" */
+    { 0x0000EBF0, 0x100000C7 }, // beq $s2, $v0, loc_EF10 -> b loc_EF10
+    { 0x00011EA4, 0x10000065 }, // beq $v1, $v0, loc_1203C -> b loc_1203C
 
-        /* Move a value we need later to a callee-saved register */
-        { 0x00012040, 0x00608821 }, // lw $a0, 4($v0) -> move $s1, $v1
+    /* Move a value we need later to a callee-saved register */
+    { 0x00012040, 0x00608821 }, // lw $a0, 4($v0) -> move $s1, $v1
 
-        /* Patch the call of scePafGetText to GetCategoryTitle */
-        { 0x0000EF1C, (u32) GetCategoryTitle }, // jal scePaf_CB608DE5 -> jal GetCategoryTitle
-        { 0x0000EF20, 0x26440001 }, // addiu $a1, $a1, -21896 -> addiu $a0, $s2, 1
-        { 0x00012048, (u32) GetCategoryTitle }, // jal scePaf_CB608DE5 -> jal GetCategoryTitle
-        { 0x0001204C, 0x26240001 }, // addiu $a1, $a1, -21896 -> addiu $a0, $s1, 1
+    /* Patch the call of scePafGetText to GetCategoryTitle */
+    { 0x0000EF1C, (u32) GetCategoryTitle }, // jal scePaf_CB608DE5 -> jal GetCategoryTitle
+    { 0x0000EF20, 0x26440001 }, // addiu $a1, $a1, -21896 -> addiu $a0, $s2, 1
+    { 0x00012048, (u32) GetCategoryTitle }, // jal scePaf_CB608DE5 -> jal GetCategoryTitle
+    { 0x0001204C, 0x26240001 }, // addiu $a1, $a1, -21896 -> addiu $a0, $s1, 1
 
-        /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
-        { 0x0000EF34, 0x26450001 }, // li $a1, 2 -> addiu $a1, $s2, 1
-        { 0x00012060, 0x26250001 }, // li $a1, 2 -> addiu $a1, $s1, 1
+    /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
+    { 0x0000EF34, 0x26450001 }, // li $a1, 2 -> addiu $a1, $s2, 1
+    { 0x00012060, 0x26250001 }, // li $a1, 2 -> addiu $a1, $s1, 1
 
-        /* Force a branch to be taken regardless of the timelimit situation */
-        { 0x00001524, 0x10000012 }, // beqz $v0, loc_1570 -> b loc_1570
+    /* Force a branch to be taken regardless of the timelimit situation */
+    { 0x00001524, 0x10000012 }, // beqz $v0, loc_1570 -> b loc_1570
 
-        /* Change a call for hardcoded organization to our own category-based one */
-        { 0x0001570, (u32) CategorizeGamePatched }, // jal sub_19B5C -> jal CategorizeGamePatched
-        { 0x0001528, 0x8E050004 }, // move $a1, $zr -> lw $a1, 4($s0)
+    /* Change a call for hardcoded organization to our own category-based one */
+    { 0x0001570, (u32) CategorizeGamePatched }, // jal sub_19B5C -> jal CategorizeGamePatched
+    { 0x0001528, 0x8E050004 }, // move $a1, $zr -> lw $a1, 4($s0)
 
-        /* Force a branch to be taken regardless of the timelimit situation */
-        { 0x0000A52C, 0x100000DC }, // beqz $v0, loc_A8A0 -> b loc_A8A0
+    /* Force a branch to be taken regardless of the timelimit situation */
+    { 0x0000A52C, 0x100000DC }, // beqz $v0, loc_A8A0 -> b loc_A8A0
 
-        /* Patch the call of scePafGetText to GetGameSubtitle */
-        { 0x0000A8AC, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
-        { 0x0000A8B0, 0x02402821 }, // addiu $a1, $a1, -21952 -> move $a1, $s2
+    /* Patch the call of scePafGetText to GetGameSubtitle */
+    { 0x0000A8AC, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
+    { 0x0000A8B0, 0x02402821 }, // addiu $a1, $a1, -21952 -> move $a1, $s2
 
-        /* Patch the call of scePafAddGameItems to change the number */
-        { 0x0000DC38, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
+    /* Patch the call of scePafAddGameItems to change the number */
+    { 0x0000DC38, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
 
-        /* Patch some checks regarding the number of folders */
-        { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 },
+    /* Patch some checks regarding the number of folders */
+    { 0x00019940, 0x00000000 }, { 0x00019A18, 0x00000000 }, { 0x00019AE8, 0x00000000 }, { 0x00019B94, 0x10000006 },
 };
 
 ToggleCategoryPatch ToggleCategoryPatches_63x[] = {
-        /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
-        { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
+    /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
+    { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
 
-        /* Change a call for hardcoded organization to our own category-based one */
-        { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1ABF4 -> jal CategorizeGamePatched
-        { 0x000014CC, 0x8E050004 }, // li $a1, -1 -> lw $a1, 4($s0)
+    /* Change a call for hardcoded organization to our own category-based one */
+    { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1ABF4 -> jal CategorizeGamePatched
+    { 0x000014CC, 0x8E050004 }, // li $a1, -1 -> lw $a1, 4($s0)
 
-        /* Patch the call of scePafAddGameItems to change the number */
-        { 0x0000E98C, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
+    /* Patch the call of scePafAddGameItems to change the number */
+    { 0x0000E98C, (u32) scePafAddGameItemsPatched }, // jal scePaf_FBC4392D -> jal scePafAddGameItemsPatched
 
-        /* Force the branch to "msgvideoms_info_expired" */
-        { 0x0000FDE4, 0x10000019 }, // beq $s3, $v0, loc_FE4C -> b loc_FE4C
-        { 0x0001288C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_128FC
+    /* Force the branch to "msgvideoms_info_expired" */
+    { 0x0000FDE4, 0x10000019 }, // beq $s3, $v0, loc_FE4C -> b loc_FE4C
+    { 0x0001288C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_128FC
 
-        /* Move a value we need later to a callee-saved register */
-        { 0x00012900, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
+    /* Move a value we need later to a callee-saved register */
+    { 0x00012900, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
 
-        /* Patch the call of scePafGetText to GetCategoryTitle */
-        { 0x00012908, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
-        { 0x0001290C, 0x02602021 }, // addiu $a1, $a1, -13004 -> move $a0, $s3
-        { 0x0000FE54, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
-        { 0x0000FE58, 0x02602021 }, // addiu $a1, $a1, -13716 -> move $a0, $s3
+    /* Patch the call of scePafGetText to GetCategoryTitle */
+    { 0x00012908, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
+    { 0x0001290C, 0x02602021 }, // addiu $a1, $a1, -13004 -> move $a0, $s3
+    { 0x0000FE54, (u32) GetCategoryTitle }, // jal scePaf_70082F6F -> jal GetCategoryTitle
+    { 0x0000FE58, 0x02602021 }, // addiu $a1, $a1, -13716 -> move $a0, $s3
 
-        /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
-        /* Where it gets subtitle from? ;-) */
-        { 0x00012920, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
-        { 0x0000FE6C, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+    /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
+    /* Where it gets subtitle from? ;-) */
+    { 0x00012920, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+    { 0x0000FE6C, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
 
-        /* Force a branch to be taken regardless of the timelimit situation */
-        { 0x0000A0AC, 0x100000D8 }, // beqz $v0, loc_A410 -> b loc_A410
+    /* Force a branch to be taken regardless of the timelimit situation */
+    { 0x0000A0AC, 0x100000D8 }, // beqz $v0, loc_A410 -> b loc_A410
 
-        /* Patch the call of scePafGetText to GetGameSubtitle */
-        { 0x0000A420, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
-        { 0x0000A424, 0x02602821 }, // addiu $a1, $a1, -21952 -> move $a1, $s3
+    /* Patch the call of scePafGetText to GetGameSubtitle */
+    { 0x0000A420, (u32) GetGameSubtitle }, // jal scePaf_CB608DE5 -> jal GetGameSubtitle
+    { 0x0000A424, 0x02602821 }, // addiu $a1, $a1, -21952 -> move $a1, $s3
 };
 
 ToggleCategoryPatch ToggleCategoryPatches_66x[] = {
-        /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
-        { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
+    /* Change the mode to 'All' in order to avoid all the mess and get to categorizing immediatly */
+    { 0x000014C8, 0x10000027 }, // beqz $v1, loc_1568 -> b loc_1568
 
-        /* Change a call for hardcoded organization to our own category-based one */
-        { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1AE10 -> jal CategorizeGamePatched
-        { 0x000014CC, 0x8E050004 }, // li $a1, -1 -> lw $a1, 4($s0)
+    /* Change a call for hardcoded organization to our own category-based one */
+    { 0x00001568, (u32) CategorizeGamePatched }, // jal sub_1AE10 -> jal CategorizeGamePatched
+    { 0x000014CC, 0x8E050004 }, // li $a1, -1 -> lw $a1, 4($s0)
 
-        /* Patch the call of scePafAddGameItems to change the number */
-        { 0x0000EB10, (u32) scePafAddGameItemsPatched }, // jal scePaf_E219FD72 -> jal scePafAddGameItemsPatched
+    /* Patch the call of scePafAddGameItems to change the number */
+    { 0x0000EB10, (u32) scePafAddGameItemsPatched }, // jal scePaf_E219FD72 -> jal scePafAddGameItemsPatched
 
-        /* Force the branch to "msgvideoms_info_expired" */
-        { 0x0000FF68, 0x10000019 }, // beq $s3, $v0, loc_FE4C -> b loc_FFD0
-        { 0x00012A6C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_12ADC
+    /* Force the branch to "msgvideoms_info_expired" */
+    { 0x0000FF68, 0x10000019 }, // beq $s3, $v0, loc_FE4C -> b loc_FFD0
+    { 0x00012A6C, 0x1000001B }, // beq $a0, $v0, loc_128FC -> b loc_12ADC
 
-        /* Move a value we need later to a callee-saved register */
-        { 0x00012AE0, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
+    /* Move a value we need later to a callee-saved register */
+    { 0x00012AE0, 0x00809821 }, // lw $a0, 4($v0) -> move $s3, $a0
 
-        /* Patch the call of scePafGetText to GetCategoryTitle */
-        { 0x00012AE8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
-        { 0x00012AEC, 0x02602021 }, // addiu $a1, $a1, -12268 ->  move $a0, $s3
-        { 0x0000FFD8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
-        { 0x0000FFDC, 0x02602021 }, // addiu $a1, $a1, -13828 ->  move $a0, $s3
+    /* Patch the call of scePafGetText to GetCategoryTitle */
+    { 0x00012AE8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
+    { 0x00012AEC, 0x02602021 }, // addiu $a1, $a1, -12268 ->  move $a0, $s3
+    { 0x0000FFD8, (u32) GetCategoryTitle }, // jal scePaf_3874A5F8 -> jal GetCategoryTitle
+    { 0x0000FFDC, 0x02602021 }, // addiu $a1, $a1, -13828 ->  move $a0, $s3
 
-        /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
-        /* Where it gets subtitle from? ;-) */
-        { 0x00012B00, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
-        { 0x0000FFF0, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+    /* Patch a usually hardcoded value to a dynamic one from earlier in the code */
+    /* Where it gets subtitle from? ;-) */
+    { 0x00012B00, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
+    { 0x0000FFF0, 0x02602821 }, // li $a1, 1 -> move $a1, $s3
 
-        /* Force a branch to be taken regardless of the timelimit situation */
-        { 0x0000A230, 0x100000D8 }, // beqz $v0, loc_A594 -> b loc_A594
+    /* Force a branch to be taken regardless of the timelimit situation */
+    { 0x0000A230, 0x100000D8 }, // beqz $v0, loc_A594 -> b loc_A594
 
-        /* Patch the call of scePafGetText to GetGameSubtitle */
-        { 0x0000A5A4, (u32) GetGameSubtitle }, // jal scePaf_3874A5F8 -> jal GetGameSubtitle
-        { 0x0000A5A8, 0x02602821 }, // addiu $a1, $a1, -13876 -> move $a1, $s3
+    /* Patch the call of scePafGetText to GetGameSubtitle */
+    { 0x0000A5A4, (u32) GetGameSubtitle }, // jal scePaf_3874A5F8 -> jal GetGameSubtitle
+    { 0x0000A5A8, 0x02602821 }, // addiu $a1, $a1, -13876 -> move $a1, $s3
 };
 
 static u32 backup[sizeof(ToggleCategoryPatches_620) / sizeof(ToggleCategoryPatch)];
 
-int ToggleCategoryMode(int mode) {
+int ToggleCategoryMode(int mode)
+{
     int total;
     ToggleCategoryPatch *ToggleCategoryPatches;
 

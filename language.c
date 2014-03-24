@@ -34,7 +34,8 @@ int lang_width[] = {1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
 
 LanguageContainer lang_container;
 
-int LoadLanguageContainer(void *data, int size) {
+int LoadLanguageContainer(void *data, int size)
+{
     int res, j;
     int i = 0;
     char *p = data;
@@ -48,8 +49,9 @@ int LoadLanguageContainer(void *data, int size) {
                 sce_paf_private_free(((char **) &lang_container)[i]);
             }
             for (j = 0; j < sce_paf_private_strlen(line); j++) {
-                if (line[j] == 0x5c)
+                if (line[j] == 0x5c) {
                     line[j] = '\n';
+                }
             }
 
             ((char **) &lang_container)[i] = sce_paf_private_malloc(sce_paf_private_strlen(line) + 1);
@@ -69,7 +71,8 @@ int LoadLanguageContainer(void *data, int size) {
     return 0;
 }
 
-void LoadLanguage(int id, int location) {
+void LoadLanguage(int id, int location)
+{
     int loaded = 0;
     union _d {
         char *temp;

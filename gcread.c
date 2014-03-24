@@ -54,7 +54,8 @@ u64 start_mtime;
 int display_flag;
 #endif
 
-inline void trim(char *str) {
+inline void trim(char *str)
+{
     int i = sce_paf_private_strlen(str);
     while(str[i-1] == ' ') {
         --i;
@@ -64,7 +65,8 @@ inline void trim(char *str) {
     }
 }
 
-int is_category_folder(SceIoDirent *dir) {
+int is_category_folder(SceIoDirent *dir)
+{
     kprintf("checking %s\n", dir->d_name);
     if(FIO_S_ISDIR(dir->d_stat.st_mode)) {
         if(!*category) {
@@ -93,7 +95,8 @@ int is_category_folder(SceIoDirent *dir) {
 }
 
 
-SceUID sceIoDopenPatched(const char *path) {
+SceUID sceIoDopenPatched(const char *path)
+{
     SceUID fd = sceIoDopen(path);
 
     // only make a backup of the opened path if the game folder is opened in uncategorized mode
@@ -128,7 +131,8 @@ SceUID sceIoDopenPatched(const char *path) {
     return fd;
 }
 
-int sceIoDreadPatchedFolder(SceUID fd, SceIoDirent *dir) {
+int sceIoDreadPatchedFolder(SceUID fd, SceIoDirent *dir)
+{
     int res;
 
     if (fd == game_dfd) {
@@ -198,7 +202,8 @@ int sceIoDreadPatchedFolder(SceUID fd, SceIoDirent *dir) {
     return sceIoDread(fd, dir);
 }
 
-int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
+int sceIoDreadPatched(SceUID fd, SceIoDirent *dir)
+{
     SceUID ret;
 
     //if our fake fd is being used then replace it with the kernel one
@@ -219,7 +224,8 @@ int sceIoDreadPatched(SceUID fd, SceIoDirent *dir) {
     return ret;
 }
 
-int gcGetStatIso(SceIoStat *stat) {
+int gcGetStatIso(SceIoStat *stat)
+{
     if(config.prefix) {
         sce_paf_private_strcpy(user_buffer, "xxx:/ISO/CAT_");
         sce_paf_private_strcpy(user_buffer + 13, category);
@@ -237,7 +243,8 @@ int gcGetStatIso(SceIoStat *stat) {
     return sceIoGetstat(user_buffer, stat);
 }
 
-int sceIoGetstatPatched(char *file, SceIoStat *stat) {
+int sceIoGetstatPatched(char *file, SceIoStat *stat)
+{
     int ret;
 
     kprintf("checking [%s]\n", file);
@@ -263,7 +270,8 @@ int sceIoGetstatPatched(char *file, SceIoStat *stat) {
     return ret;
 }
 
-char *ReturnBasePathPatched(char *base) {
+char *ReturnBasePathPatched(char *base)
+{
     kprintf("orig base: [%s]\n", base);
     // only do the patch if a category is being accessed
     if(*category && base && sce_paf_private_strcmp(base + 4, GAME_FOLDER) == 0) {
@@ -284,7 +292,8 @@ char *ReturnBasePathPatched(char *base) {
     return base;
 }
 
-int sceIoDclosePatched(SceUID fd) {
+int sceIoDclosePatched(SceUID fd)
+{
     kprintf("closing dir, fd: %08X\n", fd);
     if(config.mode == MODE_FOLDER && fd == game_dfd) {
         // add the uncategorized content in folder mode
@@ -302,13 +311,15 @@ int sceIoDclosePatched(SceUID fd) {
     return sceIoDclose(fd);
 }
 
-int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3, void *t0) {
+int sce_paf_private_snprintf_patched(char *a0, int a1, const char *a2, void *a3, void *t0)
+{
     sce_paf_private_strcpy((char *)a1, (char *)t0);
     return sce_paf_private_snprintf(a0, 291, a2, a3, t0);
 }
 
 
-void PatchGamePluginForGCread(u32 text_addr) {
+void PatchGamePluginForGCread(u32 text_addr)
+{
     // hook some sceIo funcs
     MAKE_STUB(text_addr + patches.io_dread_stub[patch_index], config.mode == MODE_FOLDER ? sceIoDreadPatchedFolder : sceIoDreadPatched);
     MAKE_STUB(text_addr + patches.io_dopen_stub[patch_index], sceIoDopenPatched);

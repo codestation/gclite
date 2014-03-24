@@ -25,7 +25,8 @@
 
 char _buffer_log[256];
 
-int kwrite(const char *path, const void *buffer, int buflen) {
+int kwrite(const char *path, const void *buffer, int buflen)
+{
     int written = 0;
     SceUID file;
     //int k1 = pspSdkSetK1(0);

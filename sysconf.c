@@ -36,14 +36,14 @@
 char user_buffer[256];
 static u32 backup[4] = { 0, 0, 0, 0 };
 int context_mode = 0;
-static SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
+static SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL, NULL };
 
 extern int sysconf_plug;
 
 extern int model;
 
-static const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
-static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2"};
+static const char *sysconf_str[] = {"gc0", "gc1" , "gc2", "gc3"};
+static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2", "gcs3"};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -54,7 +54,8 @@ int (*vshSetRegistryValue)(u32 *option, char *name, int size,  int *value);
 int (*ResolveRefWString)(void *resource, u32 *data, int *a2, char **string, int *t0);
 int (*GetPageNodeByID)(void *resource, char *name, SceRcoEntry **child);
 
-void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
+void AddSysconfItemPatched(u32 *option, SceSysconfItem **item)
+{
     AddSysconfItem(option, item);
     if(sysconf_plug) {
         for(u32 i = 0; i < ITEMSOF(sysconf_item); i++) {
@@ -77,7 +78,8 @@ void AddSysconfItemPatched(u32 *option, SceSysconfItem **item) {
     kprintf("called, option addr: %08X\n", option);
 }
 
-void HijackContext(SceRcoEntry *src, char **options, int n) {
+void HijackContext(SceRcoEntry *src, char **options, int n)
+{
     SceRcoEntry *plane = (SceRcoEntry *)((u32)src + src->first_child);
     SceRcoEntry *mlist = (SceRcoEntry *)((u32)plane + plane->first_child);
     u32 *mlist_param = (u32 *)((u32)mlist + mlist->param);
@@ -108,8 +110,12 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
             item_param[0] = 0xDEAD;
             item_param[1] = (u32)options[i];
 
-            if(i != 0) item->prev_entry = item->next_entry;
-            if(i == n - 1) item->next_entry = 0;
+            if(i != 0) {
+                item->prev_entry = item->next_entry;
+            }
+            if(i == n - 1) {
+                item->next_entry = 0;
+            }
 
             item = (SceRcoEntry *)((u32)item + base->next_entry);
             item_param = (u32 *)((u32)item + base->param);
@@ -125,7 +131,8 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
     sceKernelDcacheWritebackAll();
 }
 
-SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
+SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1)
+{
     SceSysconfItem *item = GetSysconfItem(arg0, arg1);
     kprintf("called, item->text: %s, id: %i\n", item->text, item->id);
     context_mode = 0;
@@ -138,7 +145,8 @@ SceSysconfItem *GetSysconfItemPatched(void *arg0, void *arg1) {
     return item;
 }
 
-int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value) {
+int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, int *value)
+{
     if (name) {
         context_mode = 0;
         kprintf("name: %s\n", name);
@@ -160,6 +168,9 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 case 2:
                     *value = config.uncategorized;
                     return 0;
+                case 3:
+                    *value = config.catsort;
+                    return 0;
                 default:
                     *value = 0;
                     return 0;
@@ -170,7 +181,8 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
     return vshGetRegistryValue(option, name, arg2, size, value);
 }
 
-int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
+int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value)
+{
     u32 *cfg;
     if (name) {
         kprintf("name: %s\n", name);
@@ -185,6 +197,9 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
                     break;
                 case 2:
                     cfg = &config.uncategorized;
+                    break;
+                case 3:
+                    cfg = &config.catsort;
                     break;
                 default:
                     cfg = NULL;
@@ -201,7 +216,8 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
     return vshSetRegistryValue(option, name, size, value);
 }
 
-int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0) {
+int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, int *t0)
+{
     kprintf("Processing\n");
     if (data[0] == 0xDEAD) {
         kprintf("data: %s\n", (char *)data[1]);
@@ -212,7 +228,8 @@ int ResolveRefWStringPatched(void *resource, u32 *data, int *a2, char **string, 
     return ResolveRefWString(resource, data, a2, string, t0);
 }
 
-int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
+int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child)
+{
     int res = GetPageNodeByID(resource, name, child);
     if(name) {
         //kprintf("name: %s, mode: %i\n", name, context_mode);
@@ -231,23 +248,29 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
             case 3:
                 HijackContext(*child, lang_container.show, ITEMSOF(lang_container.show));
                 break;
+            case 4:
+                HijackContext(*child, lang_container.sort, ITEMSOF(lang_container.sort));
+                break;
             }
         }
     }
     return res;
 }
 
-void PatchVshmainForSysconf(u32 text_addr) {
+void PatchVshmainForSysconf(u32 text_addr)
+{
     vshGetRegistryValue = redir2stub(text_addr+patches.vshGetRegistryValueOffset[patch_index], get_registry_stub, vshGetRegistryValuePatched);
     vshSetRegistryValue = redir2stub(text_addr+patches.vshSetRegistryValueOffset[patch_index], set_registry_stub, vshSetRegistryValuePatched);
 }
 
-void PatchPafForSysconf(u32 text_addr) {
+void PatchPafForSysconf(u32 text_addr)
+{
     GetPageNodeByID = redir2stub(text_addr+patches.GetPageNodeByIDOffset[patch_index], get_page_node_stub, GetPageNodeByIDPatched);
     ResolveRefWString = redir2stub(text_addr+patches.ResolveRefWStringOffset[patch_index], resolve_ref_wstring_stub, ResolveRefWStringPatched);
 }
 
-void PatchSysconf(u32 text_addr) {
+void PatchSysconf(u32 text_addr)
+{
     AddSysconfItem = redir_call(text_addr+patches.AddSysconfItem[patch_index], AddSysconfItemPatched);
     GetSysconfItem = redir_call(text_addr+patches.GetSysconfItem[patch_index], GetSysconfItemPatched);
 }

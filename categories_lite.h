@@ -27,7 +27,7 @@
 int sceKernelGetCompiledSdkVersion();
 
 #define MAKE_CALL(a, f) _sw(0x0C000000 | (((u32)(f) >> 2)  & 0x03ffffff), a);
-#define MAKE_JUMP(a, f) _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), a); 
+#define MAKE_JUMP(a, f) _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), a);
 #define MAKE_STUB(a, f) {u32 addr = a; _sw(0x08000000 | (((u32)(f) & 0x0ffffffc) >> 2), addr); _sw(0, addr+4); }
 #define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
 #define ClearCachesForUser sceKernelGetCompiledSdkVersion
@@ -59,17 +59,15 @@ int sceKernelGetCompiledSdkVersion();
 #define PSPGO_CONTEXT_SENTINEL 0x90000
 #define PSPMS_CONTEXT_SENTINEL 0x70000
 
-typedef struct
-{
-	void *next;
-	int location;
-	u64 mtime;
-	char letter;
-	char name;
+typedef struct {
+    void *next;
+    int location;
+    u64 mtime;
+    char letter;
+    char name;
 } Category;
 
-typedef struct
-{
+typedef struct {
     void *unk; // 0
     int id; // 4
     const char *regkey; // 8
@@ -78,16 +76,14 @@ typedef struct
     const char *page; // 20
 } SceSysconfItem; // 24
 
-typedef struct
-{
+typedef struct {
     char text[48];
     int play_sound;
     int action;
     int action_arg;
 } SceContextItem; // 60
 
-typedef struct
-{
+typedef struct {
     int id; // 0
     int relocate; // 4
     int action; // 8
@@ -110,8 +106,7 @@ typedef struct {
     u32 unknown;
 } SceCallbackItem;
 
-typedef struct
-{
+typedef struct {
     u8 id; //00
     u8 type; //01
     u16 unk1; //02
@@ -125,8 +120,7 @@ typedef struct
     u32 unknown[2]; //20
 } SceRcoEntry;
 
-typedef struct
-{
+typedef struct {
     void *unknown;
     int option;
     const char *text;

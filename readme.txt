@@ -41,6 +41,11 @@ Known issues:
   as 8 chars.
 
 Changelog
+v1.6:
+[+]Added new option to sort categories: Use CAT_XX or XXcategory_name (XX between 00 and 99).
+v1.5-r4
+[+]Added polish translation.
+v1.5-r3
 [!]Fix duplicated entries on iso category in folder mode (PRO).
 v1.5:
 [+]Support for categories in folder mode like Bubbletune's GCL (thx Nekmo for betatesting).

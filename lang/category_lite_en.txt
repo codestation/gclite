@@ -13,5 +13,9 @@ No
 Only Memory Stick™
 Only Internal Storage
 Both
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 Uncategorized
 By Category

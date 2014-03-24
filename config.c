@@ -23,13 +23,14 @@
 #include "logger.h"
 
 CategoryConfig config;
-static CategoryConfig prev_conf = {-1, -1, -1, -1};
+static CategoryConfig prev_conf = {-1, -1, -1, -1, -1};
 
 extern int model;
 
 char filebuf[32];
 
-int load_config() {
+int load_config()
+{
     int read;
     SceUID fd;
     if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
@@ -50,14 +51,15 @@ int load_config() {
     return 1;
 }
 
-int save_config() {
+int save_config()
+{
     int written;
     SceUID fd;
     int reset;
     char device[12];
 
     if(sce_paf_private_memcmp(&config, &prev_conf, sizeof(CategoryConfig)) != 0) {
-        if(prev_conf.mode != config.mode || prev_conf.prefix != config.prefix || prev_conf.uncategorized != config.uncategorized) {
+        if(prev_conf.mode != config.mode || prev_conf.prefix != config.prefix || prev_conf.uncategorized != config.uncategorized || prev_conf.catsort != config.catsort) {
             reset = 1;
         } else {
             reset = 0;

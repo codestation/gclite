@@ -27,32 +27,48 @@
 
 static const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
 
-Category *GetNextCategory(Category *head[], Category *prev, int location) {
-    u64 time = 0, last;
-    Category *newest = NULL;
+Category *GetNextCategory(Category *head[], Category *prev, int location)
+{
 
-    if (prev) {
-        last = prev->mtime;
-    } else {
-        last = (u64) -1;
-    }
+    Category *newest = NULL;
     Category *p = (Category *) head[location];
 
-    while (p) {
-        if (p->mtime < last) {
-            if (p->mtime > time) {
-                time = p->mtime;
-                newest = p;
+    if(config.catsort) {
+        char *name = NULL;
+        char *last = prev ? &prev->name : NULL;
+
+        while (p) {
+            if (!last || sce_paf_private_strcmp(&p->name, last) > 0) {
+                if(!name || sce_paf_private_strcmp(&p->name, name) < 0) {
+                    name = &p->name;
+                    newest = p;
+                }
             }
+
+            p = p->next;
         }
 
-        p = p->next;
+    } else {
+        u64 time = 0;
+        u64 last = prev ? prev->mtime : (u64)-1;
+
+        while (p) {
+            if (p->mtime < last) {
+                if (p->mtime > time) {
+                    time = p->mtime;
+                    newest = p;
+                }
+            }
+
+            p = p->next;
+        }
     }
 
     return newest;
 }
 
-void ClearCategories(Category *head[], int location) {
+void ClearCategories(Category *head[], int location)
+{
     Category *next;
     Category *p = (void *) head[location];
 
@@ -65,7 +81,8 @@ void ClearCategories(Category *head[], int location) {
     head[location] = NULL;
 }
 
-int CountCategories(Category *head[], int location) {
+int CountCategories(Category *head[], int location)
+{
     int i = 0;
     Category *p = (void *) head[location];
 
@@ -77,7 +94,8 @@ int CountCategories(Category *head[], int location) {
     return i;
 }
 
-int AddCategory(Category *head[], const char *category, u64 mtime, int location) {
+int AddCategory(Category *head[], const char *category, u64 mtime, int location)
+{
     Category *p, *category_entry;
 
     while (1) {
@@ -117,7 +135,8 @@ int AddCategory(Category *head[], const char *category, u64 mtime, int location)
     return 0;
 }
 
-void DelCategory(Category *head[], char *category, int location) {
+void DelCategory(Category *head[], char *category, int location)
+{
     Category *prev = NULL;
     Category *p = (Category *) head[location];
 
@@ -135,7 +154,8 @@ void DelCategory(Category *head[], char *category, int location) {
     }
 }
 
-Category *FindCategory(Category *head[], const char *category, int location) {
+Category *FindCategory(Category *head[], const char *category, int location)
+{
     Category *p = (Category *) head[location];
     while(p) {
         if (sce_paf_private_strcmp(&p->name, category) == 0) {
@@ -146,7 +166,8 @@ Category *FindCategory(Category *head[], const char *category, int location) {
     return p;
 }
 
-int is_game_folder(const char *base, const char *path) {
+int is_game_folder(const char *base, const char *path)
+{
     SceIoStat stat;
     char buffer[256];
 
@@ -160,7 +181,8 @@ int is_game_folder(const char *base, const char *path) {
     return 0;
 }
 
-int has_directories(const char *base, const char *path) {
+int has_directories(const char *base, const char *path)
+{
     SceIoDirent dir;
     char buffer[256];
     int ret = 0;
@@ -185,7 +207,8 @@ int has_directories(const char *base, const char *path) {
     return ret;
 }
 
-void IndexCategories(Category *head[], const char *path, int location) {
+void IndexCategories(Category *head[], const char *path, int location)
+{
     SceIoDirent dir;
     SceUID fd;
     u64 mtime;
@@ -215,7 +238,7 @@ void IndexCategories(Category *head[], const char *path, int location) {
                 if(has_directories(full_path, dir.d_name) > 0) {
                     match = 1;
                 }
-            }else if(config.prefix && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
+            } else if(config.prefix && sce_paf_private_strncmp(dir.d_name, "CAT_", 4) == 0) {
                 if(has_directories(full_path, dir.d_name) > 0) {
                     sce_paf_private_strcpy(dir.d_name, dir.d_name + 4);
                     match = 1;

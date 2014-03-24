@@ -29,7 +29,8 @@ static char *filter_data = NULL;
 static SceSize filter_size;
 static int counter;
 
-int check_filter(const char *str) {
+int check_filter(const char *str)
+{
     int c = counter;
     char *buf = filter_data;
 
@@ -52,7 +53,8 @@ int check_filter(const char *str) {
     return 0;
 }
 
-static int split_filters() {
+static int split_filters()
+{
     int count = 0;
     for(u32 i = 0; i < filter_size; i++) {
         if(filter_data[i] == '\r') {
@@ -67,14 +69,16 @@ static int split_filters() {
     return count;
 }
 
-void unload_filter() {
+void unload_filter()
+{
     if(filter_data != NULL) {
         sce_paf_private_free(filter_data);
         filter_data = NULL;
     }
 }
 
-int load_filter() {
+int load_filter()
+{
     SceUID fd;
 
     if(filter_data != NULL) {
