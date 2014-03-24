@@ -36,14 +36,14 @@
 char user_buffer[256];
 static u32 backup[4] = { 0, 0, 0, 0 };
 int context_mode = 0;
-static SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL };
+static SceSysconfItem *sysconf_item[] = { NULL, NULL, NULL, NULL };
 
 extern int sysconf_plug;
 
 extern int model;
 
-static const char *sysconf_str[] = {"gc0", "gc1" , "gc2"};
-static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2"};
+static const char *sysconf_str[] = {"gc0", "gc1" , "gc2", "gc3"};
+static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2", "gcs3"};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);
@@ -108,8 +108,12 @@ void HijackContext(SceRcoEntry *src, char **options, int n) {
             item_param[0] = 0xDEAD;
             item_param[1] = (u32)options[i];
 
-            if(i != 0) item->prev_entry = item->next_entry;
-            if(i == n - 1) item->next_entry = 0;
+            if(i != 0) {
+                item->prev_entry = item->next_entry;
+            }
+            if(i == n - 1) {
+                item->next_entry = 0;
+            }
 
             item = (SceRcoEntry *)((u32)item + base->next_entry);
             item_param = (u32 *)((u32)item + base->param);
@@ -160,6 +164,9 @@ int vshGetRegistryValuePatched(u32 *option, char *name, void *arg2, int size, in
                 case 2:
                     *value = config.uncategorized;
                     return 0;
+                case 3:
+                    *value = config.catsort;
+                    return 0;
                 default:
                     *value = 0;
                     return 0;
@@ -185,6 +192,9 @@ int vshSetRegistryValuePatched(u32 *option, char *name, int size,  int *value) {
                     break;
                 case 2:
                     cfg = &config.uncategorized;
+                    break;
+                case 3:
+                    cfg = &config.catsort;
                     break;
                 default:
                     cfg = NULL;
@@ -230,6 +240,9 @@ int GetPageNodeByIDPatched(void *resource, char *name, SceRcoEntry **child) {
                 break;
             case 3:
                 HijackContext(*child, lang_container.show, ITEMSOF(lang_container.show));
+                break;
+            case 4:
+                HijackContext(*child, lang_container.sort, ITEMSOF(lang_container.sort));
                 break;
             }
         }

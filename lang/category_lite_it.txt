@@ -1,4 +1,4 @@
-﻿Modo visualizzazione
+Modo visualizzazione
 Permette di visualizzare le sottocartelle presenti nella cartella PSP/GAME in diversi modi.
 Multi MS
 Menu contestuale
@@ -13,5 +13,9 @@ No
 Solo Memory Stick™
 Solo Internal Storage
 Entrambe
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 Senza Categoria
 Per categoria

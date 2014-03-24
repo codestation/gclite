@@ -1,4 +1,4 @@
-﻿分类模式
+分类模式
 选择显示的分类模式。
 图标
 文字
@@ -13,5 +13,9 @@
 仅显示记忆棒
 仅显示内部存储
 全部显示
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 未分类
 按类别

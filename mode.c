@@ -25,6 +25,7 @@
 #include "vshitem.h"
 #include "utils.h"
 #include "logger.h"
+#include "config.h"
 
 typedef struct {
     u32 addr;
@@ -162,7 +163,11 @@ wchar_t *GetCategoryTitle(int number) {
             if(sce_paf_private_strncmp(&p->name, "CAT_", 4) == 0) {
                 name += 4;
             }
-            gc_utf8_to_unicode((wchar_t *) user_buffer, name);
+            if(config.catsort && p->mtime != 1) {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, name+2);
+            } else {
+                gc_utf8_to_unicode((wchar_t *) user_buffer, name);
+            }
             return (wchar_t *) user_buffer;
         }
 

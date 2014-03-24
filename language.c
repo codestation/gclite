@@ -48,8 +48,9 @@ int LoadLanguageContainer(void *data, int size) {
                 sce_paf_private_free(((char **) &lang_container)[i]);
             }
             for (j = 0; j < sce_paf_private_strlen(line); j++) {
-                if (line[j] == 0x5c)
+                if (line[j] == 0x5c) {
                     line[j] = '\n';
+                }
             }
 
             ((char **) &lang_container)[i] = sce_paf_private_malloc(sce_paf_private_strlen(line) + 1);

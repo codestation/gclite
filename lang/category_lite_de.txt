@@ -13,5 +13,9 @@ Nein
 Nur MS™
 Nur interner Speicher
 Alle Medien
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 Unsortierte
 Nach Kategorie

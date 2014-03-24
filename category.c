@@ -28,25 +28,39 @@
 static const char *eboot_types[] = { "EBOOT.PBP", "PARAM.PBP", "PBOOT.PBP" };
 
 Category *GetNextCategory(Category *head[], Category *prev, int location) {
-    u64 time = 0, last;
-    Category *newest = NULL;
 
-    if (prev) {
-        last = prev->mtime;
-    } else {
-        last = (u64) -1;
-    }
+    Category *newest = NULL;
     Category *p = (Category *) head[location];
 
-    while (p) {
-        if (p->mtime < last) {
-            if (p->mtime > time) {
-                time = p->mtime;
-                newest = p;
+    if(config.catsort) {
+        char *name = NULL;
+        char *last = prev ? &prev->name : NULL;
+
+        while (p) {
+            if (!last || sce_paf_private_strcmp(&p->name, last) > 0) {
+                if(!name || sce_paf_private_strcmp(&p->name, name) < 0) {
+                    name = &p->name;
+                    newest = p;
+                }
             }
+
+            p = p->next;
         }
 
-        p = p->next;
+    } else {
+        u64 time = 0;
+        u64 last = prev ? prev->mtime : (u64)-1;
+
+        while (p) {
+            if (p->mtime < last) {
+                if (p->mtime > time) {
+                    time = p->mtime;
+                    newest = p;
+                }
+            }
+
+            p = p->next;
+        }
     }
 
     return newest;

@@ -13,5 +13,9 @@ Nie pokazuj
 Karta pamieci
 Pamiec wewnetrzna
 Karta i pamiec
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 Nieskategoryzowane
 Wedlug kategorii

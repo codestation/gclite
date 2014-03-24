@@ -13,5 +13,9 @@ Allows hiding the uncategorized content.
 Только Memory Stick™
 Только Память Системы
 Оба
+Sort categories
+Allows sorting categories using CAT_XX or XXhomebrew.
+No
+Yes
 Без Категории
 К категориям

@@ -13,5 +13,9 @@ No
 Solo Memory Stick™
 Solo memoria interna
 Ambos
+Ordenar categorias
+Permite organizar categorias usando CAT_XX o XXhomebrew.
+No
+Si
 Sin categorizar
 Por categorias
