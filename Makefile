@@ -33,7 +33,7 @@ CFLAGS+=-DBENCHMARK
 endif
 
 ASFLAGS = $(CFLAGS)
-LDFLAGS = -mno-crt0 -nostartfiles
+LDFLAGS = -nostartfiles
 
 BUILD_PRX = 1
 PRX_EXPORTS = exports.exp
