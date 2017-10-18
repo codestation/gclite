@@ -1,4 +1,4 @@
-Game Categories Lite v1.5 - Codestation
+Game Categories Lite
 
 This plugin is based and uses source code from Game Categories Revised v12 (GCR)
 and Game Categories Light v1.3 (GCL), both created by Bubbletune. Compatible with
@@ -41,6 +41,8 @@ Known issues:
   as 8 chars.
 
 Changelog
+v1.7-js1 (October 17, 2017):
+[!]Fix labels not showing on PSP go internal storage.
 v1.6:
 [+]Added new option to sort categories: Use CAT_XX or XXcategory_name (XX between 00 and 99).
 v1.5-r4

@@ -42,8 +42,28 @@ extern int sysconf_plug;
 
 extern int model;
 
-static const char *sysconf_str[] = {"gc0", "gc1" , "gc2", "gc3"};
-static const char *sysconf_sub[] = {"gcs0", "gcs1" , "gcs2", "gcs3"};
+#define GC_SYSCONF_MODE "gc0"
+#define GC_SYSCONF_MODE_SUB "gcs0"
+#define GC_SYSCONF_PREFIX "gc1"
+#define GC_SYSCONF_PREFIX_SUB "gcs1"
+#define GC_SYSCONF_SHOW "gc2"
+#define GC_SYSCONF_SHOW_SUB "gcs2"
+#define GC_SYSCONF_SORT "gc3"
+#define GC_SYSCONF_SORT_SUB "gcs3"
+
+static const char *sysconf_str[] = {
+    GC_SYSCONF_MODE,
+    GC_SYSCONF_PREFIX,
+    GC_SYSCONF_SHOW,
+    GC_SYSCONF_SORT
+};
+
+static const char *sysconf_sub[] = {
+    GC_SYSCONF_MODE_SUB,
+    GC_SYSCONF_PREFIX_SUB,
+    GC_SYSCONF_SHOW_SUB,
+    GC_SYSCONF_SORT_SUB
+};
 
 void (*AddSysconfItem)(u32 *option, SceSysconfItem **item);
 SceSysconfItem *(*GetSysconfItem)(void *arg0, void *arg1);

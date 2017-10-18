@@ -113,7 +113,7 @@ int module_start(SceSize args UNUSED, void *argp UNUSED) {
     while((*dest++ = *src++));
     SET_DEVICENAME(filebuf, model == 4 ? INTERNAL_STORAGE : MEMORY_STICK);
     // paf isn't loaded yet
-    kwrite(filebuf, "GCLite 1.5 starting\n", 20);
+    kwrite(filebuf, "Game Categories Lite v1.7-js1 starting\n", 20);
     // Determine fw group
     u32 devkit = sceKernelDevkitVersion();
     if (devkit == 0x06020010) {
