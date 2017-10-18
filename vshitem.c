@@ -223,7 +223,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name)
             gc_utf8_to_unicode((wchar_t *)user_buffer, lang_container.msg_sort_sub);
             return (wchar_t *) user_buffer;
             // Memory Stick
-        } else if (sce_paf_private_strncmp(name, cat_str[6], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             if(config.catsort) {
                 gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name+2);
@@ -232,12 +232,12 @@ wchar_t* scePafGetTextPatched(void *arg, char *name)
             }
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[4]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msgshare_ms"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
             // Internal Storage
-        } else if (sce_paf_private_strncmp(name, cat_str[7], 4) == 0) {
+        } else if (sce_paf_private_strncmp(name, cat_str[8], 4) == 0) {
             Category *p = (Category *) sce_paf_private_strtoul(name + 4, NULL, 16);
             if(config.catsort) {
                 gc_utf8_to_unicode((wchar_t *) user_buffer, &p->name+2);
@@ -246,7 +246,7 @@ wchar_t* scePafGetTextPatched(void *arg, char *name)
             }
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
-        } else if (sce_paf_private_strcmp(name, cat_str[5]) == 0) {
+        } else if (sce_paf_private_strcmp(name, cat_str[6]) == 0) {
             gc_utf8_to_unicode((wchar_t *) user_buffer, lang_container.msg_uncategorized);
             fix_text_padding((wchar_t *) user_buffer, scePafGetText(arg, "msg_em"), 'M', 0x2122);
             return (wchar_t *) user_buffer;
